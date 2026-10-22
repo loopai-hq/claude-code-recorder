@@ -190,7 +190,7 @@ func TestIntegrationSessionCountsAndFilterOptions(t *testing.T) {
 	if len(people) != 2 {
 		t.Errorf("admin sees %d people in the dropdown, want 2", len(people))
 	}
-	if len(repos) != 1 || repos[0] != "loop-sessions" {
+	if len(repos) != 1 || repos[0] != "claude-code-recorder" {
 		t.Errorf("admin repos = %v", repos)
 	}
 

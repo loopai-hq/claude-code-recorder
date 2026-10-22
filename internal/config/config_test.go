@@ -364,13 +364,116 @@ func TestPathsAreUnderTheClientRoot(t *testing.T) {
 
 func TestEnvOverrideRelocatesEverything(t *testing.T) {
 	custom := t.TempDir()
-	t.Setenv("LOOP_SESSIONS_HOME", custom)
+	t.Setenv(HomeEnv, custom)
 	p := Paths{Home: "/should/be/ignored"}
 	if p.Root() != custom {
 		t.Fatalf("root = %q, want the env override %q", p.Root(), custom)
 	}
 	if filepath.Dir(p.ConfigFile()) != custom {
 		t.Fatal("config did not follow the override")
+	}
+}
+
+// homeWithoutOverride is a Paths rooted in a fresh home directory with the
+// environment override cleared, which is what AdoptLegacyRoot keys on.
+func homeWithoutOverride(t *testing.T) Paths {
+	t.Helper()
+	t.Setenv(HomeEnv, "")
+	return Paths{Home: t.TempDir()}
+}
+
+func writeLegacyRoot(t *testing.T, p Paths) string {
+	t.Helper()
+	old := filepath.Join(p.Home, ".loop", "sessions")
+	if err := os.MkdirAll(filepath.Join(old, "spool", "pending"), 0o700); err != nil {
+		t.Fatal(err)
+	}
+	for _, name := range []string{"config.json", "device.token", "spool/pending/1.json"} {
+		if err := os.WriteFile(filepath.Join(old, name), []byte(name), 0o600); err != nil {
+			t.Fatal(err)
+		}
+	}
+	return old
+}
+
+// A machine that ran the old binary has its config, its credential and its
+// spool under ~/.loop/sessions. The new install moves the directory whole,
+// so nothing is re-entered and nothing queued is lost.
+func TestAdoptLegacyRootMovesTheOldDirectoryOnce(t *testing.T) {
+	p := homeWithoutOverride(t)
+	old := writeLegacyRoot(t, p)
+	from, err := AdoptLegacyRoot(p)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if from != old {
+		t.Fatalf("moved from %q, want %q", from, old)
+	}
+	if p.Root() != filepath.Join(p.Home, ".claude-code-recorder") {
+		t.Fatalf("root = %q", p.Root())
+	}
+	for _, name := range []string{"config.json", "device.token", "spool/pending/1.json"} {
+		if _, err := os.Stat(filepath.Join(p.Root(), name)); err != nil {
+			t.Fatalf("%s did not arrive: %v", name, err)
+		}
+	}
+	if _, err := os.Stat(old); !os.IsNotExist(err) {
+		t.Fatalf("the old directory is still there: %v", err)
+	}
+	if _, err := os.Stat(filepath.Dir(old)); !os.IsNotExist(err) {
+		t.Fatalf("the emptied ~/.loop is still there: %v", err)
+	}
+	if LegacyRoot(p) != "" {
+		t.Fatal("LegacyRoot still names a directory after the move")
+	}
+	// A second call has nothing to do and says so.
+	from, err = AdoptLegacyRoot(p)
+	if err != nil || from != "" {
+		t.Fatalf("second call = (%q, %v), want nothing to do", from, err)
+	}
+}
+
+func TestAdoptLegacyRootLeavesAnExistingRootAlone(t *testing.T) {
+	p := homeWithoutOverride(t)
+	old := writeLegacyRoot(t, p)
+	if err := Save(p, valid()); err != nil {
+		t.Fatal(err)
+	}
+	before, _ := os.ReadFile(p.ConfigFile())
+	from, err := AdoptLegacyRoot(p)
+	if err != nil || from != "" {
+		t.Fatalf("= (%q, %v), want nothing moved into a root that exists", from, err)
+	}
+	after, _ := os.ReadFile(p.ConfigFile())
+	if string(before) != string(after) {
+		t.Fatal("the existing config was touched")
+	}
+	if LegacyRoot(p) != old {
+		t.Fatalf("LegacyRoot = %q, want the untouched %q", LegacyRoot(p), old)
+	}
+}
+
+func TestAdoptLegacyRootHonoursTheEnvOverride(t *testing.T) {
+	p := homeWithoutOverride(t)
+	old := writeLegacyRoot(t, p)
+	t.Setenv(HomeEnv, t.TempDir())
+	from, err := AdoptLegacyRoot(p)
+	if err != nil || from != "" {
+		t.Fatalf("= (%q, %v), want the override respected", from, err)
+	}
+	if _, err := os.Stat(old); err != nil {
+		t.Fatalf("the old directory was moved under an override: %v", err)
+	}
+}
+
+func TestAdoptLegacyRootOnAFreshMachineIsANoop(t *testing.T) {
+	p := homeWithoutOverride(t)
+	from, err := AdoptLegacyRoot(p)
+	if err != nil || from != "" {
+		t.Fatalf("= (%q, %v), want nothing", from, err)
+	}
+	if _, err := os.Stat(p.Root()); !os.IsNotExist(err) {
+		t.Fatalf("a root was created with nothing to put in it: %v", err)
 	}
 }
 

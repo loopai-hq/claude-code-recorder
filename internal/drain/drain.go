@@ -79,7 +79,7 @@ type Options struct {
 	// Enrich, when set, sees each batch after it is leased and before it is
 	// sent, and may rewrite an item's payload in place. The daemon uses it
 	// to anchor a Stop copy that the hook spooled before the harness had
-	// flushed the turn's answer (cmd/loop-sessions, stopAnchorer). It works
+	// flushed the turn's answer (cmd/claude-code-recorder, stopAnchorer). It works
 	// on the in-memory copy: a retry after a failed send leases the file
 	// again and enriches it again. It runs before limitBytes, so what it
 	// adds counts against MaxBytes like any other byte of the payload.

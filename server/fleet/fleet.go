@@ -50,7 +50,7 @@ const (
 	// EmptyStartRecipe is the one-liner that names the launcher on the
 	// affected machine; it rides in every empty-start line and CTA so the
 	// operator can paste it to the person.
-	EmptyStartRecipe = `printf '%s %s ppid=%s %s bundle=%s term=%s ep=%s\n' "$(date -u +%FT%TZ)" "$PWD" "$PPID" "$(ps -o comm= -p $PPID)" "$__CFBundleIdentifier" "$TERM_PROGRAM" "$CLAUDE_CODE_ENTRYPOINT" >> ~/.loop/sessions/logs/launcher.log`
+	EmptyStartRecipe = `printf '%s %s ppid=%s %s bundle=%s term=%s ep=%s\n' "$(date -u +%FT%TZ)" "$PWD" "$PPID" "$(ps -o comm= -p $PPID)" "$__CFBundleIdentifier" "$TERM_PROGRAM" "$CLAUDE_CODE_ENTRYPOINT" >> ~/.claude-code-recorder/logs/launcher.log`
 )
 
 // Manifest is the release manifest (latest.json) the release step writes
@@ -467,19 +467,19 @@ type ctaSpec struct {
 }
 
 var ctaTable = map[string]ctaSpec{
-	"quarantine_nonempty": {0, "critical", "Replay one quarantined item to see the server's verdict, then redrive the rest once the server accepts it", "loop-sessions doctor --replay-quarantine; loop-sessions doctor --redrive", "runbook-quarantine"},
-	"capture_blocked":     {1, "critical", "Free disk on the machine: the spool refuses writes below its floor and events are being dropped right now; an older client refuses below 5% of the disk", "loop-sessions status", "runbook-capture-blocked"},
-	"never_delivered":     {2, "critical", "Re-enrol the machine; check the device token was not revoked", "loop-sessions install", "runbook-enrol"},
-	"backlog_stalled":     {3, "critical", "Check the laptop's network or VPN and the ingest 5xx alert; if the server is healthy, restart the daemon", "loop-sessions status", "runbook-backlog"},
-	"drops_recorded":      {4, "error", "Read the reason: disk_full is the disk floor, queue_overflow the outbox cap, hook_abandoned a hook that timed out, rejected:<reason> the server refusing an item", "loop-sessions status", "runbook-drops"},
-	"silent":              {5, "error", "Ping the person: the laptop is asleep, off, or its daemon died; reinstall past 72 hours", "loop-sessions install", "runbook-silent"},
-	"parked":              {6, "error", "Items the server never gave a verdict on are parked; redrive them", "loop-sessions doctor --redrive", "runbook-parked"},
-	"capture_stale":       {7, "degraded", "The harness is in use and nothing is being captured: put the hooks back", "loop-sessions install --hooks-only", "runbook-hooks"},
-	"backlog_growing":     {8, "degraded", "Arrivals are outrunning deliveries while delivery still works; check the network and the ingest 5xx alert", "loop-sessions status", "runbook-backlog"},
-	"spool_near_cap":      {9, "degraded", "The outbox is near its ceiling and will evict oldest-first; same as a backlog, act before it does", "loop-sessions status", "runbook-backlog"},
-	"missing_answer":      {10, "error", "Turns are being captured without their answers: the fleet is still on a client without the last_assistant_message fix; upgrade and watch version lag", "loop-sessions daemon --upgrade-now", "runbook-missing-answers"},
+	"quarantine_nonempty": {0, "critical", "Replay one quarantined item to see the server's verdict, then redrive the rest once the server accepts it", "claude-code-recorder doctor --replay-quarantine; claude-code-recorder doctor --redrive", "runbook-quarantine"},
+	"capture_blocked":     {1, "critical", "Free disk on the machine: the spool refuses writes below its floor and events are being dropped right now; an older client refuses below 5% of the disk", "claude-code-recorder status", "runbook-capture-blocked"},
+	"never_delivered":     {2, "critical", "Re-enrol the machine; check the device token was not revoked", "claude-code-recorder install", "runbook-enrol"},
+	"backlog_stalled":     {3, "critical", "Check the laptop's network or VPN and the ingest 5xx alert; if the server is healthy, restart the daemon", "claude-code-recorder status", "runbook-backlog"},
+	"drops_recorded":      {4, "error", "Read the reason: disk_full is the disk floor, queue_overflow the outbox cap, hook_abandoned a hook that timed out, rejected:<reason> the server refusing an item", "claude-code-recorder status", "runbook-drops"},
+	"silent":              {5, "error", "Ping the person: the laptop is asleep, off, or its daemon died; reinstall past 72 hours", "claude-code-recorder install", "runbook-silent"},
+	"parked":              {6, "error", "Items the server never gave a verdict on are parked; redrive them", "claude-code-recorder doctor --redrive", "runbook-parked"},
+	"capture_stale":       {7, "degraded", "The harness is in use and nothing is being captured: put the hooks back", "claude-code-recorder install --hooks-only", "runbook-hooks"},
+	"backlog_growing":     {8, "degraded", "Arrivals are outrunning deliveries while delivery still works; check the network and the ingest 5xx alert", "claude-code-recorder status", "runbook-backlog"},
+	"spool_near_cap":      {9, "degraded", "The outbox is near its ceiling and will evict oldest-first; same as a backlog, act before it does", "claude-code-recorder status", "runbook-backlog"},
+	"missing_answer":      {10, "error", "Turns are being captured without their answers: the fleet is still on a client without the last_assistant_message fix; upgrade and watch version lag", "claude-code-recorder daemon --upgrade-now", "runbook-missing-answers"},
 	"empty_start":         {11, "warning", "A script on this machine runs claude non-interactively (a GUI host spawning a CLI per project, or claude -p / -c / --resume with stdin closed); the sessions are tagged empty and hidden; share the launcher recipe", "", "runbook-empty-sessions"},
-	"version_lag":         {12, "warning", "The daemon self-upgrades at its next check; past a day, run the upgrade by hand", "loop-sessions daemon --upgrade-now", "runbook-upgrade"},
+	"version_lag":         {12, "warning", "The daemon self-upgrades at its next check; past a day, run the upgrade by hand", "claude-code-recorder daemon --upgrade-now", "runbook-upgrade"},
 }
 
 // CTAFor returns the table entry for a kind: the action, the command and

@@ -35,8 +35,8 @@ type Config struct {
 	// both are provisioned together (examples/deploy-gcp/analytics/provision.sh).
 	Bucket string
 	// Dataset is the raw dataset the loads go into
-	// (loop_sessions_raw). Analysts query the governed views in
-	// loop_sessions, which the job never writes; the two are separate so
+	// (claude_code_recorder_raw). Analysts query the governed views in
+	// claude_code_recorder, which the job never writes; the two are separate so
 	// nothing a WRITE_TRUNCATE load does can touch the access rule
 	// (examples/deploy-gcp/analytics/bigquery/views.sql).
 	Dataset  string
@@ -78,8 +78,8 @@ func Load(getenv func(string) string) (Config, error) {
 	get := func(name string) string { return strings.TrimSpace(getenv(name)) }
 	c := Config{
 		DatabasePort:   5432,
-		DatabaseName:   "loop_sessions",
-		Dataset:        "loop_sessions_raw",
+		DatabaseName:   "claude_code_recorder",
+		Dataset:        "claude_code_recorder_raw",
 		Location:       "asia-south1",
 		MaxSessions:    DefaultMaxSessions,
 		MaxSessionDays: DefaultMaxSessionDays,
@@ -228,7 +228,7 @@ func quoteConnValue(v string) string {
 }
 
 // Main is the export subcommand: read the environment, open the pool, run
-// once, log the run line, exit. It is what server/cmd/loop-sessions-server
+// once, log the run line, exit. It is what server/cmd/claude-code-recorder-server
 // dispatches to for `export`.
 //
 // It does not run migrations. The server is the one migrator (it applies

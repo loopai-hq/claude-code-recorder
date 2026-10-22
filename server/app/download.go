@@ -53,11 +53,11 @@ var downloadableAssets = map[string]string{
 	// agent reads to decide whether the published build differs from its own,
 	// so it has to be reachable through the same proxied route as the binaries
 	// rather than through a bucket URL the fleet has no credential for.
-	"latest.json":                "application/json; charset=utf-8",
-	"loop-sessions_darwin_arm64": "application/octet-stream",
-	"loop-sessions_darwin_amd64": "application/octet-stream",
-	"loop-sessions_linux_amd64":  "application/octet-stream",
-	"loop-sessions_linux_arm64":  "application/octet-stream",
+	"latest.json":                       "application/json; charset=utf-8",
+	"claude-code-recorder_darwin_arm64": "application/octet-stream",
+	"claude-code-recorder_darwin_amd64": "application/octet-stream",
+	"claude-code-recorder_linux_amd64":  "application/octet-stream",
+	"claude-code-recorder_linux_arm64":  "application/octet-stream",
 }
 
 // Channels that may be requested. Same reasoning as the asset allowlist.

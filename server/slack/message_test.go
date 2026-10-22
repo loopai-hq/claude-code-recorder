@@ -12,7 +12,7 @@ func summaryAt(mutate func(*Summary)) Summary {
 	s := Summary{
 		SessionID: "abc123",
 		Email:     "ana@example.org",
-		Repo:      "loop-sessions",
+		Repo:      "claude-code-recorder",
 		Branch:    "main",
 		StartedAt: start,
 		EndedAt:   start.Add(35 * time.Minute),
@@ -41,7 +41,7 @@ func TestRenderSaysWhatHappenedWithoutQuotingAnyOfIt(t *testing.T) {
 			name:    "a channel message names whose work it is, because a channel carries several people's",
 			summary: summaryAt(nil),
 			mode:    ModeChannel,
-			want:    []string{"*ana@example.org*", "finished", "`loop-sessions`", "`main`"},
+			want:    []string{"*ana@example.org*", "finished", "`claude-code-recorder`", "`main`"},
 		},
 		{
 			name:    "a DM does not name its recipient, which would read as a form letter about your own work",
@@ -61,7 +61,7 @@ func TestRenderSaysWhatHappenedWithoutQuotingAnyOfIt(t *testing.T) {
 			name:    "the link back is always present, because it is what keeps the permission model in the loop",
 			summary: summaryAt(nil),
 			mode:    ModeChannel,
-			want:    []string{"<https://sessions.example.com/sessions/abc123|Open in loop-sessions>"},
+			want:    []string{"<https://sessions.example.com/sessions/abc123|Open in claude-code-recorder>"},
 		},
 		{
 			name:    "counts that are zero are left out rather than said three times as nothing",
@@ -113,7 +113,7 @@ func TestRenderSaysWhatHappenedWithoutQuotingAnyOfIt(t *testing.T) {
 			name:    "a repo with no branch does not print a dangling preposition",
 			summary: summaryAt(func(s *Summary) { s.Branch = "" }),
 			mode:    ModeChannel,
-			want:    []string{"in `loop-sessions`"},
+			want:    []string{"in `claude-code-recorder`"},
 			absent:  []string{" on `"},
 		},
 	}

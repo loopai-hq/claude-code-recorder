@@ -100,7 +100,7 @@ const signInRefusedMessage = "We could not complete that sign-in. Please start a
 // loop forever. It says nothing about anybody else, and "no row" and "row
 // switched off" render identically so it says nothing about whether they were
 // ever enrolled either.
-const signInNotEnrolledMessage = "This Google account cannot use loop-sessions. Ask an admin to add you."
+const signInNotEnrolledMessage = "This Google account cannot use claude-code-recorder. Ask an admin to add you."
 
 const signInUnavailableMessage = "Sign-in is temporarily unavailable. Please try again in a moment."
 
@@ -458,7 +458,7 @@ func (s *SignIn) handleScript(w http.ResponseWriter, _ *http.Request) {
 // cause, because the causes are a bad port, a port outside the ephemeral range,
 // and a state that is not the shape this client mints — and a caller sweeping
 // ports learns nothing from being told which.
-const cliRefusedMessage = "This link is not a valid sign-in for the loop-sessions installer. " +
+const cliRefusedMessage = "This link is not a valid sign-in for the claude-code-recorder installer. " +
 	"Run the installer again and use the page it opens."
 
 // handleCLI renders the page the laptop agent opens in a browser.
@@ -827,7 +827,7 @@ func signInPage(w http.ResponseWriter, status int, title, msg string) {
 	w.Header().Set("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; frame-ancestors 'none'")
 	w.WriteHeader(status)
 	fmt.Fprintf(w, `<!doctype html><meta charset="utf-8">
-<title>loop-sessions</title>
+<title>claude-code-recorder</title>
 <style>
  body{font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       display:grid;place-items:center;min-height:100vh;margin:0;

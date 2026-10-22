@@ -13,8 +13,8 @@ package store
 // deliberately stays revoked when the same machine enrols again. Each of those
 // is a property of the SQL, and the SQL is what a unit test cannot execute.
 //
-//	createdb loop_sessions_test
-//	LOOP_SESSIONS_TEST_DSN=postgres:///loop_sessions_test go test -tags integration ./server/store/...
+//	createdb claude_code_recorder_test
+//	LOOP_SESSIONS_TEST_DSN=postgres:///claude_code_recorder_test go test -tags integration ./server/store/...
 
 import (
 	"context"

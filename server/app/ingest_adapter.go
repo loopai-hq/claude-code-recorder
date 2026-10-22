@@ -166,7 +166,7 @@ func RegisterIngest(mux *http.ServeMux, h *ingest.Handler) {
 // withRequestAgentVersion stamps the delivering client's build onto the
 // request context, through the ingest package's own parser of the header, so
 // the row and the "ingest batch" line read the same build from the same
-// bytes. The agent identifies every upload as "loop-sessions/<build>";
+// bytes. The agent identifies every upload as "claude-code-recorder/<build>";
 // anything else (a curl during an incident, a browser) carries no version
 // rather than a made-up one, which is what lets the two be told apart in the
 // data afterwards.

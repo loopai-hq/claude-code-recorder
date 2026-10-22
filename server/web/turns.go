@@ -366,7 +366,7 @@ type headBanner struct {
 func headBannerFor(id string, f SessionFacet, firstTurn time.Time) *headBanner {
 	switch f.HeadState {
 	case "truncated_window", "start_lost":
-		return &headBanner{Kind: f.HeadState, WindowStart: firstTurn, Command: "loop-sessions backfill --session " + id}
+		return &headBanner{Kind: f.HeadState, WindowStart: firstTurn, Command: "claude-code-recorder backfill --session " + id}
 	case "capture_loss":
 		return &headBanner{Kind: f.HeadState, Drops: f.CaptureLossDrops}
 	}

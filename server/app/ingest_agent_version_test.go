@@ -93,7 +93,7 @@ func TestRegisterIngestStampsTheDeliveringBuild(t *testing.T) {
 		Type:       event.UserPrompt,
 		Seq:        1,
 		OccurredAt: ingClock,
-		Cwd:        "/home/dev/src/loop-sessions",
+		Cwd:        "/home/dev/src/claude-code-recorder",
 		Text:       "hello",
 	}
 	payload, err := json.Marshal(ev)
@@ -108,19 +108,19 @@ func TestRegisterIngestStampsTheDeliveringBuild(t *testing.T) {
 	}
 
 	for _, tc := range []struct{ userAgent, want string }{
-		{"loop-sessions/23713ea (darwin; arm64)", "23713ea"},
-		{"loop-sessions/1.4.0", "1.4.0"},
+		{"claude-code-recorder/23713ea (darwin; arm64)", "23713ea"},
+		{"claude-code-recorder/1.4.0", "1.4.0"},
 		{"curl/8.7.1", ""},
 		{"", ""},
 		// The header is any caller's to set. A token outside the build shape
 		// delivers no version rather than reaching a column that grows by
 		// one element per distinct value: too long, a control byte, a SQL
 		// fragment, a quote.
-		{"loop-sessions/" + strings.Repeat("x", 41), ""},
-		{"loop-sessions/abc\tdef", ""},
-		{"loop-sessions/'; DROP TABLE sessions; --", ""},
-		{"loop-sessions/1.4.0\x01", ""},
-		{"loop-sessions/" + strings.Repeat("x", 40), strings.Repeat("x", 40)},
+		{"claude-code-recorder/" + strings.Repeat("x", 41), ""},
+		{"claude-code-recorder/abc\tdef", ""},
+		{"claude-code-recorder/'; DROP TABLE sessions; --", ""},
+		{"claude-code-recorder/1.4.0\x01", ""},
+		{"claude-code-recorder/" + strings.Repeat("x", 40), strings.Repeat("x", 40)},
 	} {
 		r := httptest.NewRequest(http.MethodPost, ingest.EventsPath, bytes.NewReader(body))
 		r.Header.Set("Authorization", "Bearer device-token")

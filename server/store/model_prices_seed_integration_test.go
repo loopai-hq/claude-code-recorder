@@ -10,7 +10,7 @@ package store
 // rate in the SQL passes every one of those tests and changes every figure in
 // the product by a factor nobody would notice.
 //
-//	LOOP_SESSIONS_TEST_DSN=postgres:///loop_sessions_test go test -tags integration ./server/store/...
+//	LOOP_SESSIONS_TEST_DSN=postgres:///claude_code_recorder_test go test -tags integration ./server/store/...
 
 import (
 	"context"

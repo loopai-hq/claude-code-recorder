@@ -19,7 +19,7 @@ import (
 )
 
 // Real rows, from `SELECT session_id, repo, tokens_*, cost_usd FROM sessions`
-// against loop-sessions on 2026-08-05.
+// against claude-code-recorder on 2026-08-05.
 var (
 	realUnpriced = Session{
 		ID: "22f6577a-25d3-4955-826e-a76d94c1e219", Repo: "main",

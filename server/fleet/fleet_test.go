@@ -141,7 +141,7 @@ func TestCTAListRanksQuarantineFirstAndNeverHidesItBehindLag(t *testing.T) {
 	}
 	for i := range 10 {
 		c := ev.CTAs[i]
-		if c.Kind != "quarantine_nonempty" || c.Command != "loop-sessions doctor --replay-quarantine; loop-sessions doctor --redrive" || c.Anchor != "runbook-quarantine" {
+		if c.Kind != "quarantine_nonempty" || c.Command != "claude-code-recorder doctor --replay-quarantine; claude-code-recorder doctor --redrive" || c.Anchor != "runbook-quarantine" {
 			t.Errorf("CTA %d = %+v, want a quarantine row with the replay verb first", i, c)
 		}
 		if !strings.Contains(c.Action, "Ask ") || !strings.Contains(c.Action, "doctor --replay-quarantine") {
@@ -153,7 +153,7 @@ func TestCTAListRanksQuarantineFirstAndNeverHidesItBehindLag(t *testing.T) {
 		t.Errorf("first quarantine CTA is %s, want the one standing ten days", ev.CTAs[0].Email)
 	}
 	for _, c := range ev.CTAs[10:] {
-		if c.Kind != "version_lag" || c.Command != "loop-sessions daemon --upgrade-now" || c.Anchor != "runbook-upgrade" {
+		if c.Kind != "version_lag" || c.Command != "claude-code-recorder daemon --upgrade-now" || c.Anchor != "runbook-upgrade" {
 			t.Errorf("trailing CTA = %+v, want version lag", c)
 		}
 	}
@@ -267,7 +267,7 @@ func TestMissingAnswerRateIsPerDayBuildAndEntrypoint(t *testing.T) {
 	if ev.Summary.AnswerTurns != 100 || ev.Summary.Answered != 59 || ev.Summary.MissingAnswerRate < 0.40 || ev.Summary.MissingAnswerRate > 0.42 {
 		t.Errorf("summary = turns %d answered %d rate %.3f", ev.Summary.AnswerTurns, ev.Summary.Answered, ev.Summary.MissingAnswerRate)
 	}
-	if len(ev.CTAs) != 1 || ev.CTAs[0].Kind != "missing_answer" || ev.CTAs[0].Command != "loop-sessions daemon --upgrade-now" {
+	if len(ev.CTAs) != 1 || ev.CTAs[0].Kind != "missing_answer" || ev.CTAs[0].Command != "claude-code-recorder daemon --upgrade-now" {
 		t.Errorf("CTAs = %+v", ev.CTAs)
 	}
 	in.Answers = in.Answers[2:3]

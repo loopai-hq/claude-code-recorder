@@ -1,4 +1,4 @@
-// Command loop-sessions is the client agent.
+// Command claude-code-recorder is the client agent.
 //
 // It has two audiences with opposite needs. Claude Code invokes `hook`
 // thousands of times a day and needs it to be fast, silent, and incapable of
@@ -88,12 +88,12 @@ func main() {
 	case "help", "--help", "-h":
 		usage(os.Stdout)
 	default:
-		fmt.Fprintf(os.Stderr, "loop-sessions: unknown command %q\n\n", cmd)
+		fmt.Fprintf(os.Stderr, "claude-code-recorder: unknown command %q\n\n", cmd)
 		usage(os.Stderr)
 		os.Exit(2)
 	}
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "loop-sessions: %v\n", err)
+		fmt.Fprintf(os.Stderr, "claude-code-recorder: %v\n", err)
 		os.Exit(1)
 	}
 }
@@ -110,7 +110,7 @@ func main() {
 const whoCanRead = "Your captured sessions can be read by you and by the server's admins, who also see the first prompt and metadata of every session in the list; opening someone else's full session is recorded in the access log the admins can see. A colleague can read one of your sessions only through a share link that you or an admin create. How long sessions are kept, and whether anything is exported, is decided by the server operator."
 
 func usage(w io.Writer) {
-	fmt.Fprint(w, `loop-sessions - collate your local AI coding sessions
+	fmt.Fprint(w, `claude-code-recorder - collate your local AI coding sessions
 
   install             set up: find sessions, sign in, start capturing
   uninstall           stop capturing and clean up
@@ -408,7 +408,7 @@ func checkUpgradeOnce(ctx context.Context, p config.Paths, cfg config.Config) he
 // is behind. It ignores the throttle, honours the pin and a pause, and says
 // what it did. Pause is honoured here as it is in the daemon: it means leave
 // this machine alone, and that has to include replacing its binary, whoever
-// asks. The operator lifts it with `loop-sessions resume` first.
+// asks. The operator lifts it with `claude-code-recorder resume` first.
 func runUpgradeNow(p config.Paths) error {
 	cfg, err := config.Load(p)
 	if err != nil {
@@ -419,7 +419,7 @@ func runUpgradeNow(p config.Paths) error {
 		return nil
 	}
 	if cfg.IsPaused(time.Now()) {
-		fmt.Println("Capture is paused, and a paused machine is left alone, binary included; run `loop-sessions resume` first. Staying on", Version)
+		fmt.Println("Capture is paused, and a paused machine is left alone, binary included; run `claude-code-recorder resume` first. Staying on", Version)
 		return nil
 	}
 	st := checkUpgradeOnce(context.Background(), p, cfg)
@@ -649,7 +649,7 @@ func printDiscovery(s discovery.Summary) {
 		fmt.Printf("\nIf you use them, tell me where their sessions are: add the directory to\n")
 		fmt.Printf("\"roots\" in %s, for example\n", config.Paths{}.ConfigFile())
 		fmt.Printf("  \"roots\": {\"%s\": \"/path/to/its/sessions\"}\n", s.NeedsAsk[0])
-		fmt.Printf("then run: loop-sessions discover\n")
+		fmt.Printf("then run: claude-code-recorder discover\n")
 	}
 }
 
@@ -736,7 +736,7 @@ func runStatus(args []string) error {
 
 func printStatus(v statusView) {
 	if !v.Configured {
-		fmt.Println("Not set up yet. Run: loop-sessions install")
+		fmt.Println("Not set up yet. Run: claude-code-recorder install")
 		if len(v.Problems) > 0 {
 			for _, s := range v.Problems {
 				fmt.Printf("  - %s\n", s)
@@ -782,7 +782,7 @@ func printStatus(v statusView) {
 		for _, s := range v.Problems {
 			fmt.Printf("  - %s\n", s)
 		}
-		fmt.Println("\nRun `loop-sessions doctor` for details.")
+		fmt.Println("\nRun `claude-code-recorder doctor` for details.")
 	}
 }
 
@@ -979,7 +979,7 @@ func problems(rep health.Report, st spool.Stats) []string {
 		case health.KindBacklogGrowing:
 			out = append(out, "the queue is growing faster than it uploads: "+c.Detail)
 		case health.KindQuarantineNonEmpty:
-			out = append(out, fmt.Sprintf("%d item(s) are stuck and will not retry on their own; `loop-sessions doctor --replay-quarantine` shows why", st.Quarantine))
+			out = append(out, fmt.Sprintf("%d item(s) are stuck and will not retry on their own; `claude-code-recorder doctor --replay-quarantine` shows why", st.Quarantine))
 		case health.KindParkedNonEmpty:
 			out = append(out, fmt.Sprintf("%d item(s) are parked after the server kept not deciding about them; they retry after the next upgrade and daily", st.Parked))
 		case health.KindSpoolUnreadable:
@@ -1091,10 +1091,10 @@ func runPause(args []string, pause bool) error {
 		if *forDur > 0 {
 			// The deadline is honoured by every path that reads the config, so
 			// nothing has to be running for the pause to end.
-			fmt.Printf("Paused until %s. Capture resumes on its own then; run `loop-sessions resume` to end the pause sooner.\n",
+			fmt.Printf("Paused until %s. Capture resumes on its own then; run `claude-code-recorder resume` to end the pause sooner.\n",
 				cfg.PausedUntil.Format(time.RFC1123))
 		} else {
-			fmt.Println("Paused. Nothing will be captured or uploaded until you run `loop-sessions resume`.")
+			fmt.Println("Paused. Nothing will be captured or uploaded until you run `claude-code-recorder resume`.")
 		}
 		fmt.Println("Your team's dashboard will show this machine as paused, not broken.")
 	} else {
@@ -1116,12 +1116,12 @@ func runDoctor(args []string) error {
 		return err
 	}
 	p := config.Paths{}
-	fmt.Printf("loop-sessions %s on %s/%s\n\n", Version, runtime.GOOS, runtime.GOARCH)
+	fmt.Printf("claude-code-recorder %s on %s/%s\n\n", Version, runtime.GOOS, runtime.GOARCH)
 
 	cfg, cfgErr := config.Load(p)
 	switch {
 	case errors.Is(cfgErr, config.ErrNotConfigured):
-		fmt.Println("  [ ] not set up   -> run: loop-sessions install")
+		fmt.Println("  [ ] not set up   -> run: claude-code-recorder install")
 		return nil
 	case cfgErr != nil:
 		fmt.Printf("  [x] config       %v\n", cfgErr)
@@ -1236,7 +1236,7 @@ func doctorReplay(p config.Paths, cfg config.Config) error {
 			if err := sp.Ack(it); err != nil {
 				return err
 			}
-			fmt.Println("  verdict: ACCEPTED; the item left quarantine. Run `loop-sessions doctor --redrive` to retry the rest.")
+			fmt.Println("  verdict: ACCEPTED; the item left quarantine. Run `claude-code-recorder doctor --redrive` to retry the rest.")
 			return nil
 		}
 	}

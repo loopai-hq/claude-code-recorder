@@ -94,7 +94,7 @@ func skillCall(id, sid, promptID, toolUseID, input string, seq int64) Ingest {
 	it.Event.Tool = &event.Tool{Name: "Skill", Input: json.RawMessage(input)}
 	it.Event.HarnessVersion = "2.1.273"
 	it.DeviceID = skillTestDevice
-	it.Repo = "loop-sessions"
+	it.Repo = "claude-code-recorder"
 	return it
 }
 
@@ -258,7 +258,7 @@ func TestSkillUpsertIsTheDesignMergeWithItsArgumentsInOrder(t *testing.T) {
 		Origin: OriginDerived, AgentPlatform: PlatformClaudeCode, Trust: TrustDevice,
 		DeviceID: strPtr(skillTestDevice), RawName: "engg:git", Plugin: "engg", Skill: strPtr("git"),
 		SkillSource: SkillSourcePlugin, Trigger: TriggerAgent, Outcome: OutcomeStarted,
-		ActorEmail: strPtr(skillTestEmail), ActorKnown: true, Repo: "loop-sessions", SessionRef: "sess",
+		ActorEmail: strPtr(skillTestEmail), ActorKnown: true, Repo: "claude-code-recorder", SessionRef: "sess",
 		SessionType: "", EventID: strPtr("e1"), PromptID: strPtr("p1"), ToolUseID: strPtr("toolu_1"),
 		OccurredAt: at, ArgsPresent: true, ArgsBytes: 11, HarnessVersion: "2.1.273",
 	}
@@ -282,7 +282,7 @@ func TestSkillUpsertIsTheDesignMergeWithItsArgumentsInOrder(t *testing.T) {
 	wantArgs := map[int]string{
 		0: at.Format(time.RFC3339), 2: OriginDerived, 3: PlatformClaudeCode, 4: TrustDevice, 5: skillTestDevice,
 		7: "engg:git", 8: "engg", 9: "git", 10: SkillSourcePlugin, 11: TriggerAgent, 12: OutcomeStarted,
-		14: skillTestEmail, 16: "loop-sessions", 17: "sess", 20: "e1", 21: "p1", 22: "toolu_1",
+		14: skillTestEmail, 16: "claude-code-recorder", 17: "sess", 20: "e1", 21: "p1", 22: "toolu_1",
 		24: "claude_code:sess:t:toolu_1", 27: "2.1.273",
 	}
 	for i, want := range wantArgs {
@@ -470,7 +470,7 @@ func TestSkillCallAndItsResultAreOneMergeAndOneUpdate(t *testing.T) {
 	}
 	c := db.find(t, "INSERT INTO skill_invocations")
 	for i, want := range map[int]string{7: "engg:git", 8: "engg", 9: "git", 10: SkillSourcePlugin, 11: TriggerAgent,
-		16: "loop-sessions", 17: "sess-skill", 20: "evt-call", 21: "p1", 22: "toolu_1", 24: "claude_code:sess-skill:t:toolu_1", 27: "2.1.273"} {
+		16: "claude-code-recorder", 17: "sess-skill", 20: "evt-call", 21: "p1", 22: "toolu_1", 24: "claude_code:sess-skill:t:toolu_1", 27: "2.1.273"} {
 		if got := argText(c.args[i]); got != want {
 			t.Errorf("arg $%d = %q, want %q", i+1, got, want)
 		}
@@ -883,7 +883,7 @@ func TestALoneHookCopyQueuesItsSessionWhenItsTwinIsAStored2cRow(t *testing.T) {
 	}
 	db := &fakeDB{stubs: []*stub{insertedRow(),
 		{match: "body_expired_at IS NOT NULL", rows: [][]any{{false}}},
-		{match: "SELECT source, coalesce(repo, '')", rows: [][]any{{"claude_code", "loop-sessions", skillTestDevice}}},
+		{match: "SELECT source, coalesce(repo, '')", rows: [][]any{{"claude_code", "claude-code-recorder", skillTestDevice}}},
 		{match: "(type = 'tool_call' AND tool_name = 'Skill')", rows: [][]any{{"evt-h", skillTestEmail, int64(1), at, body}}}}}
 	s, _ := skillStore(db)
 	s.AliasOracle = func(context.Context, Queryer, string, string) (bool, error) { return true, nil }
@@ -914,7 +914,7 @@ func TestRebuildSendsTheMergeOnlyTheKeysItWouldMove(t *testing.T) {
 	db := &fakeDB{stubs: []*stub{
 		insertedRow(),
 		{match: "body_expired_at IS NOT NULL", rows: [][]any{{false}}},
-		{match: "SELECT source, coalesce(repo, '')", rows: [][]any{{"claude_code", "loop-sessions", skillTestDevice}}},
+		{match: "SELECT source, coalesce(repo, '')", rows: [][]any{{"claude_code", "claude-code-recorder", skillTestDevice}}},
 		{match: "(type = 'tool_call' AND tool_name = 'Skill')", rows: [][]any{
 			{"evt-a", skillTestEmail, int64(1), at, body(settledCall)},
 			{"evt-b", skillTestEmail, int64(2), at.Add(time.Second), body(movedCall)},
@@ -964,7 +964,7 @@ func TestRebuildSendsTheMergeOnlyTheKeysItWouldMove(t *testing.T) {
 	} {
 		db := &fakeDB{stubs: []*stub{insertedRow(),
 			{match: "body_expired_at IS NOT NULL", rows: [][]any{{false}}},
-			{match: "SELECT source, coalesce(repo, '')", rows: [][]any{{"claude_code", "loop-sessions", skillTestDevice}}},
+			{match: "SELECT source, coalesce(repo, '')", rows: [][]any{{"claude_code", "claude-code-recorder", skillTestDevice}}},
 			{match: "(type = 'tool_call' AND tool_name = 'Skill')", rows: [][]any{{"evt-a", skillTestEmail, int64(1), at, body(settledCall)}}},
 			{match: settledRead, rows: [][]any{stored}}}}
 		s, _ := skillStore(db)
@@ -1278,7 +1278,7 @@ func TestDrainSkillRederive(t *testing.T) {
 
 	t.Run("rebuilt and dequeued", func(t *testing.T) {
 		db := &fakeDB{stubs: append([]*stub{queue(),
-			{match: "SELECT source, coalesce(repo, '')", rows: [][]any{{"claude_code", "loop-sessions", nil}}}}, locks...)}
+			{match: "SELECT source, coalesce(repo, '')", rows: [][]any{{"claude_code", "claude-code-recorder", nil}}}}, locks...)}
 		s, buf := skillStore(db)
 		done, parked, err := s.DrainSkillRederive(context.Background(), 20)
 		if err != nil || done != 1 || parked != 0 {

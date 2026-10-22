@@ -383,7 +383,7 @@ func (f *Flow) complete(ctx context.Context, idToken string, m Machine) (Result,
 		// The most likely real-world failure: someone signed in with an account
 		// that is not in the company directory, or is not yet a principal. Say
 		// so plainly rather than surfacing a status code.
-		return Result{}, errors.New("enroll: that account is not authorised for loop-sessions. " +
+		return Result{}, errors.New("enroll: that account is not authorised for claude-code-recorder. " +
 			"Sign in with a Google account on one of your organisation's allowed domains, or ask an admin to add you")
 	}
 	if resp.StatusCode != http.StatusOK {

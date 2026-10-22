@@ -9,8 +9,8 @@ package store
 // none is configured, so the default run still passes on a laptop with no
 // Postgres.
 //
-//	createdb loop_sessions_test
-//	LOOP_SESSIONS_TEST_DSN=postgres:///loop_sessions_test go test -race ./server/store/...
+//	createdb claude_code_recorder_test
+//	LOOP_SESSIONS_TEST_DSN=postgres:///claude_code_recorder_test go test -race ./server/store/...
 
 import (
 	"context"
@@ -600,7 +600,7 @@ func adminPool(t *testing.T) *pgxpool.Pool {
 		t.Skip("LOOP_SESSIONS_TEST_DSN is unset; skipping the tests that need a database")
 	}
 	ctx := context.Background()
-	schema := fmt.Sprintf("loop_sessions_admin_%d", time.Now().UnixNano())
+	schema := fmt.Sprintf("claude_code_recorder_admin_%d", time.Now().UnixNano())
 
 	bootstrap, err := pgxpool.New(ctx, dsn)
 	if err != nil {

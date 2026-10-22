@@ -25,8 +25,8 @@ func bootEnv() map[string]string {
 	return map[string]string{
 		"PORT":                "8080",
 		"DATABASE_HOST":       "/cloudsql/proj:asia-south1:sessions",
-		"DATABASE_NAME":       "loop_sessions",
-		"DATABASE_USER":       "loop_sessions",
+		"DATABASE_NAME":       "claude_code_recorder",
+		"DATABASE_USER":       "claude_code_recorder",
 		"DATABASE_PASSWORD":   "s3cr3t-from-secret-manager",
 		"SESSION_KEY":         bootSessionKey,
 		"FIREBASE_PROJECT_ID": "example-project-12345",
@@ -488,8 +488,8 @@ func TestPoolConfigHandlesASocketDirectoryAndAHostnameAlike(t *testing.T) {
 			if pc.ConnConfig.Port != tc.wantPort {
 				t.Errorf("Port = %d, want %d", pc.ConnConfig.Port, tc.wantPort)
 			}
-			if pc.ConnConfig.Database != "loop_sessions" || pc.ConnConfig.User != "loop_sessions" {
-				t.Errorf("dbname/user = %q/%q, want loop_sessions/loop_sessions",
+			if pc.ConnConfig.Database != "claude_code_recorder" || pc.ConnConfig.User != "claude_code_recorder" {
+				t.Errorf("dbname/user = %q/%q, want claude_code_recorder/claude_code_recorder",
 					pc.ConnConfig.Database, pc.ConnConfig.User)
 			}
 			// The connection budget, per the comment on poolMaxConns: the

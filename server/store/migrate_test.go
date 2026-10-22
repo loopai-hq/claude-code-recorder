@@ -38,7 +38,7 @@ func migratePoolWith(t *testing.T, tweak func(*pgxpool.Config)) *pgxpool.Pool {
 		t.Skip("LOOP_SESSIONS_TEST_DSN is unset; skipping the tests that need a database")
 	}
 	ctx := context.Background()
-	schema := fmt.Sprintf("loop_sessions_migrate_%d", time.Now().UnixNano())
+	schema := fmt.Sprintf("claude_code_recorder_migrate_%d", time.Now().UnixNano())
 
 	bootstrap, err := pgxpool.New(ctx, dsn)
 	if err != nil {

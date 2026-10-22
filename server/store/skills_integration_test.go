@@ -45,7 +45,7 @@ func skillSeedPerson(t *testing.T, s *Store, email, device string) {
 func asSession(items []Ingest, device string, at time.Time) []Ingest {
 	for i := range items {
 		items[i].DeviceID = device
-		items[i].Repo = "loop-sessions"
+		items[i].Repo = "claude-code-recorder"
 		items[i].Event.OccurredAt = at.Add(time.Duration(i) * time.Second)
 	}
 	return items

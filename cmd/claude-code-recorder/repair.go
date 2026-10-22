@@ -121,7 +121,7 @@ func fetchRepairList(ctx context.Context, p config.Paths, cfg config.Config) (li
 		return nil, false, err
 	}
 	req.Header.Set("Authorization", "Bearer "+token)
-	req.Header.Set("User-Agent", "loop-sessions/"+Version)
+	req.Header.Set("User-Agent", "claude-code-recorder/"+Version)
 	res, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return nil, false, err

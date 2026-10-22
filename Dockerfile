@@ -7,7 +7,7 @@
 # the root rather than beside the GCP example that deploys it
 # (examples/deploy-gcp/cloudbuild.yaml and release.yml.example both build it
 # from here). The published image is
-# ghcr.io/loopai-hq/loop-sessions-server, built by .github/workflows/release.yml
+# ghcr.io/loopai-hq/claude-code-recorder-server, built by .github/workflows/release.yml
 # on every tag; the same file builds on every pull request so a change that
 # breaks the image is found before it is merged.
 #
@@ -32,7 +32,7 @@ COPY . .
 # MAIN_PKG is an argument rather than a constant because the server entrypoint
 # is owned by a different part of the tree and may move. Overriding it here is
 # cheaper than rewriting this file when it does.
-ARG MAIN_PKG=./server/cmd/loop-sessions-server
+ARG MAIN_PKG=./server/cmd/claude-code-recorder-server
 ARG VERSION=dev
 # BUILD_DATE is RFC 3339 UTC, the commit time by the Makefile's rule. There
 # is no fallback here because a Dockerfile cannot compute one that the LABEL
@@ -69,8 +69,8 @@ ARG REVISION=
 # `revision` is the full commit so it can be matched against the VCS stamp
 # the fleet page compares; `version`/`created` mirror the -X flags.
 LABEL org.opencontainers.image.source="https://github.com/loopai-hq/claude-code-recorder" \
-      org.opencontainers.image.title="loop-sessions-server" \
-      org.opencontainers.image.description="The loop-sessions server: ingests, stores and serves AI coding session transcripts" \
+      org.opencontainers.image.title="claude-code-recorder-server" \
+      org.opencontainers.image.description="The claude-code-recorder server: ingests, stores and serves AI coding session transcripts" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.version="${VERSION}" \
       org.opencontainers.image.revision="${REVISION}" \

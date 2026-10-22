@@ -73,7 +73,7 @@ func render(s Summary, publicURL string, mode Mode) string {
 	}
 	b.WriteString("\n")
 	b.WriteString(stats(s))
-	fmt.Fprintf(&b, "\n<%s/sessions/%s|Open in loop-sessions>", publicURL, s.SessionID)
+	fmt.Fprintf(&b, "\n<%s/sessions/%s|Open in claude-code-recorder>", publicURL, s.SessionID)
 	return b.String()
 }
 

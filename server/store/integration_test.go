@@ -9,8 +9,8 @@ package store
 // the viewer may not see. They are behind a build tag so the default test run
 // stays hermetic and can be run on a laptop with no database.
 //
-//	createdb loop_sessions_test
-//	LOOP_SESSIONS_TEST_DSN=postgres:///loop_sessions_test go test -tags integration ./server/store/...
+//	createdb claude_code_recorder_test
+//	LOOP_SESSIONS_TEST_DSN=postgres:///claude_code_recorder_test go test -tags integration ./server/store/...
 //
 // Each run works inside its own schema and drops it afterwards, so a shared
 // development database is safe to point at.
@@ -38,7 +38,7 @@ func TestMain(m *testing.M) {
 		os.Exit(0)
 	}
 	ctx := context.Background()
-	schema := fmt.Sprintf("loop_sessions_test_%d", time.Now().UnixNano())
+	schema := fmt.Sprintf("claude_code_recorder_test_%d", time.Now().UnixNano())
 
 	bootstrap, err := pgxpool.New(ctx, dsn)
 	if err != nil {
@@ -237,7 +237,7 @@ func session(t *testing.T, email, sessionID string) []Ingest {
 	prompt := ingestOf("evt-prompt", sessionID, email, event.UserPrompt, 1)
 	prompt.Event.Text = "ship the ingest service"
 	prompt.Event.HarnessVersion = "2.0.1"
-	prompt.Repo = "loop-sessions"
+	prompt.Repo = "claude-code-recorder"
 
 	turn := withUsage(ingestOf("evt-turn", sessionID, email, event.AssistantTurn, 2),
 		"claude-opus-5", "msg-1", "req-1", 1000, 200)

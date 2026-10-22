@@ -20,7 +20,7 @@ func tmpSettings(t *testing.T, body string) string {
 }
 
 func opts(path string) Options {
-	return Options{SettingsPath: path, Binary: "/usr/local/bin/loop-sessions"}
+	return Options{SettingsPath: path, Binary: "/usr/local/bin/claude-code-recorder"}
 }
 
 func readJSON(t *testing.T, path string) map[string]json.RawMessage {
@@ -180,7 +180,7 @@ func TestUnparseableHooksSectionIsRefused(t *testing.T) {
 // runs with a different PATH, then capture silently stops.
 func TestRelativeBinaryPathIsRejected(t *testing.T) {
 	o := opts(tmpSettings(t, ""))
-	o.Binary = "loop-sessions"
+	o.Binary = "claude-code-recorder"
 	_, err := Register(o)
 	if err == nil {
 		t.Fatal("expected a relative binary path to be rejected")
@@ -321,6 +321,88 @@ func TestPreviewDoesNotModifyAnything(t *testing.T) {
 	}
 }
 
+// legacySettings is what the old binary left in a settings file: one entry
+// per event under the old marker, beside a hook the person wrote.
+func legacySettings(t *testing.T) string {
+	t.Helper()
+	hooks := map[string][]matcherGroup{
+		"PreToolUse": {{Hooks: []hookEntry{{Type: "command", Command: "~/my-guard"}}}},
+	}
+	for _, ev := range Events {
+		e := hookEntry{Type: "command", Command: "/usr/local/bin/loop-sessions hook " + LegacyMarker, Async: true}
+		hooks[ev.Name] = appendToGroup(hooks[ev.Name], e)
+	}
+	b, err := json.Marshal(map[string]any{"model": "opus", "hooks": hooks})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return tmpSettings(t, string(b))
+}
+
+// A laptop that ran the old binary has hooks under the old marker. One
+// install replaces them: the file ends with one entry of ours per event,
+// under the current marker, and the person's own hook untouched. Without
+// this, two agents would fire on every event until somebody edited the file.
+func TestRegisterReplacesLegacyHooks(t *testing.T) {
+	p := legacySettings(t)
+	plan, err := Preview(opts(p))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if plan.Legacy != len(Events) || plan.Foreign != 1 || len(plan.Add) != len(Events) {
+		t.Fatalf("preview = legacy %d, foreign %d, add %d; want %d, 1, %d", plan.Legacy, plan.Foreign, len(plan.Add), len(Events), len(Events))
+	}
+	if _, err := Register(opts(p)); err != nil {
+		t.Fatal(err)
+	}
+	for _, ev := range Events {
+		var ours int
+		for _, cmd := range hookCommands(t, p, ev.Name) {
+			if strings.Contains(cmd, LegacyMarker) {
+				t.Fatalf("%s still carries the old entry: %q", ev.Name, cmd)
+			}
+			if strings.Contains(cmd, Marker) {
+				ours++
+			}
+		}
+		if ours != 1 {
+			t.Fatalf("%s has %d entries of ours after install, want 1", ev.Name, ours)
+		}
+	}
+	pre := hookCommands(t, p, "PreToolUse")
+	if len(pre) != 2 || !strings.Contains(pre[0], "my-guard") {
+		t.Fatalf("the user's hook did not survive the move: %v", pre)
+	}
+	after, err := Preview(opts(p))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if after.Legacy != 0 || len(after.Add) != 0 || len(after.Update) != 0 {
+		t.Fatalf("a second preview still wants to change something: %+v", after)
+	}
+}
+
+// The old binary's uninstall is not needed: the new one removes entries
+// under either marker, so a machine is left clean whichever release wrote
+// its hooks.
+func TestUnregisterRemovesLegacyHooks(t *testing.T) {
+	p := legacySettings(t)
+	removed, err := Unregister(opts(p))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if removed != len(Events) {
+		t.Fatalf("removed %d, want %d", removed, len(Events))
+	}
+	pre := hookCommands(t, p, "PreToolUse")
+	if len(pre) != 1 || !strings.Contains(pre[0], "my-guard") {
+		t.Fatalf("the user's hook did not survive uninstall: %v", pre)
+	}
+	if got := hookCommands(t, p, "Stop"); len(got) != 0 {
+		t.Fatalf("Stop still has entries: %v", got)
+	}
+}
+
 func TestPreviewCountsForeignHooks(t *testing.T) {
 	existing := `{"hooks":{"Stop":[{"hooks":[
         {"type":"command","command":"/a"},
@@ -340,7 +422,7 @@ func TestWriteIsAtomic(t *testing.T) {
 	if _, err := Register(opts(p)); err != nil {
 		t.Fatal(err)
 	}
-	if _, err := os.Stat(p + ".loop-tmp"); !os.IsNotExist(err) {
+	if _, err := os.Stat(p + ".claude-code-recorder-tmp"); !os.IsNotExist(err) {
 		t.Fatal("temp file survived; a partial settings write can stop the harness starting")
 	}
 }
@@ -348,7 +430,7 @@ func TestWriteIsAtomic(t *testing.T) {
 func TestRegisteredCommandIsRecognisableAsOurs(t *testing.T) {
 	// Removal depends on this marker, and a user reading their own config
 	// should be able to see exactly what we added.
-	cmd := Command("/usr/local/bin/loop-sessions")
+	cmd := Command("/usr/local/bin/claude-code-recorder")
 	if !isOurs(cmd) {
 		t.Fatalf("command %q does not carry the ownership marker", cmd)
 	}

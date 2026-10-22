@@ -181,7 +181,7 @@ func TestInstallHooksOnlyRegistersHooksAndNothingElse(t *testing.T) {
 	if err != nil {
 		t.Fatalf("hooks were not registered: %v", err)
 	}
-	if !strings.Contains(string(b), "#loop-sessions") {
+	if !strings.Contains(string(b), "#claude-code-recorder") {
 		t.Fatalf("settings do not carry our hooks:\n%s", b)
 	}
 	if _, err := os.Stat(config.Paths{}.DiscoveryFile()); !os.IsNotExist(err) {
@@ -209,7 +209,7 @@ func TestDaemonUpgradeNowHonoursAPause(t *testing.T) {
 	hermeticHome(t, "https://example.invalid")
 	withConfig(t, func(c *config.Config) { c.Paused = true })
 	out := captureStdout(t, func() error { return runDaemon([]string{"--upgrade-now"}) })
-	if !strings.Contains(out, "paused") || !strings.Contains(out, "loop-sessions resume") {
+	if !strings.Contains(out, "paused") || !strings.Contains(out, "claude-code-recorder resume") {
 		t.Fatalf("output:\n%s", out)
 	}
 	if _, ok := readStamp(config.Paths{}, stampUpgradeCheck); ok {

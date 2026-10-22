@@ -58,7 +58,7 @@ func TestSessionCursorIsBoundToTheTypeSelection(t *testing.T) {
 			SessionID: fmt.Sprintf("s%d", i),
 			Email:     "member@example.com",
 			Source:    "claude_code",
-			Repo:      "loop-sessions",
+			Repo:      "claude-code-recorder",
 			StartedAt: testNow.Add(time.Duration(-i) * time.Hour),
 		})
 	}

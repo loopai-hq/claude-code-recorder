@@ -26,10 +26,10 @@ const InstallPagePath = "/install"
 // handful of remote boxes people also run agents on, and cost nothing: the
 // release build already produces them.
 var installPlatforms = []struct{ Label, Asset string }{
-	{"macOS, Apple silicon", "loop-sessions_darwin_arm64"},
-	{"macOS, Intel", "loop-sessions_darwin_amd64"},
-	{"Linux, x86-64", "loop-sessions_linux_amd64"},
-	{"Linux, arm64", "loop-sessions_linux_arm64"},
+	{"macOS, Apple silicon", "claude-code-recorder_darwin_arm64"},
+	{"macOS, Intel", "claude-code-recorder_darwin_amd64"},
+	{"Linux, x86-64", "claude-code-recorder_linux_amd64"},
+	{"Linux, arm64", "claude-code-recorder_linux_arm64"},
 }
 
 type installPageData struct {
@@ -68,7 +68,7 @@ var installTmpl = template.Must(template.New("install").Parse(`<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Install the agent — loop sessions</title>
+<title>Install the agent — claude-code-recorder</title>
 <style>
  body{font:16px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
       margin:0;background:#fafafa;color:#1a1a1a}
@@ -123,7 +123,7 @@ var installTmpl = template.Must(template.New("install").Parse(`<!doctype html>
   checksum, and stops. No sudo, no cloud login.</p>
 
   <h2>Then finish the setup</h2>
-  <pre>loop-sessions install</pre>
+  <pre>claude-code-recorder install</pre>
   <ol>
     <li>It finds the AI coding sessions already on the machine and tells you what it found.</li>
     <li>It opens a browser so you can sign in with your work Google account.</li>
@@ -144,15 +144,15 @@ var installTmpl = template.Must(template.New("install").Parse(`<!doctype html>
   <p class="note">Checksums:
   <a href="{{.BaseURL}}/dl/latest/SHA256SUMS">SHA256SUMS</a>.
   After downloading, <code>chmod +x</code> the file, move it onto your
-  <code>PATH</code>, and run <code>loop-sessions install</code>.</p>
+  <code>PATH</code>, and run <code>claude-code-recorder install</code>.</p>
 
   <h2>Checking on it later</h2>
-  <pre>loop-sessions status
-loop-sessions doctor</pre>
+  <pre>claude-code-recorder status
+claude-code-recorder doctor</pre>
   <p class="note"><code>status</code> says what is being captured and whether
   uploads are landing. <code>doctor</code> diagnoses a machine that has stopped
   reporting and says what to do about it. To stop capturing, run
-  <code>loop-sessions uninstall</code>.</p>
+  <code>claude-code-recorder uninstall</code>.</p>
 
   <h2>It keeps itself up to date</h2>
   <p class="note">When a session starts, the agent compares itself against the
@@ -162,7 +162,7 @@ loop-sessions doctor</pre>
   A paused agent is never replaced. To turn it off, set
   <code>LOOP_SESSIONS_NO_UPGRADE=1</code> or add
   <code>"disable_auto_upgrade": true</code> to
-  <code>~/.loop/sessions/config.json</code>.</p>
+  <code>~/.claude-code-recorder/config.json</code>.</p>
 </main>
 </body>
 </html>

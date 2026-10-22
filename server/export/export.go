@@ -1,6 +1,6 @@
 // Package export copies the derived tables out of the production Postgres
 // into Cloud Storage as gzip JSONL and loads them into BigQuery, one run per
-// hour, as the Cloud Run job loop-sessions-export (the same binary as the
+// hour, as the Cloud Run job claude-code-recorder-export (the same binary as the
 // server, subcommand "export").
 //
 // Why a copy at all: the primary is a 2-vCPU instance whose events table is
@@ -574,7 +574,7 @@ func BundleObject(email, sessionID string) string {
 // jobID is the BigQuery job id for one partition of one run: letters,
 // digits, underscores and dashes only, which is all the API allows.
 func jobID(runID string, t Table, d Day) string {
-	return fmt.Sprintf("loop_sessions_export_%s_%s_%s", safeID(runID), t, d.Decorator())
+	return fmt.Sprintf("claude_code_recorder_export_%s_%s_%s", safeID(runID), t, d.Decorator())
 }
 
 func safeID(s string) string {

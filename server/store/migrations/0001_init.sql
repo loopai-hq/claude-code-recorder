@@ -1,4 +1,4 @@
--- Initial schema for loop-sessions.
+-- Initial schema for claude-code-recorder.
 --
 -- Every statement is written to be safe to re-run. Servers start concurrently
 -- during a rolling deploy and each one runs migrations, so a migration that is

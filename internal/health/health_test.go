@@ -847,7 +847,7 @@ func TestBuildDoesNotAliasCallerSlicesOrMaps(t *testing.T) {
 // Nothing identifying may reach a Report, because these land in metric labels.
 func TestReportCarriesNoPathsOrSessionIDs(t *testing.T) {
 	i := base()
-	i.SpoolDir = "/home/someone/Library/loop-sessions/spool"
+	i.SpoolDir = "/home/someone/Library/claude-code-recorder/spool"
 	i.Discovery = []discovery.Finding{
 		{
 			Tool: discovery.ClaudeCode, State: discovery.Found, Sessions: 12,

@@ -127,7 +127,7 @@ func (m *machine) leftovers() []string {
 	}
 	var found []string
 	for _, e := range entries {
-		if strings.HasPrefix(e.Name(), ".loop-sessions-") {
+		if strings.HasPrefix(e.Name(), ".claude-code-recorder-") {
 			found = append(found, e.Name())
 		}
 	}
@@ -564,16 +564,16 @@ func TestAReleaseHostThatFailsCannotBreakTheInstall(t *testing.T) {
 // arrive in are pinned here rather than discovered on somebody's laptop.
 func TestParseManifest(t *testing.T) {
 	good := strings.Repeat("a", 64)
-	asset := "loop-sessions_darwin_arm64"
+	asset := "claude-code-recorder_darwin_arm64"
 	for _, tc := range []struct {
 		name, body, want string
 	}{
 		{"the shape make release writes", good + "  " + asset + "\n", good},
 		{"binary mode marks the name with a star", good + " *" + asset + "\n", good},
-		{"a manifest listing several platforms", "b" + strings.Repeat("c", 63) + "  loop-sessions_linux_amd64\n" + good + "  " + asset + "\n", good},
+		{"a manifest listing several platforms", "b" + strings.Repeat("c", 63) + "  claude-code-recorder_linux_amd64\n" + good + "  " + asset + "\n", good},
 		{"uppercase hex is still hex", strings.ToUpper(good) + "  " + asset + "\n", good},
 		{"a path in the name still matches on the base", good + "  dist/" + asset + "\n", good},
-		{"an absent asset", good + "  loop-sessions_linux_arm64\n", ""},
+		{"an absent asset", good + "  claude-code-recorder_linux_arm64\n", ""},
 		{"a digest of the wrong length", strings.Repeat("a", 40) + "  " + asset + "\n", ""},
 		{"a digest that is not hex", strings.Repeat("z", 64) + "  " + asset + "\n", ""},
 		{"an html error page", "<html><body>nope</body></html>", ""},

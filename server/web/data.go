@@ -382,7 +382,7 @@ type Link struct {
 }
 
 // Label is what the link renders as. The classified short form when there is
-// one — "loopai-hq/loop-sessions#4" reads as a pull request in a way the URL
+// one — "loopai-hq/claude-code-recorder#4" reads as a pull request in a way the URL
 // does not — and otherwise the URL with its scheme stripped, because "https://"
 // repeated down a column carries no information.
 func (l Link) Label() string {

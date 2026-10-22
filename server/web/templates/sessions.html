@@ -207,7 +207,7 @@
   <p>No session matches those filters{{if and .Filter.Q (not .MatchesWithheld)}}, and no transcript you can read contains those words{{end}}. <a href="/sessions">Clear them</a> and try again.</p>
   {{if .Filter.Q}}<p>Transcript matching covers prompts, assistant turns and tool output. Quote a phrase to keep it together: <code>"connection refused"</code>.</p>{{end}}
   {{else}}
-  <p>Sessions appear a few minutes after they run. If yours are missing, check the fleet page or run <code>loop-sessions status</code> on your laptop.</p>
+  <p>Sessions appear a few minutes after they run. If yours are missing, check the fleet page or run <code>claude-code-recorder status</code> on your laptop.</p>
   {{end}}
 </div>
 {{end}}

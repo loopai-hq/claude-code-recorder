@@ -688,7 +688,7 @@ func derive(in Inputs, r Report, th Thresholds, at time.Time, diskErr error) []C
 // buried the handful of rows that really were rejected.
 //
 // The client's own doctor output has classified these three correctly since
-// it was written (cmd/loop-sessions/main.go reads this map), so the two
+// it was written (cmd/claude-code-recorder/main.go reads this map), so the two
 // halves of the same binary disagreed about what a drop is; they now read
 // one list.
 //

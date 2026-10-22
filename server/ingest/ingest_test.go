@@ -121,7 +121,7 @@ func mkEvent(id string, seq int64, typ event.Type) event.Event {
 		SessionID:  "sess-1",
 		Seq:        seq,
 		OccurredAt: fixedTime.Add(time.Duration(seq) * time.Second),
-		Cwd:        "/home/dev/src/loop-sessions",
+		Cwd:        "/home/dev/src/claude-code-recorder",
 		Text:       "hello",
 	}
 }
@@ -911,11 +911,11 @@ func TestHealthErrorTextIsScrubbed(t *testing.T) {
 
 func TestRepoFromCwd(t *testing.T) {
 	cases := map[string]string{
-		"/home/dev/src/loop-sessions": "loop-sessions",
-		"/home/dev/src/backend.git":   "backend",
-		`C:\Users\dev\src\backend`:    "backend",
-		"":                            "",
-		".":                           "",
+		"/home/dev/src/claude-code-recorder": "claude-code-recorder",
+		"/home/dev/src/backend.git":          "backend",
+		`C:\Users\dev\src\backend`:           "backend",
+		"":                                   "",
+		".":                                  "",
 	}
 	for in, want := range cases {
 		if got := RepoFromCwd(in); got != want {
@@ -932,7 +932,7 @@ func TestRepoIsDerivedForTheStore(t *testing.T) {
 		t.Fatalf("status %d", w.Code)
 	}
 	rec, _ := st.stored("e1")
-	if rec.Repo != "loop-sessions" {
+	if rec.Repo != "claude-code-recorder" {
 		t.Fatalf("repo %q", rec.Repo)
 	}
 }
@@ -946,7 +946,7 @@ func TestRepoResolverIsInjectable(t *testing.T) {
 		t.Fatalf("status %d", w.Code)
 	}
 	rec, _ := st.stored("e1")
-	if rec.Repo != "fixed//home/dev/src/loop-sessions" {
+	if rec.Repo != "fixed//home/dev/src/claude-code-recorder" {
 		t.Fatalf("repo %q", rec.Repo)
 	}
 }

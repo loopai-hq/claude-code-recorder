@@ -44,7 +44,7 @@ func TestAHealthReportArrivesWithTheDeviceCredentialAndThisMachinesQueue(t *test
 	if r.auth != "Bearer loops_v1_test" {
 		t.Errorf("Authorization = %q, want the device credential delivery uses", r.auth)
 	}
-	if !strings.HasPrefix(r.agent, "loop-sessions/") {
+	if !strings.HasPrefix(r.agent, "claude-code-recorder/") {
 		t.Errorf("User-Agent = %q, want the agent and its version", r.agent)
 	}
 	if r.contentType != "application/json" {

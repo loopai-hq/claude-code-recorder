@@ -33,7 +33,7 @@ func TestTheCanaryChannelAndTheReleaseManifestAreReachable(t *testing.T) {
 	}{
 		{"the manifest on latest", "/dl/latest/latest.json", http.StatusOK, "application/json; charset=utf-8"},
 		{"the manifest on canary", "/dl/canary/latest.json", http.StatusOK, "application/json; charset=utf-8"},
-		{"a binary on canary", "/dl/canary/loop-sessions_darwin_arm64", http.StatusOK, "application/octet-stream"},
+		{"a binary on canary", "/dl/canary/claude-code-recorder_darwin_arm64", http.StatusOK, "application/octet-stream"},
 		{"the checksum manifest on canary", "/dl/canary/SHA256SUMS", http.StatusOK, "text/plain; charset=utf-8"},
 		{"a third channel", "/dl/stable/latest.json", http.StatusNotFound, ""},
 		{"a manifest under another name", "/dl/latest/canary.json", http.StatusNotFound, ""},

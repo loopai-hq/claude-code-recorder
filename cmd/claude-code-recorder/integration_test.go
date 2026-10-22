@@ -298,15 +298,15 @@ func (s *ingestServer) sessionCount(sessionID string) int {
 // does, and `go run` or an in-process call would test something else.
 func buildAgent(t *testing.T) string {
 	t.Helper()
-	bin := filepath.Join(t.TempDir(), "loop-sessions")
-	cmd := exec.Command("go", "build", "-o", bin, "github.com/loopai-hq/claude-code-recorder/cmd/loop-sessions")
+	bin := filepath.Join(t.TempDir(), "claude-code-recorder")
+	cmd := exec.Command("go", "build", "-o", bin, "github.com/loopai-hq/claude-code-recorder/cmd/claude-code-recorder")
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("build the agent: %v\n%s", err, out)
 	}
 	return bin
 }
 
-// installedHome is what `loop-sessions install` leaves behind on a machine that
+// installedHome is what `claude-code-recorder install` leaves behind on a machine that
 // signed in. The test does not run install itself because that opens a browser.
 func installedHome(t *testing.T, endpoint string) string {
 	t.Helper()

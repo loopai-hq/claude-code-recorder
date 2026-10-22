@@ -314,7 +314,7 @@ func TestProjectSlugFollowsTheHarnessLayout(t *testing.T) {
 		"/home/jordan/work/api":               "-home-jordan-work-api",
 		"/home/jordan/.claude/projects":       "-home-jordan--claude-projects",
 		"/home/jordan/work/apps/ai_ingestion": "-home-jordan-work-apps-ai_ingestion",
-		"/home/jordan/loop-sessions":          "-home-jordan-loop-sessions",
+		"/home/jordan/claude-code-recorder":   "-home-jordan-claude-code-recorder",
 	}
 	for in, want := range cases {
 		if got := projectSlug(in); got != want {

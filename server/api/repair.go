@@ -39,7 +39,7 @@ type DeviceAuthenticator interface {
 }
 
 // RepairEntry is one session the calling device should re-walk. The shape is
-// the client's (cmd/loop-sessions/repair.go): it skips an entry whose
+// the client's (cmd/claude-code-recorder/repair.go): it skips an entry whose
 // transcript_path is empty, which is why the hint says so when the server
 // could not place the file.
 type RepairEntry struct {

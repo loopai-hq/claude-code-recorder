@@ -353,7 +353,7 @@ func TestTheAgentLogRecordsDelivery(t *testing.T) {
 			status:  401,
 			verdict: `{}`,
 			items:   []string{"a"},
-			want:    []string{"rejected this device's credential", "loop-sessions install"},
+			want:    []string{"rejected this device's credential", "claude-code-recorder install"},
 		},
 		{
 			name:    "a permanent rejection is reported, because nothing will retry it",

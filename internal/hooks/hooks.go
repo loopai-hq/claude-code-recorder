@@ -40,7 +40,14 @@ const DefaultSessionEndTimeout = 30
 // Marker identifies entries this agent owns. It lives inside the command string
 // because the harness's hook schema has no field for provenance, and a comment
 // would not survive a JSON round-trip.
-const Marker = "#loop-sessions"
+const Marker = "#claude-code-recorder"
+
+// LegacyMarker is the marker the agent wrote while it was called
+// loop-sessions. An entry carrying it is still ours: Register replaces it
+// with a current one and Unregister removes it, so a machine that ran the old
+// binary is moved over by one `install` and left clean by one `uninstall`,
+// with no hand edit to the settings file.
+const LegacyMarker = "#loop-sessions"
 
 // Events are the hooks we register, and the reason for each.
 //
@@ -105,7 +112,10 @@ type Plan struct {
 	AlreadySet []string
 	Update     []string
 	Foreign    int // hooks belonging to someone else that we will leave alone
-	Created    bool
+	// Legacy counts entries written under the old name (LegacyMarker), which
+	// registration removes while adding the current ones.
+	Legacy  int
+	Created bool
 }
 
 // Options configure registration.
@@ -164,7 +174,10 @@ func Preview(o Options) (Plan, error) {
 	for _, groups := range s.Hooks {
 		for _, g := range groups {
 			for _, h := range g.Hooks {
-				if !isOurs(h.Command) {
+				switch {
+				case isLegacy(h.Command):
+					p.Legacy++
+				case !isOurs(h.Command):
 					p.Foreign++
 				}
 			}
@@ -196,7 +209,7 @@ func Register(o Options) (Plan, error) {
 	if err != nil {
 		return plan, err
 	}
-	if len(plan.Add) == 0 && len(plan.Update) == 0 {
+	if len(plan.Add) == 0 && len(plan.Update) == 0 && plan.Legacy == 0 {
 		return plan, nil // registered and current; nothing to write
 	}
 
@@ -207,6 +220,9 @@ func Register(o Options) (Plan, error) {
 	if s.Hooks == nil {
 		s.Hooks = map[string][]matcherGroup{}
 	}
+	// Entries the old binary wrote go first, so the file ends up with one
+	// set of ours and not two agents' worth firing on every event.
+	s.Hooks = without(s.Hooks, isLegacy)
 	for _, ev := range Events {
 		want := wanted(o, ev)
 		if have, ok := ours(s.Hooks[ev.Name], want.Command); ok {
@@ -258,41 +274,58 @@ func Refresh(o Options) ([]string, error) {
 	return plan.Update, nil
 }
 
-// Unregister removes only the entries we own.
+// Unregister removes only the entries we own, under either marker.
 func Unregister(o Options) (removed int, err error) {
 	o = o.withDefaults()
 	s, existed, err := load(o.SettingsPath)
 	if err != nil || !existed {
 		return 0, err
 	}
-	for name, groups := range s.Hooks {
+	before := count(s.Hooks)
+	s.Hooks = without(s.Hooks, isOurs)
+	removed = before - count(s.Hooks)
+	if removed == 0 {
+		return 0, nil
+	}
+	return removed, save(o.SettingsPath, s)
+}
+
+// without drops every entry whose command drop reports true. A group
+// emptied by the removal is ours to drop; a group that still holds someone
+// else's hooks stays exactly as it was, and so does an event with none of
+// ours in it.
+func without(hooks map[string][]matcherGroup, drop func(string) bool) map[string][]matcherGroup {
+	for name, groups := range hooks {
 		var keptGroups []matcherGroup
 		for _, g := range groups {
 			var kept []hookEntry
 			for _, h := range g.Hooks {
-				if isOurs(h.Command) {
-					removed++
+				if drop(h.Command) {
 					continue
 				}
 				kept = append(kept, h)
 			}
-			// A group emptied by our removal is ours to drop; a group that
-			// still holds someone else's hooks stays exactly as it was.
 			if len(kept) > 0 {
 				g.Hooks = kept
 				keptGroups = append(keptGroups, g)
 			}
 		}
 		if len(keptGroups) > 0 {
-			s.Hooks[name] = keptGroups
+			hooks[name] = keptGroups
 		} else {
-			delete(s.Hooks, name)
+			delete(hooks, name)
 		}
 	}
-	if removed == 0 {
-		return 0, nil
+	return hooks
+}
+
+func count(hooks map[string][]matcherGroup) (n int) {
+	for _, groups := range hooks {
+		for _, g := range groups {
+			n += len(g.Hooks)
+		}
 	}
-	return removed, save(o.SettingsPath, s)
+	return n
 }
 
 func (o Options) withDefaults() Options {
@@ -305,7 +338,8 @@ func (o Options) withDefaults() Options {
 	return o
 }
 
-func isOurs(cmd string) bool { return strings.Contains(cmd, Marker) }
+func isOurs(cmd string) bool   { return strings.Contains(cmd, Marker) || isLegacy(cmd) }
+func isLegacy(cmd string) bool { return strings.Contains(cmd, LegacyMarker) }
 
 // wanted is the entry an event should carry under these options. Every hook
 // is async; only SessionEnd carries a timeout, because SessionEnd hooks share
@@ -407,7 +441,7 @@ func save(path string, s settings) error {
 	}
 	// Atomic: a half-written settings file can stop the harness from starting,
 	// which would make installing telemetry an outage on someone's laptop.
-	tmp := path + ".loop-tmp"
+	tmp := path + ".claude-code-recorder-tmp"
 	if err := os.WriteFile(tmp, append(b, '\n'), 0o644); err != nil { //nolint:gosec // G306: settings.json is Claude Code's file; it keeps the mode the harness and an editor give it
 		return err
 	}

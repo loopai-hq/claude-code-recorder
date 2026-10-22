@@ -1,7 +1,7 @@
 -- The export job's watermarks: one row per stream it copies out.
 --
 -- The hourly export (server/export, run as the Cloud Run job
--- loop-sessions-export) copies the derived tables to Cloud Storage and loads
+-- claude-code-recorder-export) copies the derived tables to Cloud Storage and loads
 -- them into BigQuery. It has to know where the last successful run stopped,
 -- and that position has to live in the database it reads from rather than in
 -- the job's own filesystem, which Cloud Run discards between executions.

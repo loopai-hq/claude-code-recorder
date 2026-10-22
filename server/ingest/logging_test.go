@@ -69,7 +69,7 @@ func postAs(t *testing.T, h *Handler, token string, items []spool.Item) *httptes
 	}
 	r := httptest.NewRequest(http.MethodPost, EventsPath, bytes.NewReader(body))
 	r.Header.Set("Authorization", "Bearer "+token)
-	r.Header.Set("User-Agent", "loop-sessions/abc1234")
+	r.Header.Set("User-Agent", "claude-code-recorder/abc1234")
 	w := httptest.NewRecorder()
 	h.ServeHTTP(w, r)
 	return w
@@ -275,7 +275,7 @@ func TestBatchLineIsWrittenForFailedRequestsToo(t *testing.T) {
 			t.Errorf("batch line bytes = %v, want the bytes read before the parse failed", batches[0]["bytes"])
 		}
 		if batches[0]["agent_version"] != "" {
-			t.Errorf("a request with no loop-sessions User-Agent reports agent_version %q, want empty", batches[0]["agent_version"])
+			t.Errorf("a request with no claude-code-recorder User-Agent reports agent_version %q, want empty", batches[0]["agent_version"])
 		}
 		if strings.Contains(buf.String(), secretFragment) {
 			t.Error("a log line carries session content")
@@ -328,25 +328,31 @@ func TestOverCapItemsAreLoggedAsRejected(t *testing.T) {
 }
 
 // TestAgentVersionIsReadFromTheUserAgent pins the one derivation the fleet
-// comparison depends on: "loop-sessions/<build>" and nothing else, with the
+// comparison depends on: "claude-code-recorder/<build>" and nothing else, with the
 // build shaped the way a real one is. The value is a metric label and the
 // header is the caller's to write, so a build of two thousand characters, or
 // one carrying a path, is dropped the way a curl's User-Agent is.
 func TestAgentVersionIsReadFromTheUserAgent(t *testing.T) {
 	for _, c := range []struct{ ua, want string }{
-		{"loop-sessions/23713ea", "23713ea"},
-		{"loop-sessions/dev", "dev"},
-		{"loop-sessions/v1.2.3-rc1", "v1.2.3-rc1"},
-		{"loop-sessions/abc123 extra", "abc123"},
-		{"loop-sessions/" + strings.Repeat("f", 40), strings.Repeat("f", 40)},
-		{"loop-sessions/" + strings.Repeat("f", 41), ""},
-		{"loop-sessions/" + strings.Repeat("v", 2000) + secretFragment, ""},
-		{"loop-sessions/abc/../x", ""},
-		{"loop-sessions/", ""},
+		{"claude-code-recorder/23713ea", "23713ea"},
+		{"claude-code-recorder/dev", "dev"},
+		{"claude-code-recorder/v1.2.3-rc1", "v1.2.3-rc1"},
+		{"claude-code-recorder/abc123 extra", "abc123"},
+		{"claude-code-recorder/" + strings.Repeat("f", 40), strings.Repeat("f", 40)},
+		{"claude-code-recorder/" + strings.Repeat("f", 41), ""},
+		{"claude-code-recorder/" + strings.Repeat("v", 2000) + secretFragment, ""},
+		{"claude-code-recorder/abc/../x", ""},
+		{"claude-code-recorder/", ""},
 		{"curl/8.4.0", ""},
 		{"", ""},
 		{"Loop-Sessions/abc", ""},
-		{"prefix loop-sessions/abc123", ""},
+		{"prefix claude-code-recorder/abc123", ""},
+		// The name the client had before the rename; a laptop that has not
+		// reinstalled still reports under it.
+		{"loop-sessions/23713ea", "23713ea"},
+		{"loop-sessions/abc123 extra", "abc123"},
+		{"loop-sessions/abc/../x", ""},
+		{"loop-sessions/", ""},
 	} {
 		r := httptest.NewRequest(http.MethodPost, EventsPath, nil)
 		if c.ua != "" {

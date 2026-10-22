@@ -237,7 +237,7 @@ func TestIntegrationLinksAreExtractedAndClassified(t *testing.T) {
 	if got[0].Kind != "pr" {
 		t.Errorf("first link kind = %q, want pr", got[0].Kind)
 	}
-	if got[0].Ref != "loopai-hq/loop-sessions#4" {
+	if got[0].Ref != "loopai-hq/claude-code-recorder#4" {
 		t.Errorf("ref = %q", got[0].Ref)
 	}
 	if got[0].Occurrences != 2 {
