@@ -2,11 +2,11 @@
 # derived series' lines of the "skill platform summary". A depth that
 # never drains reads as a growing age here even when the depth stays under
 # its own threshold.
-name: loop_sessions/skill_rederive_oldest_minutes
+name: claude_code_recorder/skill_rederive_oldest_minutes
 description: Age in minutes of the oldest session waiting in the skill re-derive queue (field rederive_oldest_minutes of the server line "skill platform summary")
 filter: >-
   resource.type="cloud_run_revision"
-  AND resource.labels.service_name="loop-sessions"
+  AND resource.labels.service_name="claude-code-recorder"
   AND log_id("run.googleapis.com/stdout")
   AND jsonPayload.message="skill platform summary"
   AND jsonPayload.origin="derived"

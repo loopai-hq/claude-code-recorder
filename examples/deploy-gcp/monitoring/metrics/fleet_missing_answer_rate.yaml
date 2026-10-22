@@ -10,7 +10,7 @@
 # FleetMissingAnswers). The split is the point: before the 788dcb3 client the
 # rate is a known defect, after it the same figure on the new build is a
 # regression, and one fleet-wide number could not tell the two apart.
-name: loop_sessions/fleet_missing_answer_rate
+name: claude_code_recorder/fleet_missing_answer_rate
 description: Share of hook-captured human turns that could have answered and did not, per day, client build and entrypoint, for cohorts of twenty turns or more (field rate of the server line "fleet missing_answer")
 #
 # The turns floor is on the metric and not on the evaluator, so the fleet page
@@ -25,7 +25,7 @@ description: Share of hook-captured human turns that could have answered and did
 # version_lag`, which do not need a denominator.
 filter: >-
   resource.type="cloud_run_revision"
-  AND resource.labels.service_name="loop-sessions"
+  AND resource.labels.service_name="claude-code-recorder"
   AND log_id("run.googleapis.com/stdout")
   AND jsonPayload.message="fleet missing_answer"
   AND jsonPayload.turns>=20

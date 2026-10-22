@@ -1,10 +1,10 @@
 {
-  "displayName": "loop-sessions: skill posts refused as malformed",
+  "displayName": "claude-code-recorder: skill posts refused as malformed",
   "combiner": "OR",
   "enabled": true,
   "severity": "WARNING",
   "userLabels": {
-    "app": "loop-sessions",
+    "app": "claude-code-recorder",
     "tier": "data",
     "asset": "17b-skill-invalid-payload"
   },
@@ -12,7 +12,7 @@
     {
       "displayName": "invalid skill payloads above 50 in 1 h",
       "conditionThreshold": {
-        "filter": "metric.type=\"logging.googleapis.com/user/loop_sessions/skill_rejected\" AND resource.type=\"cloud_run_revision\" AND metric.labels.reason=\"invalid_payload\"",
+        "filter": "metric.type=\"logging.googleapis.com/user/claude_code_recorder/skill_rejected\" AND resource.type=\"cloud_run_revision\" AND metric.labels.reason=\"invalid_payload\"",
         "aggregations": [
           {
             "alignmentPeriod": "3600s",
@@ -34,7 +34,7 @@
   },
   "documentation": {
     "mimeType": "text/markdown",
-    "content": "More than fifty skill posts in an hour failed a field rule. An emitter (the Claude Code hook script, a mirrored SKILL.md's beacon line, a reconciler) is sending a shape this server refuses, and it drops every 400 silently, so the rows are lost until it is fixed. The rejected line names the field.\n\ngcloud logging read 'resource.labels.service_name=\\\"loop-sessions\\\" AND jsonPayload.message=\\\"skill invocation rejected\\\"' --freshness=30m --format='value(timestamp,jsonPayload.reason,jsonPayload.token_state,jsonPayload.source_token_id,jsonPayload.platform,jsonPayload.field)'. Group by `field` and `platform`: one field on one platform is that emitter's bug (the hook script, the beacon line, a reconciler or a platform monitor); `origin` on a platform whose token was just minted is a token minted with the wrong `allowed_origins`, fixed by minting again; `agent_platform` is a body naming a platform other than its token's (reason `platform_mismatch` on the line).\n\nRunbook: examples/deploy-gcp/README.md#runbook-source-tokens",
+    "content": "More than fifty skill posts in an hour failed a field rule. An emitter (the Claude Code hook script, a mirrored SKILL.md's beacon line, a reconciler) is sending a shape this server refuses, and it drops every 400 silently, so the rows are lost until it is fixed. The rejected line names the field.\n\ngcloud logging read 'resource.labels.service_name=\\\"claude-code-recorder\\\" AND jsonPayload.message=\\\"skill invocation rejected\\\"' --freshness=30m --format='value(timestamp,jsonPayload.reason,jsonPayload.token_state,jsonPayload.source_token_id,jsonPayload.platform,jsonPayload.field)'. Group by `field` and `platform`: one field on one platform is that emitter's bug (the hook script, the beacon line, a reconciler or a platform monitor); `origin` on a platform whose token was just minted is a token minted with the wrong `allowed_origins`, fixed by minting again; `agent_platform` is a body naming a platform other than its token's (reason `platform_mismatch` on the line).\n\nRunbook: examples/deploy-gcp/README.md#runbook-source-tokens",
     "links": [
       {
         "displayName": "Runbook: source tokens",

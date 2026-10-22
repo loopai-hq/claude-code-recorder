@@ -6,11 +6,11 @@
 # value type DISTRIBUTION"), so the two rules that count run lines rather
 # than read the lag, "no run for 3 h" (20) and "a failed run in each of two
 # consecutive hours" (20c), read this counter with ALIGN_SUM instead.
-name: loop_sessions/export_runs
-description: Runs of the loop-sessions-export job (line "export run"), by status
+name: claude_code_recorder/export_runs
+description: Runs of the claude-code-recorder-export job (line "export run"), by status
 filter: >-
   resource.type="cloud_run_job"
-  AND resource.labels.job_name="loop-sessions-export"
+  AND resource.labels.job_name="claude-code-recorder-export"
   AND log_id("run.googleapis.com/stdout")
   AND jsonPayload.message="export run"
 metricDescriptor:

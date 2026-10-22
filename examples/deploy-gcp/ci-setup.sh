@@ -5,18 +5,18 @@
 # Creates, idempotently, everything the job authenticates through and writes
 # to, and nothing else:
 #
-#   1. the loop-sessions-release service account, which the ungated push job
-#      uses, and the loop-sessions-promote service account, which only the
+#   1. the claude-code-recorder-release service account, which the ungated push job
+#      uses, and the claude-code-recorder-promote service account, which only the
 #      manually dispatched promote job can reach
 #   2. their least-privilege bindings:
 #        release: roles/storage.objectAdmin on gs://__RELEASE_BUCKET__,
 #                 conditioned to everything EXCEPT objects/latest/ (publish
 #                 builds/ and canary/; the fleet's pointer is out of reach)
-#        release: roles/artifactregistry.writer on the loop-sessions Docker
+#        release: roles/artifactregistry.writer on the claude-code-recorder Docker
 #                 repository (push the server image)
 #        promote: roles/storage.objectAdmin on gs://__RELEASE_BUCKET__,
 #                 unconditional (it reads builds/<sha>/ and writes latest/)
-#   3. the Workload Identity pool "github" and its OIDC provider "loop-sessions",
+#   3. the Workload Identity pool "github" and its OIDC provider "claude-code-recorder",
 #      whose attribute condition admits ONLY __GITHUB_REPO__
 #   4. roles/iam.workloadIdentityUser on each account: the release account for
 #      that repository, the promote account for that repository's "production"
@@ -37,7 +37,7 @@
 #   gcloud projects remove-iam-policy-binding "$PROJECT" --member="serviceAccount:$SA" --role=roles/cloudbuild.builds.editor
 #   gcloud storage buckets remove-iam-policy-binding "gs://${PROJECT}_cloudbuild" --member="serviceAccount:$SA" --role=roles/storage.objectAdmin
 #   gcloud iam service-accounts remove-iam-policy-binding "$CLOUDBUILD_SA" --member="serviceAccount:$SA" --role=roles/iam.serviceAccountUser
-# r7 R2's roles/run.admin and actAs on loop-sessions-run@ are likewise NOT
+# r7 R2's roles/run.admin and actAs on claude-code-recorder-run@ are likewise NOT
 # granted: the workflow has no deploy step, and an account that can only
 # build and publish cannot replace what is serving.
 #
@@ -92,11 +92,11 @@ PROJECT_NUMBER="${PROJECT_NUMBER:-__PROJECT_NUMBER__}"
 REGION="${REGION:-__REGION__}"
 BUCKET="${BUCKET:-__RELEASE_BUCKET__}"
 REPO="${REPO:-__GITHUB_REPO__}"
-SA_NAME="${SA_NAME:-loop-sessions-release}"
-PROMOTE_SA_NAME="${PROMOTE_SA_NAME:-loop-sessions-promote}"
-IMAGE_REPO="${IMAGE_REPO:-loop-sessions}"
+SA_NAME="${SA_NAME:-claude-code-recorder-release}"
+PROMOTE_SA_NAME="${PROMOTE_SA_NAME:-claude-code-recorder-promote}"
+IMAGE_REPO="${IMAGE_REPO:-claude-code-recorder}"
 POOL="${POOL:-github}"
-PROVIDER="${PROVIDER:-loop-sessions}"
+PROVIDER="${PROVIDER:-claude-code-recorder}"
 
 SA="${SA_NAME}@${PROJECT}.iam.gserviceaccount.com"
 PROMOTE_SA="${PROMOTE_SA_NAME}@${PROJECT}.iam.gserviceaccount.com"
@@ -162,7 +162,7 @@ if exists gcloud iam service-accounts describe "$SA" --project="$PROJECT"; then
 	printf '    exists\n'
 else
 	run gcloud iam service-accounts create "$SA_NAME" --project="$PROJECT" \
-		--display-name="loop-sessions release (GitHub Actions)"
+		--display-name="claude-code-recorder release (GitHub Actions)"
 fi
 
 say "service account ${PROMOTE_SA}"
@@ -170,7 +170,7 @@ if exists gcloud iam service-accounts describe "$PROMOTE_SA" --project="$PROJECT
 	printf '    exists\n'
 else
 	run gcloud iam service-accounts create "$PROMOTE_SA_NAME" --project="$PROJECT" \
-		--display-name="loop-sessions promote to latest (GitHub Actions, production environment)"
+		--display-name="claude-code-recorder promote to latest (GitHub Actions, production environment)"
 fi
 
 # 2. Bindings. add-iam-policy-binding is idempotent by itself (a binding that

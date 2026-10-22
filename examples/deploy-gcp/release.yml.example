@@ -33,7 +33,7 @@
 # property of the account, not only of what this file happens to contain.
 #
 # Authentication is Workload Identity Federation: the job's OIDC token is
-# exchanged for the loop-sessions-release service account, and no key file
+# exchanged for the claude-code-recorder-release service account, and no key file
 # exists anywhere. examples/deploy-gcp/ci-setup.sh creates the pool, the provider and
 # the account.
 name: release
@@ -58,15 +58,15 @@ env:
   REGION: __REGION__
   BUCKET: gs://__RELEASE_BUCKET__
   PUBLIC_URL: __PUBLIC_URL__
-  WIF_PROVIDER: projects/__PROJECT_NUMBER__/locations/global/workloadIdentityPools/github/providers/loop-sessions
-  RELEASE_SA: loop-sessions-release@__PROJECT__.iam.gserviceaccount.com
+  WIF_PROVIDER: projects/__PROJECT_NUMBER__/locations/global/workloadIdentityPools/github/providers/claude-code-recorder
+  RELEASE_SA: claude-code-recorder-release@__PROJECT__.iam.gserviceaccount.com
   # A second account, reachable only from a job that declares the production
   # environment: GitHub puts the environment in the OIDC token and the
   # provider maps repository and environment into one attribute the binding
   # names. The release account above can write everything in the bucket
   # except latest/, so a run that is not this job cannot move the fleet's
   # pointer even if the workflow said to (examples/deploy-gcp/ci-setup.sh).
-  PROMOTE_SA: loop-sessions-promote@__PROJECT__.iam.gserviceaccount.com
+  PROMOTE_SA: claude-code-recorder-promote@__PROJECT__.iam.gserviceaccount.com
 
 jobs:
   build-and-canary:
@@ -96,8 +96,8 @@ jobs:
 
       - name: the stamp must name this commit and no local changes
         run: |
-          go version -m dist/loop-sessions_linux_amd64 | grep -q "vcs.revision=${GITHUB_SHA}"
-          if go version -m dist/loop-sessions_linux_amd64 | grep -q 'vcs.modified=true'; then
+          go version -m dist/claude-code-recorder_linux_amd64 | grep -q "vcs.revision=${GITHUB_SHA}"
+          if go version -m dist/claude-code-recorder_linux_amd64 | grep -q 'vcs.modified=true'; then
             echo "the build carries vcs.modified=true; refusing to publish" >&2
             exit 1
           fi
@@ -130,7 +130,7 @@ jobs:
       # laptop case.
       - name: build and push the server image for the same sha (not deployed)
         run: |
-          IMAGE="$REGION-docker.pkg.dev/$PROJECT/loop-sessions/server:$TAG"
+          IMAGE="$REGION-docker.pkg.dev/$PROJECT/claude-code-recorder/server:$TAG"
           gcloud auth configure-docker "$REGION-docker.pkg.dev" --quiet
           docker build \
             --build-arg VERSION="$TAG" --build-arg BUILD_DATE="$BUILD_DATE" \
@@ -140,12 +140,12 @@ jobs:
 
       - name: publish the immutable build directory
         run: |
-          gcloud storage cp --cache-control=no-store dist/loop-sessions_* dist/SHA256SUMS dist/latest.json \
+          gcloud storage cp --cache-control=no-store dist/claude-code-recorder_* dist/SHA256SUMS dist/latest.json \
             "$BUCKET/builds/$TAG/"
 
       - name: publish the canary channel (binaries first, manifest last)
         run: |
-          gcloud storage cp --cache-control=no-store dist/loop-sessions_* "$BUCKET/canary/"
+          gcloud storage cp --cache-control=no-store dist/claude-code-recorder_* "$BUCKET/canary/"
           gcloud storage cp --cache-control=no-store dist/SHA256SUMS dist/latest.json "$BUCKET/canary/"
 
       - name: verify through the proxy the fleet reads
@@ -189,10 +189,10 @@ jobs:
       - name: promote builds/<sha> to latest (binaries first, manifest last)
         run: |
           SRC="$BUCKET/builds/$PROMOTE"
-          gcloud storage cp --cache-control=no-store "$SRC/loop-sessions_*" "$BUCKET/latest/"
+          gcloud storage cp --cache-control=no-store "$SRC/claude-code-recorder_*" "$BUCKET/latest/"
           gcloud storage cp --cache-control=no-store "$SRC/SHA256SUMS" "$SRC/latest.json" "$BUCKET/latest/"
 
       - name: verify through the proxy the fleet reads
         run: |
-          curl -fsS "$PUBLIC_URL/dl/latest/SHA256SUMS" | grep -c 'loop-sessions_' | grep -qx 4
+          curl -fsS "$PUBLIC_URL/dl/latest/SHA256SUMS" | grep -c 'claude-code-recorder_' | grep -qx 4
           curl -fsS "$PUBLIC_URL/dl/latest/latest.json" | grep -q '"commit"'

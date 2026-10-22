@@ -1,4 +1,4 @@
-# loop-sessions with Docker Compose
+# claude-code-recorder with Docker Compose
 
 The server and its Postgres on one machine, started with one command. This
 is the quickest way to run the real thing (as opposed to the fixture-backed
@@ -43,7 +43,7 @@ of the `ALLOWED_DOMAINS`.
 ### Pull the published image instead of building
 
 The service names the published image,
-`ghcr.io/loopai-hq/loop-sessions-server`, and also carries a `build:` section
+`ghcr.io/loopai-hq/claude-code-recorder-server`, and also carries a `build:` section
 pointing at the repository root, so:
 
 - `docker compose up -d --build` always builds from the checkout you are
@@ -111,7 +111,7 @@ fixes `DATABASE_HOST` and `DATABASE_PORT` for the server; nothing publishes
 the port on the host. To reach it with `psql` for a backup or a query:
 
 ```sh
-docker compose exec db psql -U loop_sessions -d loop_sessions
+docker compose exec db psql -U claude_code_recorder -d claude_code_recorder
 ```
 
 ## Data and backups
@@ -125,7 +125,7 @@ Back up the database, not the containers. A plain dump is enough for this
 size of deployment:
 
 ```sh
-docker compose exec -T db pg_dump -U loop_sessions -Fc loop_sessions > loop-sessions-$(date +%F).dump
+docker compose exec -T db pg_dump -U claude_code_recorder -Fc claude_code_recorder > claude-code-recorder-$(date +%F).dump
 ```
 
 Restore with `pg_restore` into an empty database before starting the server,
@@ -143,13 +143,13 @@ required:
 ```sh
 # from a checkout
 make build
-./loop-sessions install --endpoint http://127.0.0.1:8080
+./claude-code-recorder install --endpoint http://127.0.0.1:8080
 
 # or the released binary, verified against SHA256SUMS by the installer
 curl -fsSL https://github.com/loopai-hq/claude-code-recorder/releases/latest/download/install.sh |
   LOOP_SESSIONS_BASE_URL=https://github.com/loopai-hq/claude-code-recorder/releases/latest \
   LOOP_SESSIONS_VERSION=download sh
-loop-sessions install --endpoint http://127.0.0.1:8080
+claude-code-recorder install --endpoint http://127.0.0.1:8080
 ```
 
 `install` opens the browser to sign in (the same Google account rules apply),

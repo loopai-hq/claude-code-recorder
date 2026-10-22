@@ -7,11 +7,11 @@
 # that reported once and have not for a day; a machine that never reported is
 # counted separately (never_reported) because it is a failed install somebody
 # knows about.
-name: loop_sessions/fleet_silent
+name: claude_code_recorder/fleet_silent
 description: Machines silent for over a day, sampled per evaluator tick (field silent of the server line "fleet summary")
 filter: >-
   resource.type="cloud_run_revision"
-  AND resource.labels.service_name="loop-sessions"
+  AND resource.labels.service_name="claude-code-recorder"
   AND log_id("run.googleapis.com/stdout")
   AND jsonPayload.message="fleet summary"
 metricDescriptor:

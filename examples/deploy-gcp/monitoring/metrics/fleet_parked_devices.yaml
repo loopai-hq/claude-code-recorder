@@ -6,11 +6,11 @@
 # single sample back as the value. parked_devices is the number of machines
 # holding items the server gave no verdict on; a client older than 788dcb3
 # cannot report it and reads as unknown, never as zero.
-name: loop_sessions/fleet_parked_devices
+name: claude_code_recorder/fleet_parked_devices
 description: Machines with parked items, sampled per evaluator tick (field parked_devices of the server line "fleet summary")
 filter: >-
   resource.type="cloud_run_revision"
-  AND resource.labels.service_name="loop-sessions"
+  AND resource.labels.service_name="claude-code-recorder"
   AND log_id("run.googleapis.com/stdout")
   AND jsonPayload.message="fleet summary"
 metricDescriptor:

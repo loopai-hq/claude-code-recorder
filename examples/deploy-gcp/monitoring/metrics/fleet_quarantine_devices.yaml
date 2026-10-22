@@ -7,11 +7,11 @@
 # machines holding items the server refused for good; at the 788dcb3 promotion
 # machines that hit the old attempt cap do, so this can read above zero on day one and is meant to
 # be burned down, not silenced.
-name: loop_sessions/fleet_quarantine_devices
+name: claude_code_recorder/fleet_quarantine_devices
 description: Machines with a non-empty quarantine, sampled per evaluator tick (field quarantine_devices of the server line "fleet summary")
 filter: >-
   resource.type="cloud_run_revision"
-  AND resource.labels.service_name="loop-sessions"
+  AND resource.labels.service_name="claude-code-recorder"
   AND log_id("run.googleapis.com/stdout")
   AND jsonPayload.message="fleet summary"
 metricDescriptor:

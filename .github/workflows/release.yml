@@ -4,7 +4,7 @@
 # the server image, and publishes them where anyone can fetch and verify them:
 #
 #   https://github.com/loopai-hq/claude-code-recorder/releases/download/vX.Y.Z/<asset>
-#   ghcr.io/loopai-hq/loop-sessions-server:vX.Y.Z
+#   ghcr.io/loopai-hq/claude-code-recorder-server:vX.Y.Z
 #
 # Two jobs. `build` runs on every trigger and proves the release is sound
 # without any write permission: `make release` twice with identical bytes,
@@ -55,7 +55,7 @@ permissions:
 
 env:
   GOVULNCHECK_VERSION: v1.8.0
-  IMAGE_NAME: loop-sessions-server
+  IMAGE_NAME: claude-code-recorder-server
 
 jobs:
   build:
@@ -85,15 +85,15 @@ jobs:
 
       - name: the stamp must name this commit and no local changes
         run: |
-          go version -m dist/loop-sessions_linux_amd64 | grep -q "vcs.revision=${GITHUB_SHA}"
-          if go version -m dist/loop-sessions_linux_amd64 | grep -q 'vcs.modified=true'; then
+          go version -m dist/claude-code-recorder_linux_amd64 | grep -q "vcs.revision=${GITHUB_SHA}"
+          if go version -m dist/claude-code-recorder_linux_amd64 | grep -q 'vcs.modified=true'; then
             echo 'the build carries vcs.modified=true; refusing to continue' >&2
             exit 1
           fi
           grep -q "\"commit\": \"${GITHUB_SHA}\"" dist/latest.json
 
       - name: govulncheck on the shipped linux/amd64 binary
-        run: go run "golang.org/x/vuln/cmd/govulncheck@${GOVULNCHECK_VERSION}" -mode binary dist/loop-sessions_linux_amd64
+        run: go run "golang.org/x/vuln/cmd/govulncheck@${GOVULNCHECK_VERSION}" -mode binary dist/claude-code-recorder_linux_amd64
 
       # The release-notes script is in this workflow's paths filter so that
       # a change to it is exercised here, not first on a tag. The newest
@@ -196,8 +196,8 @@ jobs:
 
       - name: the stamp must name this commit and no local changes
         run: |
-          go version -m dist/loop-sessions_linux_amd64 | grep -q "vcs.revision=${GITHUB_SHA}"
-          if go version -m dist/loop-sessions_linux_amd64 | grep -q 'vcs.modified=true'; then
+          go version -m dist/claude-code-recorder_linux_amd64 | grep -q "vcs.revision=${GITHUB_SHA}"
+          if go version -m dist/claude-code-recorder_linux_amd64 | grep -q 'vcs.modified=true'; then
             echo 'the build carries vcs.modified=true; refusing to continue' >&2
             exit 1
           fi
@@ -233,7 +233,7 @@ jobs:
 
       - name: verify what was just attested and signed
         run: |
-          gh attestation verify dist/loop-sessions_linux_amd64 --repo "${GITHUB_REPOSITORY}"
+          gh attestation verify dist/claude-code-recorder_linux_amd64 --repo "${GITHUB_REPOSITORY}"
           gh attestation verify install/install.sh --repo "${GITHUB_REPOSITORY}"
           cosign verify-blob \
             --bundle dist/SHA256SUMS.sigstore.json \
@@ -277,10 +277,10 @@ jobs:
             --prerelease="${PRERELEASE}" \
             "${NOTES_FLAG}"
           gh release upload "${TAG}" \
-            dist/loop-sessions_darwin_amd64 \
-            dist/loop-sessions_darwin_arm64 \
-            dist/loop-sessions_linux_amd64 \
-            dist/loop-sessions_linux_arm64 \
+            dist/claude-code-recorder_darwin_amd64 \
+            dist/claude-code-recorder_darwin_arm64 \
+            dist/claude-code-recorder_linux_amd64 \
+            dist/claude-code-recorder_linux_arm64 \
             dist/SHA256SUMS \
             dist/SHA256SUMS.sigstore.json \
             dist/latest.json \

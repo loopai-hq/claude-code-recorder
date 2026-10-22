@@ -65,7 +65,7 @@ type aggregation struct {
 }
 
 var (
-	userMetric  = regexp.MustCompile(`logging\.googleapis\.com/user/loop_sessions/([a-z0-9_]+)`)
+	userMetric  = regexp.MustCompile(`logging\.googleapis\.com/user/claude_code_recorder/([a-z0-9_]+)`)
 	placeholder = regexp.MustCompile(`__([A-Z_]+)__`)
 	anchorRef   = regexp.MustCompile(`README\.md#([a-z0-9-]+)`)
 )
@@ -174,11 +174,11 @@ func yamlField(doc, key string) string {
 // runbook, and pointed at a channel so somebody hears it.
 func TestEveryPolicyIsShapedForApply(t *testing.T) {
 	for f, p := range loadPolicies(t) {
-		if !strings.HasPrefix(p.DisplayName, "loop-sessions: ") {
-			t.Errorf("%s: displayName %q does not start with \"loop-sessions: \"; the console lists seventy policies and the prefix is how ours are found", f, p.DisplayName)
+		if !strings.HasPrefix(p.DisplayName, "claude-code-recorder: ") {
+			t.Errorf("%s: displayName %q does not start with \"claude-code-recorder: \"; the console lists seventy policies and the prefix is how ours are found", f, p.DisplayName)
 		}
-		if p.UserLabels["app"] != "loop-sessions" {
-			t.Errorf("%s: userLabels.app = %q, want loop-sessions; apply.sh lists by it", f, p.UserLabels["app"])
+		if p.UserLabels["app"] != "claude-code-recorder" {
+			t.Errorf("%s: userLabels.app = %q, want claude-code-recorder; apply.sh lists by it", f, p.UserLabels["app"])
 		}
 		switch p.UserLabels["tier"] {
 		case "infra", "fleet", "data":
@@ -309,8 +309,8 @@ func TestEveryMetricAPolicyReferencesIsDefined(t *testing.T) {
 					t.Errorf("%s references metric %s, and metrics/%s.yaml does not exist", f, m[0], m[1])
 					continue
 				}
-				if got := yamlField(doc, "name"); got != "loop_sessions/"+m[1] {
-					t.Errorf("metrics/%s.yaml declares name %q, want loop_sessions/%s", m[1], got, m[1])
+				if got := yamlField(doc, "name"); got != "claude_code_recorder/"+m[1] {
+					t.Errorf("metrics/%s.yaml declares name %q, want claude_code_recorder/%s", m[1], got, m[1])
 				}
 			}
 		}
@@ -411,14 +411,14 @@ func TestRequiredMetricsAreDefinedAndWellFormed(t *testing.T) {
 			t.Errorf("metrics/%s.yaml is missing", name)
 			continue
 		}
-		if got := yamlField(doc, "name"); got != "loop_sessions/"+name {
-			t.Errorf("metrics/%s.yaml: name = %q, want loop_sessions/%s", name, got, name)
+		if got := yamlField(doc, "name"); got != "claude_code_recorder/"+name {
+			t.Errorf("metrics/%s.yaml: name = %q, want claude_code_recorder/%s", name, got, name)
 		}
 		if yamlField(doc, "description") == "" {
 			t.Errorf("metrics/%s.yaml: no description", name)
 		}
-		if !strings.Contains(doc, `resource.labels.service_name="loop-sessions"`) {
-			t.Errorf("metrics/%s.yaml: the filter is not scoped to the loop-sessions service", name)
+		if !strings.Contains(doc, `resource.labels.service_name="claude-code-recorder"`) {
+			t.Errorf("metrics/%s.yaml: the filter is not scoped to the claude-code-recorder service", name)
 		}
 		if !strings.Contains(doc, "metricKind: DELTA") || !strings.Contains(doc, "valueType: INT64") {
 			t.Errorf("metrics/%s.yaml: not a DELTA INT64 counter", name)
@@ -430,7 +430,7 @@ func TestRequiredMetricsAreDefinedAndWellFormed(t *testing.T) {
 			t.Errorf("metrics/%s.yaml is missing", name)
 			continue
 		}
-		if !strings.Contains(doc, `resource.labels.service_name="loop-sessions"`) || !strings.Contains(doc, `jsonPayload.message=`) {
+		if !strings.Contains(doc, `resource.labels.service_name="claude-code-recorder"`) || !strings.Contains(doc, `jsonPayload.message=`) {
 			t.Errorf("metrics/%s.yaml: the filter is not scoped to one of the service's log lines", name)
 		}
 		if !strings.Contains(doc, "metricKind: DELTA") || !strings.Contains(doc, "valueType: INT64") {
@@ -443,7 +443,7 @@ func TestRequiredMetricsAreDefinedAndWellFormed(t *testing.T) {
 			t.Errorf("metrics/%s.yaml is missing", name)
 			continue
 		}
-		if !strings.Contains(doc, `resource.labels.service_name="loop-sessions"`) || !strings.Contains(doc, `jsonPayload.message=`) {
+		if !strings.Contains(doc, `resource.labels.service_name="claude-code-recorder"`) || !strings.Contains(doc, `jsonPayload.message=`) {
 			t.Errorf("metrics/%s.yaml: the filter is not scoped to one of the service's log lines", name)
 		}
 		if !strings.Contains(doc, "valueType: DISTRIBUTION") {
@@ -459,7 +459,7 @@ func TestRequiredMetricsAreDefinedAndWellFormed(t *testing.T) {
 	files, _ := filepath.Glob("metrics/*.yaml")
 	for _, f := range files {
 		raw, _ := os.ReadFile(f)
-		want := "loop_sessions/" + strings.TrimSuffix(filepath.Base(f), ".yaml")
+		want := "claude_code_recorder/" + strings.TrimSuffix(filepath.Base(f), ".yaml")
 		if got := yamlField(string(raw), "name"); got != want {
 			t.Errorf("%s declares name %q, want %q (apply.sh reads the name from the file, so the two must agree)", f, got, want)
 		}
@@ -714,8 +714,8 @@ func TestEveryPolicyCarriesItsFileNameAsTheAssetLabel(t *testing.T) {
 		if got != want {
 			t.Errorf("%s carries userLabels.asset=%q, want %q (apply.sh matches the live policy on it)", filepath.Base(f), got, want)
 		}
-		if policy.UserLabels["app"] != "loop-sessions" {
-			t.Errorf("%s is not labelled app=loop-sessions, so the apply would not find it at all", filepath.Base(f))
+		if policy.UserLabels["app"] != "claude-code-recorder" {
+			t.Errorf("%s is not labelled app=claude-code-recorder, so the apply would not find it at all", filepath.Base(f))
 		}
 		if prev, dup := seen[got]; dup {
 			t.Errorf("%s and %s share the asset label %q; the apply would refuse both", prev, filepath.Base(f), got)

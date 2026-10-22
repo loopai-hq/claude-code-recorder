@@ -1,10 +1,10 @@
 {
-  "displayName": "loop-sessions: ingest rejections in more than 10% of batches for 15 min",
+  "displayName": "claude-code-recorder: ingest rejections in more than 10% of batches for 15 min",
   "combiner": "OR",
   "enabled": true,
   "severity": "WARNING",
   "userLabels": {
-    "app": "loop-sessions",
+    "app": "claude-code-recorder",
     "tier": "fleet",
     "asset": "02-ingest-rejection-rate"
   },
@@ -12,8 +12,8 @@
     {
       "displayName": "batches with a rejected item over all batches above 10% for 15 min",
       "conditionThreshold": {
-        "filter": "metric.type=\"logging.googleapis.com/user/loop_sessions/ingest_batches\" AND resource.type=\"cloud_run_revision\" AND metric.labels.had_rejects!=\"\"",
-        "denominatorFilter": "metric.type=\"logging.googleapis.com/user/loop_sessions/ingest_batches\" AND resource.type=\"cloud_run_revision\"",
+        "filter": "metric.type=\"logging.googleapis.com/user/claude_code_recorder/ingest_batches\" AND resource.type=\"cloud_run_revision\" AND metric.labels.had_rejects!=\"\"",
+        "denominatorFilter": "metric.type=\"logging.googleapis.com/user/claude_code_recorder/ingest_batches\" AND resource.type=\"cloud_run_revision\"",
         "aggregations": [
           {
             "alignmentPeriod": "300s",
@@ -42,7 +42,7 @@
   },
   "documentation": {
     "mimeType": "text/markdown",
-    "content": "More than a tenth of /v1/events batches carried an item the server refused for good, for fifteen minutes. A rejection is final on the laptop: the client quarantines the item with the server's reason in the file name and records a `rejected:<reason>` drop, so a rejection rate is captured work that will never be stored.\n\nRead the reasons first: `gcloud logging read 'resource.labels.service_name=\"loop-sessions\" AND jsonPayload.message=\"ingest item rejected\"' --freshness=1h --format='value(jsonPayload.reason,jsonPayload.event_type,jsonPayload.email,jsonPayload.device_id)' | sort | uniq -c | sort -rn`. `no_session_id` and `no_id` are a client bug on the `agent_version` the `ingest_batches` metric labels the batches with; `batch_too_big` is a cap mismatch between that client and the server; a `scrub` reason is the server refusing content the laptop should have scrubbed. Then open the device on /admin/fleet: the quarantine row for that person carries the verb (`loop-sessions doctor --replay-quarantine` posts one item and prints the verdict).\n\nRunbook: examples/deploy-gcp/README.md#runbook-quarantine",
+    "content": "More than a tenth of /v1/events batches carried an item the server refused for good, for fifteen minutes. A rejection is final on the laptop: the client quarantines the item with the server's reason in the file name and records a `rejected:<reason>` drop, so a rejection rate is captured work that will never be stored.\n\nRead the reasons first: `gcloud logging read 'resource.labels.service_name=\"claude-code-recorder\" AND jsonPayload.message=\"ingest item rejected\"' --freshness=1h --format='value(jsonPayload.reason,jsonPayload.event_type,jsonPayload.email,jsonPayload.device_id)' | sort | uniq -c | sort -rn`. `no_session_id` and `no_id` are a client bug on the `agent_version` the `ingest_batches` metric labels the batches with; `batch_too_big` is a cap mismatch between that client and the server; a `scrub` reason is the server refusing content the laptop should have scrubbed. Then open the device on /admin/fleet: the quarantine row for that person carries the verb (`claude-code-recorder doctor --replay-quarantine` posts one item and prints the verdict).\n\nRunbook: examples/deploy-gcp/README.md#runbook-quarantine",
     "links": [
       {
         "displayName": "Runbook: quarantine",

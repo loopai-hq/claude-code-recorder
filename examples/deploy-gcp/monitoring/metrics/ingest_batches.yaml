@@ -7,11 +7,11 @@
 # value is converted to the label's type, so a STRING label reads them as
 # "200" and "3". The apply-monitoring runbook says how to confirm that on
 # the first apply.
-name: loop_sessions/ingest_batches
+name: claude_code_recorder/ingest_batches
 description: One per /v1/events request, labelled by agent build, HTTP status and whether any item was rejected (server line "ingest batch")
 filter: >-
   resource.type="cloud_run_revision"
-  AND resource.labels.service_name="loop-sessions"
+  AND resource.labels.service_name="claude-code-recorder"
   AND log_id("run.googleapis.com/stdout")
   AND jsonPayload.message="ingest batch"
 metricDescriptor:

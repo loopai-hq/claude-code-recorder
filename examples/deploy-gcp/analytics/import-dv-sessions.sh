@@ -36,7 +36,7 @@
 # Usage:
 #   examples/deploy-gcp/analytics/import-dv-sessions.sh --dry-run
 #   examples/deploy-gcp/analytics/import-dv-sessions.sh [--dump=gs://__DUMP_BUCKET__]
-#       [--platform=devin] [--project=P] [--raw-dataset=loop_sessions_raw]
+#       [--platform=devin] [--project=P] [--raw-dataset=claude_code_recorder_raw]
 #       [--bucket=__ANALYTICS_BUCKET__] [--region=__REGION__]
 #
 #   --dry-run reads the dump and the dataset, prints every command it would
@@ -50,7 +50,7 @@ set -euo pipefail
 
 PROJECT="${PROJECT:-__PROJECT__}"
 REGION="${REGION:-__REGION__}"
-RAW_DATASET="${RAW_DATASET:-loop_sessions_raw}"
+RAW_DATASET="${RAW_DATASET:-claude_code_recorder_raw}"
 BUCKET="${BUCKET:-__ANALYTICS_BUCKET__}"
 DUMP="${DUMP:-gs://__DUMP_BUCKET__}"
 PLATFORM="${PLATFORM:-devin}"
@@ -250,4 +250,4 @@ log "$PLATFORM: $sessions sessions, $messages messages, $owners owners, $no_owne
 if [ "$sessions" != "$dump_files" ]; then
 	log "note: the dump held $dump_files files and $sessions sessions landed; the difference is files with no created_at, which cannot be partitioned. Find them with: SELECT session_id FROM \`$PROJECT.$RAW_DATASET.$STAGE_DUMP\` WHERE created_at IS NULL"
 fi
-log "== import complete; query \`$PROJECT.loop_sessions.all_sessions\`"
+log "== import complete; query \`$PROJECT.claude_code_recorder.all_sessions\`"

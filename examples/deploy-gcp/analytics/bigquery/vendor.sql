@@ -1,5 +1,5 @@
 -- The vendor tables: sessions people ran on an agent platform that is not
--- ours, imported from a dump rather than captured by the loop-sessions
+-- ours, imported from a dump rather than captured by the claude-code-recorder
 -- client. Applied by provision.sh through `bq query` alongside tables.sql,
 -- with __PROJECT__ and __RAW_DATASET__ rendered; CREATE TABLE IF NOT
 -- EXISTS, so it is safe to run after every edit.

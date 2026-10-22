@@ -1,6 +1,6 @@
-# Deploying loop-sessions
+# Deploying claude-code-recorder
 
-> This directory is one example of hosting loop-sessions: a single Cloud Run
+> This directory is one example of hosting claude-code-recorder: a single Cloud Run
 > service on GCP with Cloud SQL, plus optional monitoring and a BigQuery export.
 > It is not the only way to run it: the server needs Postgres and a Firebase project.
 
@@ -25,17 +25,17 @@ Set the variables once. They are referenced by every step.
 ```bash
 export PROJECT=my-project
 export REGION=us-central1
-export INSTANCE=loop-sessions
-export SERVICE=loop-sessions
+export INSTANCE=claude-code-recorder
+export SERVICE=claude-code-recorder
 # Cloud Run's URL for the service. It is not known until the service exists;
 # step 7 says how to read the real one back and correct it.
-export PUBLIC_URL=https://loop-sessions-<project-number>.${REGION}.run.app
+export PUBLIC_URL=https://claude-code-recorder-<project-number>.${REGION}.run.app
 # Every email domain your people sign in from, comma-separated. Listing one
 # domain locks out everybody whose Google account sits on another.
 export DOMAINS=example.com
 # The bucket the installer and the agent binaries are served from
 # (RELEASE_BUCKET in cloudrun.yaml; the release workflow example publishes to it).
-export RELEASE_BUCKET=my-project-loop-sessions-releases
+export RELEASE_BUCKET=my-project-claude-code-recorder-releases
 # The Firebase web API key, from the Firebase console (step 6).
 export FIREBASE_API_KEY=<web API key>
 export TAG=$(git rev-parse --short HEAD)
@@ -62,10 +62,10 @@ gcloud services enable \
 ## 1. Artifact Registry
 
 ```bash
-gcloud artifacts repositories create loop-sessions \
+gcloud artifacts repositories create claude-code-recorder \
   --repository-format=docker \
   --location="$REGION" \
-  --description="loop-sessions server images"
+  --description="claude-code-recorder server images"
 
 gcloud auth configure-docker "${REGION}-docker.pkg.dev"
 ```
@@ -107,8 +107,8 @@ one; it is only ever read by Secret Manager.
 ```bash
 DB_PASSWORD=$(openssl rand -base64 32)
 
-gcloud sql databases create loop_sessions --instance="$INSTANCE"
-gcloud sql users create loop_sessions --instance="$INSTANCE" --password="$DB_PASSWORD"
+gcloud sql databases create claude_code_recorder --instance="$INSTANCE"
+gcloud sql users create claude_code_recorder --instance="$INSTANCE" --password="$DB_PASSWORD"
 ```
 
 ## 3. Secrets
@@ -118,11 +118,11 @@ the service account, so the grant in step 4 has something to bind to.
 
 ```bash
 printf '%s' "$DB_PASSWORD" | \
-  gcloud secrets create loop-sessions-db-password --data-file=- --replication-policy=automatic
+  gcloud secrets create claude-code-recorder-db-password --data-file=- --replication-policy=automatic
 
 # 32 random bytes, used to sign the dashboard cookie and the admin form tokens.
 openssl rand -base64 32 | tr -d '\n' | \
-  gcloud secrets create loop-sessions-session-key --data-file=- --replication-policy=automatic
+  gcloud secrets create claude-code-recorder-session-key --data-file=- --replication-policy=automatic
 ```
 
 There is no third. This server holds no OAuth client secret, because it has no
@@ -140,10 +140,10 @@ its own secrets, write logs. It gets no Cloud SQL admin role, so a compromised
 container cannot drop the instance it is reading.
 
 ```bash
-SA="loop-sessions-run@${PROJECT}.iam.gserviceaccount.com"
+SA="claude-code-recorder-run@${PROJECT}.iam.gserviceaccount.com"
 
-gcloud iam service-accounts create loop-sessions-run \
-  --display-name="loop-sessions Cloud Run runtime"
+gcloud iam service-accounts create claude-code-recorder-run \
+  --display-name="claude-code-recorder Cloud Run runtime"
 
 for role in roles/cloudsql.client roles/logging.logWriter; do
   gcloud projects add-iam-policy-binding "$PROJECT" \
@@ -151,7 +151,7 @@ for role in roles/cloudsql.client roles/logging.logWriter; do
 done
 
 for s in db-password session-key; do
-  gcloud secrets add-iam-policy-binding "loop-sessions-${s}" \
+  gcloud secrets add-iam-policy-binding "claude-code-recorder-${s}" \
     --member="serviceAccount:${SA}" \
     --role=roles/secretmanager.secretAccessor
 done
@@ -177,7 +177,7 @@ cloud-sql-proxy "${PROJECT}:${REGION}:${INSTANCE}" --port 5433
 export PGPASSWORD="$DB_PASSWORD"
 for f in server/store/migrations/*.sql; do
   echo "applying $f"
-  psql -h 127.0.0.1 -p 5433 -U loop_sessions -d loop_sessions -v ON_ERROR_STOP=1 -f "$f"
+  psql -h 127.0.0.1 -p 5433 -U claude_code_recorder -d claude_code_recorder -v ON_ERROR_STOP=1 -f "$f"
 done
 ```
 
@@ -190,7 +190,7 @@ schema starts cleanly and then fails on the first request, which is a much
 more confusing failure than this one.
 
 ```bash
-psql -h 127.0.0.1 -p 5433 -U loop_sessions -d loop_sessions -c '\dt'
+psql -h 127.0.0.1 -p 5433 -U claude_code_recorder -d claude_code_recorder -c '\dt'
 # expect: principals, devices, device_tokens, sessions, events, messages,
 #         shares, access_log, health_reports
 ```
@@ -200,7 +200,7 @@ somebody ends up locked out of the page that fixes lockouts. The repository
 README says how the first admin is bootstrapped. Confirm the roster instead:
 
 ```bash
-psql -h 127.0.0.1 -p 5433 -U loop_sessions -d loop_sessions \
+psql -h 127.0.0.1 -p 5433 -U claude_code_recorder -d claude_code_recorder \
   -c "SELECT email, role FROM principals ORDER BY email;"
 # expect one row per configured admin, role admin
 ```
@@ -314,10 +314,10 @@ docker build \
   --build-arg VERSION="$TAG" \
   --build-arg BUILD_DATE="$(TZ=UTC git log -1 --date=format-local:%Y-%m-%dT%H:%M:%SZ --format=%cd 2>/dev/null || date -u +%Y-%m-%dT%H:%M:%SZ)" \
   --build-arg REVISION="$(git rev-parse HEAD 2>/dev/null || true)" \
-  -t "${REGION}-docker.pkg.dev/${PROJECT}/loop-sessions/server:${TAG}" \
+  -t "${REGION}-docker.pkg.dev/${PROJECT}/claude-code-recorder/server:${TAG}" \
   .
 
-docker push "${REGION}-docker.pkg.dev/${PROJECT}/loop-sessions/server:${TAG}"
+docker push "${REGION}-docker.pkg.dev/${PROJECT}/claude-code-recorder/server:${TAG}"
 ```
 
 On an Apple Silicon laptop add `--platform linux/amd64`. Cloud Run will accept
@@ -371,8 +371,8 @@ It happened on the day the staleness badges shipped, twice.
 make release
 make verify
 gsutil -m -h "Cache-Control:no-store" cp \
-  dist/loop-sessions_darwin_arm64 dist/loop-sessions_darwin_amd64 \
-  dist/loop-sessions_linux_amd64 dist/loop-sessions_linux_arm64 \
+  dist/claude-code-recorder_darwin_arm64 dist/claude-code-recorder_darwin_amd64 \
+  dist/claude-code-recorder_linux_amd64 dist/claude-code-recorder_linux_arm64 \
   dist/SHA256SUMS gs://__RELEASE_BUCKET__/latest/
 ```
 
@@ -443,7 +443,7 @@ Revisions are immutable, so a rollback is a traffic change and takes seconds.
 ```bash
 gcloud run revisions list --service="$SERVICE" --region="$REGION"
 gcloud run services update-traffic "$SERVICE" \
-  --region="$REGION" --to-revisions=loop-sessions-00007-abc=100
+  --region="$REGION" --to-revisions=claude-code-recorder-00007-abc=100
 ```
 
 A rollback does not undo a migration. Migrations here must be additive for
@@ -496,7 +496,7 @@ The mirror's live pass runs every minute inside the server. Signals and
 levers, in the order an operator reaches for them:
 
 - Health: log lines `slack live` (per-pass counts) and `slack live pass
-  failed`. The log-based metric `loop_sessions/slack_live_pass_failed`
+  failed`. The log-based metric `claude_code_recorder/slack_live_pass_failed`
   (`monitoring/metrics/slack_live_pass_failed.yaml`) counts the failures and
   the policy `monitoring/policies/slack-live-pass-failed.json` alerts on it
   being nonzero for 15 minutes; both exist once `monitoring/apply.sh` has
@@ -505,7 +505,7 @@ levers, in the order an operator reaches for them:
 - Message-level failures: `SELECT key, last_error, attempts FROM
   slack_posts WHERE last_error IS NOT NULL ORDER BY claimed_at DESC`:
   Slack's own error word per undelivered message. `invalid_auth` means
-  the bot token (secret `loop-sessions-slack-bot-token`) needs rotating;
+  the bot token (secret `claude-code-recorder-slack-bot-token`) needs rotating;
   `not_in_channel` self-heals via join; `channel_not_found` is a typo'd
   or archived destination and spends its attempts, by design.
 - Unstick one message: `DELETE FROM slack_posts WHERE key='...' AND
@@ -539,7 +539,7 @@ levers apply. Additions:
 - Destination picker: the channel search on /settings/notifications calls
   conversations.list, which needs the `channels:read` bot scope (add under
   OAuth & Permissions, then Reinstall to Workspace; if the xoxb value
-  changes, update secret `loop-sessions-slack-bot-token`). Without it the
+  changes, update secret `claude-code-recorder-slack-bot-token`). Without it the
   search logs `channel search ... missing_scope` and shows no matches;
   the DM and by-id destinations keep working.
 
@@ -610,7 +610,7 @@ only after a database ping and says nothing else on failure, on purpose.
 ### Metrics, policies and the uptime check
 
 `monitoring/metrics/*.yaml` define log-based metrics under
-`logging.googleapis.com/user/loop_sessions/`. The counters: `ingest_batches`,
+`logging.googleapis.com/user/claude_code_recorder/`. The counters: `ingest_batches`,
 `ingest_rejected_items`, `ingest_undecided`, `ingest_5xx` and `health_posts`
 (both from the request log), `readyz_failed`, `server_catch`,
 `slack_live_pass_failed`, `fleet_drops`, `fleet_empty_start`,
@@ -630,7 +630,7 @@ Monitoring refuses `ALIGN_DELTA` on a gauge, which is why nothing here is
 one.
 
 `monitoring/policies/*.json` are the alert policies, one file per alert,
-each labelled `app=loop-sessions` and a `tier` (`infra`, `fleet` or `data`).
+each labelled `app=claude-code-recorder` and a `tier` (`infra`, `fleet` or `data`).
 Every policy carries a markdown runbook in `documentation.content` with the
 commands to run, and a link to the matching heading in this file. The infra
 tier as shipped:
@@ -705,7 +705,7 @@ yaml, and links only to headings that exist in this file.
 See the runbook "apply monitoring" below. In short: fill `channels.env`, run
 `monitoring/apply.sh --dry-run`, read what it would create, run it without
 the flag, then confirm in the console that the policies list under
-`app=loop-sessions`.
+`app=claude-code-recorder`.
 
 ## Runbook: apply monitoring
 
@@ -717,7 +717,7 @@ Before the first run, once, by a human:
 1. Create the fleet tier's Slack notification channel (`SLACK_FLEET`)
    through the API, not the console: the Slack channel type accepts any
    token that can post, so it carries the server's own bot token
-   (Secret Manager `loop-sessions-slack-bot-token`; the bot must be a member
+   (Secret Manager `claude-code-recorder-slack-bot-token`; the bot must be a member
    of the channel, `conversations.join`). To recreate it, read the token
    into a file and POST `{type: "slack", labels: {channel_name, auth_token}}`
    to `projects.notificationChannels.create`, then paste the numeric id into
@@ -786,8 +786,8 @@ against the same instance, so a 5xx rate is the leading edge of a capture
 backlog. Read the request log first, then the cause:
 
 ```bash
-gcloud logging read 'resource.labels.service_name="loop-sessions" AND httpRequest.status>=500' --limit=20 --freshness=1h
-gcloud logging read 'resource.labels.service_name="loop-sessions" AND jsonPayload.message="ingest request failed"' --limit=20 --freshness=1h --format='value(jsonPayload.op,jsonPayload.error)'
+gcloud logging read 'resource.labels.service_name="claude-code-recorder" AND httpRequest.status>=500' --limit=20 --freshness=1h
+gcloud logging read 'resource.labels.service_name="claude-code-recorder" AND jsonPayload.message="ingest request failed"' --limit=20 --freshness=1h --format='value(jsonPayload.op,jsonPayload.error)'
 ```
 
 `op` says which half failed: `upsert events` and `verify device` are the
@@ -800,8 +800,8 @@ fleet page never shows a machine as reporting when it is not).
 If a deploy landed in the last hour, roll back first and diagnose second:
 
 ```bash
-gcloud run revisions list --service=loop-sessions --region="$REGION"
-gcloud run services update-traffic loop-sessions --region="$REGION" --to-revisions=<previous>=100
+gcloud run revisions list --service=claude-code-recorder --region="$REGION"
+gcloud run services update-traffic claude-code-recorder --region="$REGION" --to-revisions=<previous>=100
 ```
 
 Which build is serving is on `/livez` (`ok <version>`); which build each
@@ -823,7 +823,7 @@ It is a server bug (the two halves disagree about what a batch contains),
 never the laptop's:
 
 ```bash
-gcloud logging read 'resource.labels.service_name="loop-sessions" AND jsonPayload.message="store returned no verdict"' --limit=20 --freshness=6h --format='value(jsonPayload.event_id,jsonPayload.event_type,jsonPayload.email,jsonPayload.device_id)'
+gcloud logging read 'resource.labels.service_name="claude-code-recorder" AND jsonPayload.message="store returned no verdict"' --limit=20 --freshness=6h --format='value(jsonPayload.event_id,jsonPayload.event_type,jsonPayload.email,jsonPayload.device_id)'
 ```
 
 Take the `event_id` to the store's own lines for the same request (they
@@ -833,14 +833,14 @@ through the proxy. A row that exists means `UpsertEvents` stored it and did
 not report it (a bug in the result assembly); no row means it was dropped
 between `prepare` and the insert. The device is on `/admin/fleet`; once the
 bug is fixed the next delivery of the same item stores it, and on a new
-client `loop-sessions doctor --redrive` pulls the parked copy forward.
+client `claude-code-recorder doctor --redrive` pulls the parked copy forward.
 
 ## Runbook: cloudsql
 
 Alerts: `10-*`, `10b`, `11-*`, `11b`, `12c-cloudrun-saturation`,
 `13-readyz-failed`.
 
-The instance is `loop-sessions` (Postgres 16, `db-custom-2-7680`, 100 GB
+The instance is `claude-code-recorder` (Postgres 16, `db-custom-2-7680`, 100 GB
 PD_SSD with autoresize and no cap, zonal, PITR on). Connection budget:
 `max_connections` 400, 3 reserved, so 397 usable; the service holds up to
 10 instances x 36 = 360, the export job 2, and 5 are kept for the proxy
@@ -850,10 +850,10 @@ need longer take it with `store.WithStatementTimeout` inside their own
 transaction.
 
 ```bash
-gcloud sql instances describe loop-sessions --format='value(state,settings.dataDiskSizeGb,settings.storageAutoResizeLimit,settings.tier)'
+gcloud sql instances describe claude-code-recorder --format='value(state,settings.dataDiskSizeGb,settings.storageAutoResizeLimit,settings.tier)'
 # Through the proxy (section 5):
-psql -h 127.0.0.1 -p 5433 -U loop_sessions -d loop_sessions -c "SELECT state, count(*) FROM pg_stat_activity GROUP BY 1"
-psql -h 127.0.0.1 -p 5433 -U loop_sessions -d loop_sessions -c "SELECT relname, n_dead_tup, last_autovacuum FROM pg_stat_user_tables ORDER BY n_dead_tup DESC LIMIT 5"
+psql -h 127.0.0.1 -p 5433 -U claude_code_recorder -d claude_code_recorder -c "SELECT state, count(*) FROM pg_stat_activity GROUP BY 1"
+psql -h 127.0.0.1 -p 5433 -U claude_code_recorder -d claude_code_recorder -c "SELECT relname, n_dead_tup, last_autovacuum FROM pg_stat_user_tables ORDER BY n_dead_tup DESC LIMIT 5"
 ```
 
 - Backends above 300: something is fanning out. `idle in transaction` rows
@@ -865,14 +865,14 @@ psql -h 127.0.0.1 -p 5433 -U loop_sessions -d loop_sessions -c "SELECT relname, 
   holder up by key through `pg_locks` (runbook: migrations, step 1).
   The instance-count alert says whether Cloud Run scaled
   up to produce the rest. Above 360, shed load first
-  (`gcloud run services update loop-sessions --region="$REGION" --max-instances=4`)
+  (`gcloud run services update claude-code-recorder --region="$REGION" --max-instances=4`)
   and restore 10 afterwards.
 - Disk above 80%: autoresize will handle the space; the number to act on is
   the growth rate. Above 5 GB a day, find the device from the `ingest batch`
   lines (`jsonPayload.bytes` summed by `device_id`); a re-walk that
   duplicated a corpus shows as one device sending far more than the rest.
 - CPU or memory: enable Query Insights before chasing it
-  (`gcloud sql instances patch loop-sessions --insights-config-query-insights-enabled`).
+  (`gcloud sql instances patch claude-code-recorder --insights-config-query-insights-enabled`).
   Statements the 30 s timeout cut off appear in `ingest request failed`
   lines with `SQLSTATE 57014`.
 - txid utilization above half: autovacuum is not keeping up (it has never
@@ -961,9 +961,9 @@ with the revision before it retired first.
 If a boot fails on a migration:
 
 ```bash
-gcloud logging read 'resource.labels.service_name="loop-sessions" AND jsonPayload.message="cannot start"' --limit=5 --freshness=1h --format='value(jsonPayload.err)'
+gcloud logging read 'resource.labels.service_name="claude-code-recorder" AND jsonPayload.message="cannot start"' --limit=5 --freshness=1h --format='value(jsonPayload.err)'
 # Through the proxy: what the ledger says landed
-psql -h 127.0.0.1 -p 5433 -U loop_sessions -d loop_sessions -c "SELECT name, applied_at FROM schema_migrations ORDER BY name"
+psql -h 127.0.0.1 -p 5433 -U claude_code_recorder -d claude_code_recorder -c "SELECT name, applied_at FROM schema_migrations ORDER BY name"
 ```
 
 A lock-budget failure clears itself on the next boot once ingest lets go of
@@ -985,13 +985,13 @@ This is the one fleet condition where the loss is in progress while you
 read the alert, which is why it is the only CRITICAL in the fleet tier.
 
 ```bash
-gcloud logging read 'resource.labels.service_name="loop-sessions" AND jsonPayload.message="fleet condition" AND jsonPayload.kind="capture_blocked"' --freshness=15m --format='value(jsonPayload.email,jsonPayload.device_id,jsonPayload.detail,jsonPayload.agent_version)'
+gcloud logging read 'resource.labels.service_name="claude-code-recorder" AND jsonPayload.message="fleet condition" AND jsonPayload.kind="capture_blocked"' --freshness=15m --format='value(jsonPayload.email,jsonPayload.device_id,jsonPayload.detail,jsonPayload.agent_version)'
 ```
 
-Ask the person to free disk. On their machine `loop-sessions status` says
+Ask the person to free disk. On their machine `claude-code-recorder status` says
 how far below the floor the volume is and what the spool holds; the current
 client keeps an absolute floor, while anything older refuses below 5% of
-the disk and needs `loop-sessions daemon --upgrade-now` as much as it needs
+the disk and needs `claude-code-recorder daemon --upgrade-now` as much as it needs
 space. Once the floor clears, capture resumes on the next hook and the
 condition leaves the next report; the sessions that ran while it was
 blocked carry a capture-loss banner in the reader and stay incomplete.
@@ -1012,8 +1012,8 @@ are the backlog the fix exists to burn down.
 On the person's machine, in this order:
 
 ```bash
-loop-sessions doctor --replay-quarantine   # posts one quarantined item on its own and prints the server's verdict
-loop-sessions doctor --redrive             # if the verdict was accepted: queue the rest again
+claude-code-recorder doctor --replay-quarantine   # posts one quarantined item on its own and prints the server's verdict
+claude-code-recorder doctor --redrive             # if the verdict was accepted: queue the rest again
 ```
 
 Accepted means the server has since been fixed for that shape, and the
@@ -1025,7 +1025,7 @@ directory the doctor names. For the rejection-rate alert, group the reasons
 first:
 
 ```bash
-gcloud logging read 'resource.labels.service_name="loop-sessions" AND jsonPayload.message="ingest item rejected"' --freshness=1h --format='value(jsonPayload.reason,jsonPayload.event_type,jsonPayload.email,jsonPayload.device_id)' | sort | uniq -c | sort -rn
+gcloud logging read 'resource.labels.service_name="claude-code-recorder" AND jsonPayload.message="ingest item rejected"' --freshness=1h --format='value(jsonPayload.reason,jsonPayload.event_type,jsonPayload.email,jsonPayload.device_id)' | sort | uniq -c | sort -rn
 ```
 
 While a person is away, mute the row on `/admin/fleet` with an until and a
@@ -1050,11 +1050,11 @@ Eight undecided verdicts for one item is a server bug (the `undecided`
 runbook), and until it is fixed the daily redrive parks them again.
 
 ```bash
-gcloud logging read 'resource.labels.service_name="loop-sessions" AND jsonPayload.message="store returned no verdict"' --freshness=1d --limit=20 --format='value(jsonPayload.event_id,jsonPayload.event_type,jsonPayload.email,jsonPayload.device_id)'
+gcloud logging read 'resource.labels.service_name="claude-code-recorder" AND jsonPayload.message="store returned no verdict"' --freshness=1d --limit=20 --format='value(jsonPayload.event_id,jsonPayload.event_type,jsonPayload.email,jsonPayload.device_id)'
 ```
 
 Fix and deploy the server first. Then, on the person's machine,
-`loop-sessions doctor --redrive` pulls the parked items forward now rather
+`claude-code-recorder doctor --redrive` pulls the parked items forward now rather
 than at the next daily redrive. Who holds parked items is the `parked` row
 on `/admin/fleet`; a client older than the quarantine fix cannot report the count and
 its row reads unknown, never zero, while the current client leaves the
@@ -1069,7 +1069,7 @@ the reader shows a capture-loss banner on sessions the machine ran around
 the drop.
 
 ```bash
-gcloud logging read 'resource.labels.service_name="loop-sessions" AND jsonPayload.message="fleet drops"' --freshness=1h --format='value(jsonPayload.email,jsonPayload.device_id,jsonPayload.reason,jsonPayload.delta)'
+gcloud logging read 'resource.labels.service_name="claude-code-recorder" AND jsonPayload.message="fleet drops"' --freshness=1h --format='value(jsonPayload.email,jsonPayload.device_id,jsonPayload.reason,jsonPayload.delta)'
 ```
 
 The reason decides the path. `disk_full` is the disk floor: the capture
@@ -1077,7 +1077,7 @@ blocked runbook. `queue_overflow` is the outbox at its cap evicting
 oldest-first, which means the machine captures faster than it delivers: the
 backlog runbook. `hook_abandoned` is a hook that hit its self-timeout; the
 the current client client raised it and made the write ledger-first, so on an older
-build the fix is `loop-sessions daemon --upgrade-now`. `parked` is the
+build the fix is `claude-code-recorder daemon --upgrade-now`. `parked` is the
 eighth undecided verdict: the parked runbook. `rejected:<reason>` is the
 server refusing an item: the quarantine runbook. The evaluator reports
 drops as deltas between ticks from the hourly ledger (`health_hourly`), so
@@ -1125,17 +1125,17 @@ which it evicts oldest-first (`near_cap`). Check the server before the
 laptop:
 
 ```bash
-gcloud logging read 'resource.labels.service_name="loop-sessions" AND httpRequest.status>=500' --limit=20 --freshness=1h
-gcloud logging read 'resource.labels.service_name="loop-sessions" AND jsonPayload.message="ingest batch" AND jsonPayload.email="<email>"' --limit=10 --freshness=1h --format='value(timestamp,jsonPayload.items,jsonPayload.accepted,jsonPayload.status)'
+gcloud logging read 'resource.labels.service_name="claude-code-recorder" AND httpRequest.status>=500' --limit=20 --freshness=1h
+gcloud logging read 'resource.labels.service_name="claude-code-recorder" AND jsonPayload.message="ingest batch" AND jsonPayload.email="<email>"' --limit=10 --freshness=1h --format='value(timestamp,jsonPayload.items,jsonPayload.accepted,jsonPayload.status)'
 ```
 
 Batches arriving and being accepted means the laptop is catching up on its
 own; give it the hour. No batches from that device while others deliver
 means the laptop's network or VPN: ask the person to run
-`loop-sessions status` (it prints the last delivery attempt and its error)
-and, if the daemon is not running, `loop-sessions install` puts it back. A
+`claude-code-recorder status` (it prints the last delivery attempt and its error)
+and, if the daemon is not running, `claude-code-recorder install` puts it back. A
 server that is healthy and a daemon that is running with a stalled outbox
-is a bug: collect `~/.loop/sessions/logs/` from the machine.
+is a bug: collect `~/.claude-code-recorder/logs/` from the machine.
 
 ## Runbook: enrol
 
@@ -1149,12 +1149,12 @@ closed the terminal before the setup finished.
 
 ```bash
 # Through the proxy: the device rows for the person
-psql -h 127.0.0.1 -p 5433 -U loop_sessions -d loop_sessions -c "SELECT id, hostname, agent_version, enrolled_at, last_seen_at, revoked_at FROM devices WHERE email = '<email>' ORDER BY enrolled_at DESC"
+psql -h 127.0.0.1 -p 5433 -U claude_code_recorder -d claude_code_recorder -c "SELECT id, hostname, agent_version, enrolled_at, last_seen_at, revoked_at FROM devices WHERE email = '<email>' ORDER BY enrolled_at DESC"
 ```
 
 A `revoked_at` that is set means somebody revoked it (the People page or a
 re-enrol); a `last_seen_at` that never moved means the daemon never came up.
-Either way the person runs `loop-sessions install` on the machine, which
+Either way the person runs `claude-code-recorder install` on the machine, which
 signs in again, enrols a device and starts the daemon; the old device row
 stays for the audit trail and stops counting once revoked.
 
@@ -1170,12 +1170,12 @@ in that state are only recoverable by a backfill from the transcript.
 On the person's machine:
 
 ```bash
-loop-sessions install --hooks-only   # puts the capture hooks back without signing in again
-loop-sessions status                 # confirms the hooks are registered and the daemon is up
+claude-code-recorder install --hooks-only   # puts the capture hooks back without signing in again
+claude-code-recorder status                 # confirms the hooks are registered and the daemon is up
 ```
 
-Once the hooks are back, `loop-sessions backfill` walks the transcripts the
-hooks missed (`loop-sessions backfill --session <id>` for one session; the
+Once the hooks are back, `claude-code-recorder backfill` walks the transcripts the
+hooks missed (`claude-code-recorder backfill --session <id>` for one session; the
 reader's head-state banner carries that command for a session whose start
 was not captured).
 
@@ -1190,15 +1190,15 @@ pattern this alert exists for, and the pattern that matters is a release
 whose daemon dies on start.
 
 ```bash
-gcloud logging read 'resource.labels.service_name="loop-sessions" AND jsonPayload.message="fleet silent"' --freshness=15m --format='value(jsonPayload.email,jsonPayload.device_id,jsonPayload.since,jsonPayload.hours,jsonPayload.last_worst)'
-gcloud logging read 'resource.labels.service_name="loop-sessions" AND jsonPayload.message="fleet condition" AND jsonPayload.email="<email>"' --freshness=3d --limit=5 --format='value(timestamp,jsonPayload.agent_version,jsonPayload.kind)'
+gcloud logging read 'resource.labels.service_name="claude-code-recorder" AND jsonPayload.message="fleet silent"' --freshness=15m --format='value(jsonPayload.email,jsonPayload.device_id,jsonPayload.since,jsonPayload.hours,jsonPayload.last_worst)'
+gcloud logging read 'resource.labels.service_name="claude-code-recorder" AND jsonPayload.message="fleet condition" AND jsonPayload.email="<email>"' --freshness=3d --limit=5 --format='value(timestamp,jsonPayload.agent_version,jsonPayload.kind)'
 ```
 
 If the silent machines share an `agent_version` on their last lines, that
 build is the suspect: check the release (section 7b) and the upgrade
 runbook, and republish the previous build if it is the daemon. Otherwise
-ping the people. Past 72 hours, `loop-sessions install` on the machine puts
-the daemon back; `loop-sessions status` says whether it is running at all.
+ping the people. Past 72 hours, `claude-code-recorder install` on the machine puts
+the daemon back; `claude-code-recorder status` says whether it is running at all.
 A silent machine is never counted behind the published build and gets no
 `version_lag` row: a machine that is off cannot upgrade, and its version
 state stays on its row for when it comes back. A `silent` mute holds back
@@ -1231,12 +1231,12 @@ machine is not judged behind at all (the silent runbook); a `version_lag`
 mute holds back the line and the `behind` gauge for that person.
 
 ```bash
-gcloud logging read 'resource.labels.service_name="loop-sessions" AND jsonPayload.message="fleet version_lag"' --freshness=15m --format='value(jsonPayload.email,jsonPayload.agent_version,jsonPayload.published_build,jsonPayload.hours_behind)'
+gcloud logging read 'resource.labels.service_name="claude-code-recorder" AND jsonPayload.message="fleet version_lag"' --freshness=15m --format='value(jsonPayload.email,jsonPayload.agent_version,jsonPayload.published_build,jsonPayload.hours_behind)'
 curl -sS __PUBLIC_URL__/dl/latest/latest.json
 gsutil ls -L gs://__RELEASE_BUCKET__/latest/
 ```
 
-One machine behind: ask the person to run `loop-sessions daemon
+One machine behind: ask the person to run `claude-code-recorder daemon
 --upgrade-now`, which checks the release host now, ignoring the throttle,
 and replaces the binary; the `upgrade` block of its next health report says
 what happened (`result`, `skipped_reason`, `error`). A quarter of the fleet
@@ -1262,16 +1262,16 @@ more in a day and at least half of that machine's sessions, and the people
 generating them usually do not know.
 
 ```bash
-gcloud logging read 'resource.labels.service_name="loop-sessions" AND jsonPayload.message="fleet empty_start"' --freshness=1h --format='value(jsonPayload.email,jsonPayload.empties,jsonPayload.total,jsonPayload.rate,jsonPayload.cwds)'
+gcloud logging read 'resource.labels.service_name="claude-code-recorder" AND jsonPayload.message="fleet empty_start"' --freshness=1h --format='value(jsonPayload.email,jsonPayload.empties,jsonPayload.total,jsonPayload.rate,jsonPayload.cwds)'
 ```
 
 Send the person the launcher probe, which the line carries as `recipe`: a
 second `SessionStart` hook in `~/.claude/settings.json` that appends the
 parent process, bundle id, terminal and entrypoint to
-`~/.loop/sessions/logs/launcher.log`:
+`~/.claude-code-recorder/logs/launcher.log`:
 
 ```bash
-printf '%s %s ppid=%s %s bundle=%s term=%s ep=%s\n' "$(date -u +%FT%TZ)" "$PWD" "$PPID" "$(ps -o comm= -p $PPID)" "$__CFBundleIdentifier" "$TERM_PROGRAM" "$CLAUDE_CODE_ENTRYPOINT" >> ~/.loop/sessions/logs/launcher.log
+printf '%s %s ppid=%s %s bundle=%s term=%s ep=%s\n' "$(date -u +%FT%TZ)" "$PWD" "$PPID" "$(ps -o comm= -p $PPID)" "$__CFBundleIdentifier" "$TERM_PROGRAM" "$CLAUDE_CODE_ENTRYPOINT" >> ~/.claude-code-recorder/logs/launcher.log
 ```
 
 A day of that log names the launcher (a `com.anthropic.claudefordesktop`
@@ -1313,15 +1313,15 @@ turns, where one unanswered turn reads as 33%, so under twenty turns treat
 the rate as a hint and open the sessions rather than paging anyone.
 
 ```bash
-gcloud logging read 'resource.labels.service_name="loop-sessions" AND jsonPayload.message="fleet missing_answer"' --freshness=6h --format='value(jsonPayload.day,jsonPayload.agent_version,jsonPayload.entrypoint,jsonPayload.turns,jsonPayload.answered,jsonPayload.rate)'
+gcloud logging read 'resource.labels.service_name="claude-code-recorder" AND jsonPayload.message="fleet missing_answer"' --freshness=6h --format='value(jsonPayload.day,jsonPayload.agent_version,jsonPayload.entrypoint,jsonPayload.turns,jsonPayload.answered,jsonPayload.rate)'
 ```
 
 The line is per day, client build and entrypoint. The CTA row is the
 fleet's rather than a person's, so it names nobody to ask and its mute is
 filed under the person `*`. A high rate on an old build is version lag
-(the upgrade runbook: `loop-sessions daemon --upgrade-now`). A high rate on the published build is a regression in the
+(the upgrade runbook: `claude-code-recorder daemon --upgrade-now`). A high rate on the published build is a regression in the
 client: open a session from that cohort in the reader, read the answer slot,
-and compare the transcript (`loop-sessions backfill --session <id>` on the
+and compare the transcript (`claude-code-recorder backfill --session <id>` on the
 machine imports the transcript's copy of the answer, which the reader then
 shows from the transcript origin). The turns already captured without an
 answer are repaired by the client's own repair pass, which asks
@@ -1341,8 +1341,8 @@ that fails as many times as the runner allows stops advancing and writes
 alive but not committing shows as `pass.stalled_minutes`.
 
 ```bash
-gcloud logging read 'resource.labels.service_name="loop-sessions" AND jsonPayload.message="derive step failed"' --freshness=1h --format='value(jsonPayload.step,jsonPayload.attempts,jsonPayload.error,jsonPayload.recover)'
-gcloud logging read 'resource.labels.service_name="loop-sessions" AND jsonPayload.message="derive pass"' --freshness=1h --limit=5 --format='value(timestamp,jsonPayload.pass.deferred,jsonPayload.pass.waiting,jsonPayload.pass.until,jsonPayload.pass.failed,jsonPayload.pass.stalled_minutes)'
+gcloud logging read 'resource.labels.service_name="claude-code-recorder" AND jsonPayload.message="derive step failed"' --freshness=1h --format='value(jsonPayload.step,jsonPayload.attempts,jsonPayload.error,jsonPayload.recover)'
+gcloud logging read 'resource.labels.service_name="claude-code-recorder" AND jsonPayload.message="derive pass"' --freshness=1h --limit=5 --format='value(timestamp,jsonPayload.pass.deferred,jsonPayload.pass.waiting,jsonPayload.pass.until,jsonPayload.pass.failed,jsonPayload.pass.stalled_minutes)'
 ```
 
 Read the error first. A statement timeout or a deadlock is transient: run
@@ -1396,7 +1396,7 @@ session after five failed attempts.
 | Symptom | Check | Lever |
 |---|---|---|
 | 18 fired, or history not rebuilt | replay one session's `Skill` calls and slash prompts against its `origin = 'derived'` rows; `SELECT * FROM derive_jobs WHERE version = 4 ORDER BY ordinal` | a renamed `tool_input.skill` or an over-wide built-in list (`internal/normalize/skills.go`), then the targeted rerun below; a parked step's `recover` statement (Runbook: derive) |
-| 17c fired | `gcloud logging read 'resource.labels.service_name="loop-sessions" AND jsonPayload.message="skill invocation store failed"' --freshness=30m --format='value(jsonPayload.op,jsonPayload.platform,jsonPayload.error)'` | a constraint violation is a shape the derivation let through: fix, deploy; the queued sessions drain on their own once the statement succeeds |
+| 17c fired | `gcloud logging read 'resource.labels.service_name="claude-code-recorder" AND jsonPayload.message="skill invocation store failed"' --freshness=30m --format='value(jsonPayload.op,jsonPayload.platform,jsonPayload.error)'` | a constraint violation is a shape the derivation let through: fix, deploy; the queued sessions drain on their own once the statement succeeds |
 | queue growing, or `derive session failed` with `step = skill_invocations` | `SELECT attempts, last_error, count(*) FROM skill_rederive_queue GROUP BY 1, 2 ORDER BY 1` | a parked row (`attempts = 5`) is unparked by the rerun route, whose `since` re-queues it with attempts reset; a `last_error` that names a body is a decode bug, fix and deploy first |
 | a rollback served a window without skill rows, or the first catalog publish landed | the rollback's start from the canary file and the audit row (`SELECT * FROM admin_actions WHERE action = 'derive.skill_invocations.rerun' ORDER BY at DESC`) | the rerun route, below |
 
@@ -1441,18 +1441,18 @@ token only, the person it writes rows for (`bound_actor_email`). Tokens
 are minted, limited and revoked from the dashboard session on the admin
 routes below (same-origin cookie POSTs; a cross-site POST is 403; every
 call writes an `admin_actions` row), never by hand SQL. The plaintext is
-shown once. GSM names keep the `loop-sessions-*` prefix:
-`loop-sessions-skill-usage-token-<platform>-<environment>` and
-`loop-sessions-skill-catalog-token-<repo>`; the vendor-side variable is
+shown once. GSM names keep the `claude-code-recorder-*` prefix:
+`claude-code-recorder-skill-usage-token-<platform>-<environment>` and
+`claude-code-recorder-skill-catalog-token-<repo>`; the vendor-side variable is
 `LOOP_SKILL_USAGE_TOKEN`.
 
 | Symptom | Check | Lever |
 |---|---|---|
-| 17 fired | `gcloud logging read 'resource.labels.service_name="loop-sessions" AND jsonPayload.message="skill invocation rejected"' --freshness=30m --format='value(timestamp,jsonPayload.reason,jsonPayload.token_state,jsonPayload.source_token_id,jsonPayload.platform)'`, grouped by `reason`, `token_state`, `source_token_id`; for the third condition the `skill invocation preempted` lines, grouped by `preempted_by` and `preempted_device` | `token_state` `revoked` or `expired`: that token is still on a vendor (finish the rotation below) or a leaked copy is in use (rotate the platform now); `none` at volume is a probe unless 5xx correlates; `wrong_scope` is a catalog token on the invocation route (the publisher's secret is in the wrong repository variable); a `preempted_by` token or `preempted_device` that keeps appearing is pre-inserting rows and is revoked, with one benign shape to rule out first: a person who posted under a laptop token (or an `lsd_` API row) and then enrolled, whose backfill's derived rows displace every hook row of those sessions in one burst; that `preempted_by` is a `laptop` token bound to the person who just enrolled, it fires once, and it is a laptop token that has done its job (revoke it, nothing else) |
+| 17 fired | `gcloud logging read 'resource.labels.service_name="claude-code-recorder" AND jsonPayload.message="skill invocation rejected"' --freshness=30m --format='value(timestamp,jsonPayload.reason,jsonPayload.token_state,jsonPayload.source_token_id,jsonPayload.platform)'`, grouped by `reason`, `token_state`, `source_token_id`; for the third condition the `skill invocation preempted` lines, grouped by `preempted_by` and `preempted_device` | `token_state` `revoked` or `expired`: that token is still on a vendor (finish the rotation below) or a leaked copy is in use (rotate the platform now); `none` at volume is a probe unless 5xx correlates; `wrong_scope` is a catalog token on the invocation route (the publisher's secret is in the wrong repository variable); a `preempted_by` token or `preempted_device` that keeps appearing is pre-inserting rows and is revoked, with one benign shape to rule out first: a person who posted under a laptop token (or an `lsd_` API row) and then enrolled, whose backfill's derived rows displace every hook row of those sessions in one burst; that `preempted_by` is a `laptop` token bound to the person who just enrolled, it fires once, and it is a laptop token that has done its job (revoke it, nothing else) |
 | 17b fired | the same command with `jsonPayload.reason="invalid_payload"`, grouped by `field` and `platform` | one field on one platform is that emitter's bug (the hook script and the beacon line in your skills repository, the reconcilers and the Vorflux monitor); `field=origin` on a freshly minted token is a mint with the wrong `allowed_origins`, mint again; `platform_mismatch` on the line is a body naming another platform than its token's |
-| 17d fired | `gcloud logging read 'resource.labels.service_name="loop-sessions" AND jsonPayload.message="skill token summary"' --freshness=10m --format='value(jsonPayload.platform,jsonPayload.environment,jsonPayload.source_token_id,jsonPayload.expires_in_days,jsonPayload.last_used_minutes_ago,jsonPayload.rate_limit_per_min)'`, grouped by `source_token_id`, because one `REDUCE_MIN` incident hides every other expiring token | rotate every token under 14 days (below); `expires_in_days` 0 with `issued_days` 100000 is a row hand-inserted with no expiry: revoke and mint properly; `expires_in_days` 0 with a real `issued_days` is a minted token in its last 24 h, rotate it now |
+| 17d fired | `gcloud logging read 'resource.labels.service_name="claude-code-recorder" AND jsonPayload.message="skill token summary"' --freshness=10m --format='value(jsonPayload.platform,jsonPayload.environment,jsonPayload.source_token_id,jsonPayload.expires_in_days,jsonPayload.last_used_minutes_ago,jsonPayload.rate_limit_per_min)'`, grouped by `source_token_id`, because one `REDUCE_MIN` incident hides every other expiring token | rotate every token under 14 days (below); `expires_in_days` 0 with `issued_days` 100000 is a row hand-inserted with no expiry: revoke and mint properly; `expires_in_days` 0 with a real `issued_days` is a minted token in its last 24 h, rotate it now |
 | 17e fired | the rejected line with `reason=rate_limited`, then the token summary's `window_count` and `rate_limit_per_min` for that platform | a `window_count` far above what the platform's sessions could produce is a flood from one holder of the shared token: rotate the platform; a count just over a small limit is a canary limit never raised: `POST /v1/admin/source-tokens/{id}/limit`; `Retry-After: 1` answers are lock waits that clear on their own: on the verify's touch of the token row, which every post under the token contends for (each holds it for that one statement, committed before the row is written; a limit or revoke on the admin route holds it for its transaction), or on a skill row a derive batch holds; a verify that timed out logs `platform` and `source_token_id` empty, since the statement that would have read the row is the one that failed; count those lines against the platform whose emitters report 429s |
-| 18b fired, or a platform reads zero | `gcloud logging read 'resource.labels.service_name="loop-sessions" AND jsonPayload.message="skill platform summary"' --freshness=10m --format='value(jsonPayload.platform,jsonPayload.environment,jsonPayload.origin,jsonPayload.minutes_since_last_row,jsonPayload.rows_24h)'`, then `last_used_minutes_ago` on that platform's token summary line | vendor secret current and pushed, mirror carries the beacon line, `rate_limit_per_min` not 0 from an unfinished rotation, egress from the platform; a silent reconciler series is the automation stopped, re-enable it or restart the monitor; a platform that stopped using skills for good is not an incident, revoke its token so its series is no longer expected; the `claude_code` condition reads `environment="cloud"` and nothing else, so the cloud hook's token is minted with `environment = cloud` exactly (a `cloud-1` or `cloud-eu` token opens a series 18b never reads: rows land, the alert cannot fire, and a reading of zero for `claude_code` at `cloud` is the mint's name, not the hook) |
+| 18b fired, or a platform reads zero | `gcloud logging read 'resource.labels.service_name="claude-code-recorder" AND jsonPayload.message="skill platform summary"' --freshness=10m --format='value(jsonPayload.platform,jsonPayload.environment,jsonPayload.origin,jsonPayload.minutes_since_last_row,jsonPayload.rows_24h)'`, then `last_used_minutes_ago` on that platform's token summary line | vendor secret current and pushed, mirror carries the beacon line, `rate_limit_per_min` not 0 from an unfinished rotation, egress from the platform; a silent reconciler series is the automation stopped, re-enable it or restart the monitor; a platform that stopped using skills for good is not an incident, revoke its token so its series is no longer expected; the `claude_code` condition reads `environment="cloud"` and nothing else, so the cloud hook's token is minted with `environment = cloud` exactly (a `cloud-1` or `cloud-eu` token opens a series 18b never reads: rows land, the alert cannot fire, and a reading of zero for `claude_code` at `cloud` is the mint's name, not the hook) |
 
 The routes, all from the dashboard session (an admin, same-origin):
 
@@ -1563,14 +1563,14 @@ which outlives its subject.
 
 Connect as section 5 does, through the proxy
 (`cloud-sql-proxy "${PROJECT}:${REGION}:${INSTANCE}" --port 5433`),
-as user and database `loop_sessions`, with the password from Secret Manager
-`loop-sessions-db-password`. Run the file with `-v ON_ERROR_STOP=1`, so a
+as user and database `claude_code_recorder`, with the password from Secret Manager
+`claude-code-recorder-db-password`. Run the file with `-v ON_ERROR_STOP=1`, so a
 refused statement aborts the whole transaction rather than leaving half a
 person behind, and pass the address and your own as psql variables, so no
 statement is hand-edited:
 
 ```bash
-psql -h 127.0.0.1 -p 5433 -U loop_sessions -d loop_sessions -v ON_ERROR_STOP=1 \
+psql -h 127.0.0.1 -p 5433 -U claude_code_recorder -d claude_code_recorder -v ON_ERROR_STOP=1 \
   -v who='<email>' -v me='<your email>' -f purge.sql
 ```
 
@@ -1634,7 +1634,7 @@ SELECT count(*) FROM skill_invocations WHERE actor_email = :'who';
 ```
 
 A reinstall for the same person on the same machine needs the client's
-`--skip-backfill` flag (`cmd/loop-sessions/setup.go`): the dedupe keys are
+`--skip-backfill` flag (`cmd/claude-code-recorder/setup.go`): the dedupe keys are
 the primary keys (`events.id`, `sessions.session_id`, the `usage_ledger`
 pair), so the history still on that laptop would be imported again under
 the ids the purge removed, and the person would be back in full.
@@ -1672,10 +1672,10 @@ falling between runs, or a `status` other than `ok`, which is `20c`'s job.
 The job's logs are under the Cloud Run job resource, not the service:
 
 ```bash
-gcloud logging read 'resource.type="cloud_run_job" AND resource.labels.job_name="loop-sessions-export" AND jsonPayload.message="export run"' \
+gcloud logging read 'resource.type="cloud_run_job" AND resource.labels.job_name="claude-code-recorder-export" AND jsonPayload.message="export run"' \
   --limit=6 --freshness=6h \
   --format='value(timestamp,jsonPayload.status,jsonPayload.lag_seconds,jsonPayload.partitions,jsonPayload.bundles,jsonPayload.capped,jsonPayload.error)'
-gcloud run jobs executions list --job=loop-sessions-export --region="$REGION" --limit=5
+gcloud run jobs executions list --job=claude-code-recorder-export --region="$REGION" --limit=5
 ```
 
 Before the first run: the derive runner's `index:events_ingested_at_idx`
@@ -1709,27 +1709,27 @@ run, and whenever in doubt):
 
 ```bash
 bq query --location="$REGION" --use_legacy_sql=false \
-  'SELECT table_name, partition_id, total_rows FROM `__PROJECT__.loop_sessions_raw.INFORMATION_SCHEMA.PARTITIONS` ORDER BY table_name, partition_id DESC LIMIT 40'
+  'SELECT table_name, partition_id, total_rows FROM `__PROJECT__.claude_code_recorder_raw.INFORMATION_SCHEMA.PARTITIONS` ORDER BY table_name, partition_id DESC LIMIT 40'
 bq query --location="$REGION" --use_legacy_sql=false \
-  'SELECT COUNT(*) FROM `__PROJECT__.loop_sessions.sessions_latest`'   # as an admin: every row; as a member: their own
+  'SELECT COUNT(*) FROM `__PROJECT__.claude_code_recorder.sessions_latest`'   # as an admin: every row; as a member: their own
 bq query --location="$REGION" --use_legacy_sql=false \
-  'SELECT email, started_at FROM `__PROJECT__.loop_sessions.sessions` LIMIT 1'   # as a member WITHOUT Fine-Grained Reader: their own row and no error (untagged columns read through the SELECT * views)
+  'SELECT email, started_at FROM `__PROJECT__.claude_code_recorder.sessions` LIMIT 1'   # as a member WITHOUT Fine-Grained Reader: their own row and no error (untagged columns read through the SELECT * views)
 # the admins list is exactly --admin-emails and nothing more (the export identity is WRITER on the raw dataset, this table included)
 bq query --location="$REGION" --use_legacy_sql=false \
-  'SELECT email FROM `__PROJECT__.loop_sessions_raw.admins` ORDER BY email'
+  'SELECT email FROM `__PROJECT__.claude_code_recorder_raw.admins` ORDER BY email'
 # the views are still authorized on the raw dataset (nine "view" entries; more than nine is a duplicate, see below)
-bq show --format=json __PROJECT__:loop_sessions_raw | jq '[.access[] | select(.view)] | length'
+bq show --format=json __PROJECT__:claude_code_recorder_raw | jq '[.access[] | select(.view)] | length'
 # the raw dataset carries no project group but projectOwners (the script removes projectReaders and projectWriters; expect one line)
-bq show --format=json __PROJECT__:loop_sessions_raw | jq -c '.access[] | select(.specialGroup)'
+bq show --format=json __PROJECT__:claude_code_recorder_raw | jq -c '.access[] | select(.specialGroup)'
 # the governed dataset carries no projectWriters (the script removes it; expect projectReaders and projectOwners, two lines)
-bq show --format=json __PROJECT__:loop_sessions | jq -c '.access[] | select(.specialGroup)'
+bq show --format=json __PROJECT__:claude_code_recorder | jq -c '.access[] | select(.specialGroup)'
 # every governed view still carries its rule (two SESSION_USER() clauses each; fewer means it was redefined, see below)
 for v in turns sessions messages events health_hourly events_latest sessions_latest turns_latest messages_latest; do
-  printf '%s ' "$v"; bq show --format=json "__PROJECT__:loop_sessions.$v" | jq -r '.view.query' | grep -c 'SESSION_USER()'
+  printf '%s ' "$v"; bq show --format=json "__PROJECT__:claude_code_recorder.$v" | jq -r '.view.query' | grep -c 'SESSION_USER()'
 done
 # the tags are still on the four text columns
-bq show --schema --format=json __PROJECT__:loop_sessions_raw.messages | jq '.[] | select(.name == "text") | .policyTags'
-bq show --schema --format=json __PROJECT__:loop_sessions_raw.events | jq '.[] | select(.name == "body") | .policyTags'
+bq show --schema --format=json __PROJECT__:claude_code_recorder_raw.messages | jq '.[] | select(.name == "text") | .policyTags'
+bq show --schema --format=json __PROJECT__:claude_code_recorder_raw.events | jq '.[] | select(.name == "body") | .policyTags'
 # through the proxy (section 5): where the export stands
 psql ... -c 'SELECT name, watermark, updated_at FROM export_watermarks'
 ```
@@ -1741,13 +1741,13 @@ with a field the script's presence check did not expect and a run appended
 a second copy; the script compares only the fields it wants, so that is
 not expected, but the first real run's `bq show --format=json` is what
 settles it. A `projectReaders` or `projectWriters` line on
-`loop_sessions_raw`, or a `projectWriters` line on `loop_sessions`, means
+`claude_code_recorder_raw`, or a `projectWriters` line on `claude_code_recorder`, means
 someone put the group back by hand since the last run; the next run removes
 it again. A view reporting fewer than two `SESSION_USER()` clauses was
 redefined since the last run, by a principal whose write reach on
-`loop_sessions` comes from project IAM (the access model says who): re-run
+`claude_code_recorder` comes from project IAM (the access model says who): re-run
 `provision.sh`, which re-creates every view from `views.sql`, then find out
-who and why, because every reader of `loop_sessions` read every raw row
+who and why, because every reader of `claude_code_recorder` read every raw row
 through that view in the meantime.
 An admins row you did not list means something other than `provision.sh`
 wrote the table: re-run the script (the table becomes the flag again) and
@@ -1768,7 +1768,7 @@ planning read; on a `bootstrap=true` run check the index step above.
 lines before it show which table was slow (an events day is the usual
 suspect), and a smaller `EXPORT_MAX_EVENT_DAYS` in `job.yaml` is the knob.
 No run line at all: the schedule is paused or the job cannot start;
-`gcloud scheduler jobs describe loop-sessions-export-hourly --location="$REGION"`
+`gcloud scheduler jobs describe claude-code-recorder-export-hourly --location="$REGION"`
 and the executions list above.
 
 `health_hourly` before PR E: the run reports `partitions` without any
@@ -1789,12 +1789,12 @@ capped, and the lag alert fires until they are done. Deleting one name
 re-exports one stream.
 
 Do not grant the export service account `roles/datacatalog.categoryFineGrainedReader`
-or anything on the `loop_sessions` dataset; do not grant anyone but the
-the admin grantees read access on `loop_sessions_raw` (every row of every table
+or anything on the `claude_code_recorder` dataset; do not grant anyone but the
+the admin grantees read access on `claude_code_recorder_raw` (every row of every table
 is visible there; the `projectReaders` and `projectWriters` entries
 BigQuery attaches at creation are removed by every `provision.sh` run, and
 one put back by hand goes on the next); do not grant anyone `WRITER` on
-`loop_sessions` (a writer there can redefine a view without its rule, which
+`claude_code_recorder` (a writer there can redefine a view without its rule, which
 is why every run removes the `projectWriters` entry); do not run the job
 with more than one task
 (`taskCount: 1`; two runs would race for the watermark); do not add
