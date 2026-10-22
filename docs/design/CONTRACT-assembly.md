@@ -15,7 +15,7 @@ pins names, files and signatures; the field-level truth lives in the source.
 - `server/app` — new package. Owns every adapter from `*store.Store` to a
   consumer port, plus the wiring that builds an `http.Handler`. This is the only
   package allowed to import more than one of api/admin/web/ingest/auth.
-- `server/cmd/loop-sessions-server` — new package `main`. Thin: read config,
+- `server/cmd/claude-code-recorder-server` — new package `main`. Thin: read config,
   call `app.New`, serve, shut down. No business logic. The Dockerfile already
   points `MAIN_PKG` here.
 
@@ -35,7 +35,7 @@ store declares its own type and `app` translates.
 | `server/app/admin_adapter.go` | W4 | `store` to `admin` |
 | `server/app/ingest_adapter.go` | W5 | `store` to `ingest`, `auth` to `ingest.Devices` |
 | `server/app/app.go`, `server/app/config.go` | W6 | Composition root |
-| `server/cmd/loop-sessions-server/main.go` | W6 | Entrypoint |
+| `server/cmd/claude-code-recorder-server/main.go` | W6 | Entrypoint |
 | `server/app/signin.go` | W7 | Google sign-in HTTP surface |
 | `server/app/enroll.go` | W7 | Device enrollment endpoint |
 | `server/app/identity.go` | W7 | Cookie-to-viewer adapters |
@@ -225,8 +225,8 @@ and it is the deployment surface. Read that file before writing the loader.
 |---|---|---|
 | `PORT` | no, default 8080 | Cloud Run sets this |
 | `DATABASE_HOST` | yes | `/cloudsql/PROJECT:REGION:INSTANCE` socket dir on Cloud Run, or a hostname locally |
-| `DATABASE_NAME` | yes | `loop_sessions` |
-| `DATABASE_USER` | yes | `loop_sessions` |
+| `DATABASE_NAME` | yes | `claude_code_recorder` |
+| `DATABASE_USER` | yes | `claude_code_recorder` |
 | `DATABASE_PASSWORD` | yes | from Secret Manager |
 | `DATABASE_PORT` | no, default 5432 | ignored when `DATABASE_HOST` is a socket path |
 | `SESSION_KEY` | yes | 32+ bytes base64, cookie signing |

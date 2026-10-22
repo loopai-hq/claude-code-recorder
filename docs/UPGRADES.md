@@ -14,8 +14,8 @@ interpretation cost nothing.
 
 | Side | Constant or trigger | What it does | Where |
 |---|---|---|---|
-| Agent | `event.CaptureSchema` above `event.CaptureBaseline` | one full re-walk of this machine's transcripts | `startCaptureRewalk`, `cmd/loop-sessions/main.go` |
-| Agent | `GET /v1/repair` (daily) | walks the sessions the server names, one file at a time | `runRepair`, `cmd/loop-sessions/repair.go` |
+| Agent | `event.CaptureSchema` above `event.CaptureBaseline` | one full re-walk of this machine's transcripts | `startCaptureRewalk`, `cmd/claude-code-recorder/main.go` |
+| Agent | `GET /v1/repair` (daily) | walks the sessions the server names, one file at a time | `runRepair`, `cmd/claude-code-recorder/repair.go` |
 | Server | `store.DerivedSchema` | the derive runner recomputes keys, kinds, titles and turns for stored rows | `server/store/derive` |
 
 All three are no-ops when nothing is stale, which is the common case. None blocks

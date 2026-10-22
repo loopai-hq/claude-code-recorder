@@ -2,8 +2,8 @@
 
 ## Before you ask
 
-- **On a laptop:** run `loop-sessions doctor`. It explains the current state
-  in plain language and says how to fix what it finds; `loop-sessions status`
+- **On a laptop:** run `claude-code-recorder doctor`. It explains the current state
+  in plain language and says how to fix what it finds; `claude-code-recorder status`
   says what is being captured and whether upload is working. Most problems
   end there.
 - **On a server:** read the boot log. Every missing or malformed environment
@@ -43,7 +43,7 @@ very things you should not post in public:
 - your organisation's hostnames, project ids, email addresses and people's
   names (use `sessions.example.com`, `__PROJECT__`, `you@example.com`).
 
-`loop-sessions doctor` and `status` output carries no transcript content,
+`claude-code-recorder doctor` and `status` output carries no transcript content,
 but both print the enrolled email address, `doctor` prints the config path
 (which includes your home directory) and `status` can print the uploader's
 last error, which may name the server; replace those before pasting. The

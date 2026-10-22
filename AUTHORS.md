@@ -1,6 +1,6 @@
 # Authors
 
-loop-sessions was built at Loop AI. The public repository starts from a
+claude-code-recorder was built at Loop AI. The public repository starts from a
 squashed snapshot, so the commit history does not carry the original
 attribution. The people who wrote it, by GitHub handle:
 

@@ -1,6 +1,6 @@
 # Data protection
 
-loop-sessions copies the content of people's coding sessions off their
+claude-code-recorder copies the content of people's coding sessions off their
 laptops and keeps it where their colleagues and their employer's admins can
 read it. That is the product, and it is also personal data about the people
 who ran the sessions. This page is for the organisation that runs a server
@@ -12,8 +12,8 @@ the facts below are what the code does.
 
 ## What the engineer is told
 
-`loop-sessions install` prints, before sign-in, exactly this text, and
-`loop-sessions status` repeats it:
+`claude-code-recorder install` prints, before sign-in, exactly this text, and
+`claude-code-recorder status` repeats it:
 
 > Your captured sessions can be read by you and by the server's admins, who
 > also see the first prompt and metadata of every session in the list;
@@ -115,11 +115,11 @@ may do; a disabled row is refused even though its domain is allowed.
 
 ## Controls the engineer has
 
-`loop-sessions pause [--for 2h]` stops capture and delivery (and resumes on
+`claude-code-recorder pause [--for 2h]` stops capture and delivery (and resumes on
 its own after the period); `status` shows what is being captured and where
-it goes; `loop-sessions uninstall` removes the hooks, after which the binary
+it goes; `claude-code-recorder uninstall` removes the hooks, after which the binary
 can be removed (`install/uninstall.sh` does that); `--purge` also deletes
-`~/.loop/sessions`, including anything captured that had not yet uploaded.
+`~/.claude-code-recorder`, including anything captured that had not yet uploaded.
 What has already been delivered is the operator's to delete.
 
 ## Controller and processor

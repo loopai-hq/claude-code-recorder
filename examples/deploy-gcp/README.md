@@ -532,7 +532,7 @@ levers apply. Additions:
   NULL` names every active narration; detach with `UPDATE ... SET
   detached_at = now()`.
 - Slack-side buttons: mount by pasting the app's signing secret into the
-  LOOP_SESSIONS_SLACK_SIGNING_SECRET env (Cloud Run secret) and setting
+  CLAUDE_CODE_RECORDER_SLACK_SIGNING_SECRET env (Cloud Run secret) and setting
   the app's Interactivity URL to POST {PublicURL}/v1/slack/interactive.
   Without it the endpoint is absent and roots carry no buttons; that is
   the off state, not a fault.

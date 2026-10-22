@@ -1,4 +1,4 @@
-# Installing loop-sessions
+# Installing claude-code-recorder
 
 This page is written for someone deciding whether to trust this, not for
 someone who already has. It describes exactly what the installer does, what
@@ -10,13 +10,13 @@ leaves your machine, who can read it, and how to remove it.
 
 ```sh
 curl -fsSL https://github.com/loopai-hq/claude-code-recorder/releases/latest/download/install.sh |
-  LOOP_SESSIONS_BASE_URL=https://github.com/loopai-hq/claude-code-recorder/releases/latest \
-  LOOP_SESSIONS_VERSION=download sh
-loop-sessions install --endpoint https://sessions.example.com
+  CLAUDE_CODE_RECORDER_BASE_URL=https://github.com/loopai-hq/claude-code-recorder/releases/latest \
+  CLAUDE_CODE_RECORDER_VERSION=download sh
+claude-code-recorder install --endpoint https://sessions.example.com
 ```
 
 A release's binaries carry no server address, so `install` needs
-`--endpoint` (or `LOOP_SESSIONS_ENDPOINT`): the base URL of the server your
+`--endpoint` (or `CLAUDE_CODE_RECORDER_ENDPOINT`): the base URL of the server your
 organisation runs. The pinned-version form, and how a release is verified
 (checksums, build provenance, a signature), are in
 [docs/RELEASE.md](../docs/RELEASE.md#github-releases).
@@ -26,12 +26,12 @@ organisation runs. The pinned-version form, and how a release is verified
 address and `--endpoint` is not needed:
 
 ```sh
-curl -fsSL https://sessions.example.com/install.sh | LOOP_SESSIONS_BASE_URL=https://sessions.example.com/dl sh
+curl -fsSL https://sessions.example.com/install.sh | CLAUDE_CODE_RECORDER_BASE_URL=https://sessions.example.com/dl sh
 ```
 
-Either way `LOOP_SESSIONS_BASE_URL` is required: it names where the release
+Either way `CLAUDE_CODE_RECORDER_BASE_URL` is required: it names where the release
 files live (`<base>/<version>/SHA256SUMS`, `<base>/<version>/latest.json`
-and `<base>/<version>/loop-sessions_<os>_<arch>`, the layout `make release`
+and `<base>/<version>/claude-code-recorder_<os>_<arch>`, the layout `make release`
 produces), and the script refuses to download anything until it is set.
 
 You can read the script before running it. It is about 400 lines of POSIX
@@ -85,28 +85,28 @@ above is there for anyone who would rather not pipe.
 6. **Verifies the SHA-256** against the manifest. On a mismatch the download
    is deleted, nothing is installed, and the script exits non-zero telling
    you not to run the file.
-7. **Installs to `~/.local/bin/loop-sessions`.** No `sudo`, ever. The file
+7. **Installs to `~/.local/bin/claude-code-recorder`.** No `sudo`, ever. The file
    is staged inside the same directory and moved into place with an atomic
    rename, so an interrupted install cannot leave a half-written executable
    on your PATH.
-8. **Runs the new binary once** (`loop-sessions version`) before it replaces
+8. **Runs the new binary once** (`claude-code-recorder version`) before it replaces
    any existing copy, so a broken build cannot take out a working install.
 9. **Checks your PATH** and, if `~/.local/bin` is missing from it, prints
    the exact line to add and the exact file to add it to, for the shell you
    actually use.
-10. **Hands off to `loop-sessions install`** for sign-in. The installer does
+10. **Hands off to `claude-code-recorder install`** for sign-in. The installer does
     no authentication itself.
 
 When the script is piped to `sh`, step 10 is skipped and the command is
 printed instead. Sign-in is interactive, and a piped script has no terminal
 to ask you anything with.
 
-## What `loop-sessions install` does
+## What `claude-code-recorder install` does
 
 It shows what it found on the machine (which harnesses, how many sessions),
 prints who will be able to read your sessions (below), opens the browser to
 sign in with your Google account, registers the capture hooks in
-`~/.claude/settings.json` (tagged `#loop-sessions` so they can be removed
+`~/.claude/settings.json` (tagged `#claude-code-recorder` so they can be removed
 exactly), and imports the history already on disk (`--backfill-since 30d`
 to limit it, `--skip-backfill` to skip it; `--skip-hooks`, `--skip-signin`).
 The sign-in token is spent once against the server and never written to
@@ -116,18 +116,18 @@ disk; the only credential kept is a device token minted for this machine.
 
 | Path | What it is |
 |---|---|
-| `~/.local/bin/loop-sessions` | the agent binary, the only thing installed |
-| `~/.loop/sessions/config.json` | your settings, written at sign-in, including what you chose to exclude |
-| `~/.loop/sessions/device.token` | the device token, the one credential the agent keeps; mode `0600` |
-| `~/.loop/sessions/discovery.json` | what `discover` found: where each harness keeps its sessions; mode `0600` |
-| `~/.loop/sessions/spool/` | captured events waiting to upload |
-| `~/.loop/sessions/state/`, `seq/` | bookkeeping |
-| `~/.loop/sessions/logs/agent.log` | the agent's own log |
-| `~/.claude/settings.json` | gains hook entries marked `#loop-sessions` |
+| `~/.local/bin/claude-code-recorder` | the agent binary, the only thing installed |
+| `~/.claude-code-recorder/config.json` | your settings, written at sign-in, including what you chose to exclude |
+| `~/.claude-code-recorder/device.token` | the device token, the one credential the agent keeps; mode `0600` |
+| `~/.claude-code-recorder/discovery.json` | what `discover` found: where each harness keeps its sessions; mode `0600` |
+| `~/.claude-code-recorder/spool/` | captured events waiting to upload |
+| `~/.claude-code-recorder/state/`, `seq/` | bookkeeping |
+| `~/.claude-code-recorder/logs/agent.log` | the agent's own log |
+| `~/.claude/settings.json` | gains hook entries marked `#claude-code-recorder` |
 
 Nothing is installed outside your home directory. Nothing runs as root.
 Nothing is added to a system launch path without your sign-in step.
-`LOOP_SESSIONS_HOME` moves the state directory somewhere else.
+`CLAUDE_CODE_RECORDER_HOME` moves the state directory somewhere else.
 
 ## Verifying the download by hand
 
@@ -137,15 +137,15 @@ If you would rather not trust the script's own check, do it yourself:
 # 1. fetch the manifest and the binary for your platform
 base=https://github.com/loopai-hq/claude-code-recorder/releases/latest/download
 curl -fsSLO "$base/SHA256SUMS"
-curl -fsSLO "$base/loop-sessions_darwin_arm64"
+curl -fsSLO "$base/claude-code-recorder_darwin_arm64"
 
 # 2. verify
 shasum -a 256 -c SHA256SUMS --ignore-missing     # macOS
 sha256sum -c SHA256SUMS --ignore-missing         # Linux
 
 # 3. install it yourself
-chmod +x loop-sessions_darwin_arm64
-mv loop-sessions_darwin_arm64 ~/.local/bin/loop-sessions
+chmod +x claude-code-recorder_darwin_arm64
+mv claude-code-recorder_darwin_arm64 ~/.local/bin/claude-code-recorder
 ```
 
 Replace `darwin_arm64` with `darwin_amd64` (Intel Mac), `linux_amd64` or
@@ -158,9 +158,9 @@ same bytes and the same `SHA256SUMS`, and CI proves it on every commit by
 building twice. You can rebuild and compare:
 
 ```sh
-git clone --branch vX.Y.Z https://github.com/loopai-hq/claude-code-recorder && cd loop-sessions
+git clone --branch vX.Y.Z https://github.com/loopai-hq/claude-code-recorder && cd claude-code-recorder
 make release ENDPOINT=
-shasum -a 256 dist/loop-sessions_darwin_arm64
+shasum -a 256 dist/claude-code-recorder_darwin_arm64
 ```
 
 `docs/RELEASE.md` also describes the build provenance (`gh attestation
@@ -217,11 +217,33 @@ have, are in [docs/DATA-PROTECTION.md](../docs/DATA-PROTECTION.md).
 You can see the current state at any time:
 
 ```sh
-loop-sessions status          # what is being captured, and whether upload is working
-loop-sessions doctor          # diagnose problems and how to fix them
-loop-sessions pause --for 2h  # stop capturing for two hours, then resume on its own
-loop-sessions pause           # stop capturing until you run resume
+claude-code-recorder status          # what is being captured, and whether upload is working
+claude-code-recorder doctor          # diagnose problems and how to fix them
+claude-code-recorder pause --for 2h  # stop capturing for two hours, then resume on its own
+claude-code-recorder pause           # stop capturing until you run resume
 ```
+
+## Coming from loop-sessions
+
+This agent was called `loop-sessions` before 0.2.0. A machine that ran it
+has hook entries tagged `#loop-sessions`, a state directory at
+`~/.loop/sessions` and a binary at `~/.local/bin/loop-sessions`, and that
+build never upgrades itself across the rename, because the assets it looks
+for are no longer published. Run the installer and
+`claude-code-recorder install` as above. The install moves
+`~/.loop/sessions` to `~/.claude-code-recorder` whole (configuration, device
+token, queued events; no new sign-in) and replaces the old hook entries with
+its own; the installer says so before it starts when it finds the old
+directory. Daemons of the old binary that are still running end with their
+sessions. Then delete the old binary:
+
+```sh
+rm ~/.local/bin/loop-sessions
+```
+
+`claude-code-recorder uninstall` and `uninstall.sh` remove hook entries
+under either tag and name the old directory if a new install never moved
+it. `CLAUDE_CODE_RECORDER_HOME` set to somewhere else skips the move.
 
 ## Upgrading
 
@@ -230,13 +252,13 @@ your spool and your registered hooks alone, and reports the version it
 replaced and the version it installed. Machines enrolled with a server that
 is a release host also upgrade themselves: the agent compares its own
 digest with the published one and replaces itself when they differ;
-`LOOP_SESSIONS_NO_UPGRADE=1` or `disable_auto_upgrade` in `config.json`
+`CLAUDE_CODE_RECORDER_NO_UPGRADE=1` or `disable_auto_upgrade` in `config.json`
 turns that off.
 
 ## Uninstalling
 
 ```sh
-loop-sessions uninstall
+claude-code-recorder uninstall
 ```
 
 `install/uninstall.sh` does the same without the binary. It is a GitHub
@@ -250,7 +272,7 @@ printing the one command that removes those too.
 | Flag | Effect |
 |---|---|
 | `--dry-run` | show exactly what would be removed, change nothing |
-| `--purge` | also delete `~/.loop/sessions` |
+| `--purge` | also delete `~/.claude-code-recorder` |
 | `--force` | remove the binary even if harness hooks still reference it |
 
 One safeguard worth knowing about: if hook entries are still registered in
@@ -268,11 +290,11 @@ outcome than a hook entry that lingers for a minute.
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `LOOP_SESSIONS_BASE_URL` | none, **required** | where releases are fetched from: `https://github.com/loopai-hq/claude-code-recorder/releases/latest` or `https://sessions.example.com/dl` |
-| `LOOP_SESSIONS_VERSION` | `latest` | the path segment under the base: a channel (`latest`, `canary`) on an organisation's host, `download` under GitHub's `releases/latest`, or a tag under `releases/download`; the script validates nothing about it |
-| `LOOP_SESSIONS_BIN_DIR` | `~/.local/bin` | install somewhere else |
-| `LOOP_SESSIONS_NO_ENROLL` | unset | set to `1` to skip sign-in |
-| `LOOP_SESSIONS_ENDPOINT` | unset | not read by the script, but inherited by the `loop-sessions install` it runs when it has a terminal: a release binary carries no server address and needs this (or `--endpoint`) to sign in |
+| `CLAUDE_CODE_RECORDER_BASE_URL` | none, **required** | where releases are fetched from: `https://github.com/loopai-hq/claude-code-recorder/releases/latest` or `https://sessions.example.com/dl` |
+| `CLAUDE_CODE_RECORDER_VERSION` | `latest` | the path segment under the base: a channel (`latest`, `canary`) on an organisation's host, `download` under GitHub's `releases/latest`, or a tag under `releases/download`; the script validates nothing about it |
+| `CLAUDE_CODE_RECORDER_BIN_DIR` | `~/.local/bin` | install somewhere else |
+| `CLAUDE_CODE_RECORDER_NO_ENROLL` | unset | set to `1` to skip sign-in |
+| `CLAUDE_CODE_RECORDER_ENDPOINT` | unset | not read by the script, but inherited by the `claude-code-recorder install` it runs when it has a terminal: a release binary carries no server address and needs this (or `--endpoint`) to sign in |
 
 Downloads are HTTPS-only, including across redirects, so a server cannot
 downgrade the connection partway through. Plain HTTP is permitted only for
@@ -297,6 +319,6 @@ it. The cases the script handles explicitly:
 | the new binary will not run | keeps your existing install untouched |
 | sign-in fails | tells you the binary is installed and how to retry |
 
-If you are stuck, `loop-sessions doctor` explains the current state in plain
+If you are stuck, `claude-code-recorder doctor` explains the current state in plain
 language, and whoever operates your server can help from there
 ([SUPPORT.md](../SUPPORT.md)).

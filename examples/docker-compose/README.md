@@ -137,7 +137,7 @@ size retention are in [docs/OPERATIONS.md](../../docs/OPERATIONS.md).
 
 The client captures Claude Code sessions on a laptop and sends them to the
 server. Point it at this deployment with `--endpoint`; public binaries are
-not stamped with a server, so this flag (or `LOOP_SESSIONS_ENDPOINT`) is
+not stamped with a server, so this flag (or `CLAUDE_CODE_RECORDER_ENDPOINT`) is
 required:
 
 ```sh
@@ -147,8 +147,8 @@ make build
 
 # or the released binary, verified against SHA256SUMS by the installer
 curl -fsSL https://github.com/loopai-hq/claude-code-recorder/releases/latest/download/install.sh |
-  LOOP_SESSIONS_BASE_URL=https://github.com/loopai-hq/claude-code-recorder/releases/latest \
-  LOOP_SESSIONS_VERSION=download sh
+  CLAUDE_CODE_RECORDER_BASE_URL=https://github.com/loopai-hq/claude-code-recorder/releases/latest \
+  CLAUDE_CODE_RECORDER_VERSION=download sh
 claude-code-recorder install --endpoint http://127.0.0.1:8080
 ```
 
