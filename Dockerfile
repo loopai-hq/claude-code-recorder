@@ -16,7 +16,7 @@
 # ignored there so the Go major/minor only ever changes through go.mod) and
 # nothing moves go.mod's toolchain with it, so ci.yml's build job fails
 # when the two disagree; bump both in one change.
-FROM golang:1.26.8-bookworm AS build
+FROM golang:1.26.9-bookworm AS build
 
 WORKDIR /src
 
