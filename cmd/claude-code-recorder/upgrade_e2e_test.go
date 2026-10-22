@@ -49,11 +49,11 @@ func TestAStaleAgentUpgradesItselfWhenAHookRuns(t *testing.T) {
 	if err := os.MkdirAll(binDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	installed := filepath.Join(binDir, "loop-sessions")
+	installed := filepath.Join(binDir, "claude-code-recorder")
 	buildAgentVersion(t, installed, installedVersion)
 
 	// What the release host serves: the same program, stamped differently.
-	published := filepath.Join(t.TempDir(), "loop-sessions")
+	published := filepath.Join(t.TempDir(), "claude-code-recorder")
 	buildAgentVersion(t, published, publishedVersion)
 	publishedBytes, err := os.ReadFile(published)
 	if err != nil {
@@ -61,7 +61,7 @@ func TestAStaleAgentUpgradesItselfWhenAHookRuns(t *testing.T) {
 	}
 	publishedSum := sha256.Sum256(publishedBytes)
 	publishedHex := hex.EncodeToString(publishedSum[:])
-	asset := fmt.Sprintf("loop-sessions_%s_%s", runtime.GOOS, runtime.GOARCH)
+	asset := fmt.Sprintf("claude-code-recorder_%s_%s", runtime.GOOS, runtime.GOARCH)
 
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch {
@@ -143,7 +143,7 @@ func TestAStaleAgentUpgradesItselfWhenAHookRuns(t *testing.T) {
 		t.Fatal(err)
 	}
 	for _, e := range entries {
-		if strings.HasPrefix(e.Name(), ".loop-sessions-") {
+		if strings.HasPrefix(e.Name(), ".claude-code-recorder-") {
 			t.Errorf("a staging file was left in the install directory: %s", e.Name())
 		}
 	}
@@ -165,18 +165,18 @@ func TestAPausedAgentIsNotUpgraded(t *testing.T) {
 	if err := os.MkdirAll(binDir, 0o755); err != nil {
 		t.Fatal(err)
 	}
-	installed := filepath.Join(binDir, "loop-sessions")
+	installed := filepath.Join(binDir, "claude-code-recorder")
 	buildAgentVersion(t, installed, "e2e-paused")
 	before := sha256File(t, installed)
 
-	published := filepath.Join(t.TempDir(), "loop-sessions")
+	published := filepath.Join(t.TempDir(), "claude-code-recorder")
 	buildAgentVersion(t, published, "e2e-should-not-arrive")
 	publishedBytes, err := os.ReadFile(published)
 	if err != nil {
 		t.Fatal(err)
 	}
 	pubSum := sha256.Sum256(publishedBytes)
-	asset := fmt.Sprintf("loop-sessions_%s_%s", runtime.GOOS, runtime.GOARCH)
+	asset := fmt.Sprintf("claude-code-recorder_%s_%s", runtime.GOOS, runtime.GOARCH)
 
 	var assetHits int
 	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -239,7 +239,7 @@ func buildAgentVersion(t *testing.T, path, version string) {
 	t.Helper()
 	cmd := exec.Command("go", "build",
 		"-ldflags", "-X main.Version="+version,
-		"-o", path, "github.com/loopai-hq/claude-code-recorder/cmd/loop-sessions")
+		"-o", path, "github.com/loopai-hq/claude-code-recorder/cmd/claude-code-recorder")
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("build the agent at %s: %v\n%s", version, err, out)
 	}

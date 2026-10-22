@@ -235,7 +235,7 @@ func (c *Capturer) translate(h HookEvent) []event.Event {
 		e.MirrorRequest = mirrorRequest(os.Getenv("LOOP_SESSIONS_SLACK"))
 		if e.MirrorRequest == "" && c.defaultMirror != nil {
 			// The machine's standing (or one-shot) answer, set by
-			// `loop-sessions mirror use`. Env wins because it is the more
+			// `claude-code-recorder mirror use`. Env wins because it is the more
 			// deliberate, more scoped act.
 			e.MirrorRequest = mirrorRequest(c.defaultMirror())
 		}
@@ -306,7 +306,7 @@ func (c *Capturer) translate(h HookEvent) []event.Event {
 		// flushes the turn's tail after Stop fires, and a hook that waited
 		// for it was killed by the print-mode harness's exit, so a copy
 		// spooled without its record is anchored by the daemon on its way
-		// out of the spool instead (cmd/loop-sessions, stopAnchorer).
+		// out of the spool instead (cmd/claude-code-recorder, stopAnchorer).
 		if t, ok := AnchorFor(h.TranscriptPath, h.PromptID, nil); ok {
 			Anchor(&e, t)
 		}

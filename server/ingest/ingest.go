@@ -491,21 +491,34 @@ var AgentBuildShape = regexp.MustCompile(`^[0-9A-Za-z._-]{1,40}$`)
 // agentBuildShape is AgentBuildShape under the name this file grew up with.
 var agentBuildShape = AgentBuildShape
 
+// The User-Agent prefixes the agent sends. The second is what the client
+// sent while it was called loop-sessions; a laptop stays on that build until
+// somebody reinstalls, and its uploads are still its uploads, so the fleet
+// page keeps naming the build it runs rather than showing it as a curl.
+const (
+	agentPrefix       = "claude-code-recorder/"
+	legacyAgentPrefix = "loop-sessions/"
+)
+
 // AgentBuild reads the build out of the agent's User-Agent, which every
-// client path sends as "loop-sessions/<build>", followed by platform detail
-// after a space that never reaches a column grouped and counted by build.
-// Empty for anything else, which is what a curl during an incident looks
-// like and is worth being able to tell apart; a "loop-sessions/" prefix on a
-// build that does not fit the shape is treated the same way rather than
-// clipped into one, since no agent ever sent one and a clipped token would
-// be a build that never existed.
+// client path sends as "claude-code-recorder/<build>" (older builds:
+// "loop-sessions/<build>"), followed by platform detail after a space that
+// never reaches a column grouped and counted by build. Empty for anything
+// else, which is what a curl during an incident looks like and is worth
+// being able to tell apart; a known prefix on a build that does not fit the
+// shape is treated the same way rather than clipped into one, since no
+// agent ever sent one and a clipped token would be a build that never
+// existed.
 //
 // It is the one parser of that header: the "ingest batch" line reads it
 // through agentVersion, and the server's route wrapper reads it to stamp the
 // build onto the request context for the store, so the log and the row
 // cannot disagree about which builds exist.
 func AgentBuild(userAgent string) string {
-	v, ok := strings.CutPrefix(userAgent, "loop-sessions/")
+	v, ok := strings.CutPrefix(userAgent, agentPrefix)
+	if !ok {
+		v, ok = strings.CutPrefix(userAgent, legacyAgentPrefix)
+	}
 	if !ok {
 		return ""
 	}

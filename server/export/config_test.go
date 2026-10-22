@@ -50,8 +50,8 @@ func TestLoadAppliesTheDefaultsAndReportsSecretsAsPresent(t *testing.T) {
 		t.Fatal(err)
 	}
 	// The default dataset is the raw one the loads go into, never
-	// the governed loop_sessions dataset of views.
-	if cfg.DatabasePort != 5432 || cfg.DatabaseName != "loop_sessions" || cfg.Dataset != "loop_sessions_raw" || cfg.Location != "asia-south1" ||
+	// the governed claude_code_recorder dataset of views.
+	if cfg.DatabasePort != 5432 || cfg.DatabaseName != "claude_code_recorder" || cfg.Dataset != "claude_code_recorder_raw" || cfg.Location != "asia-south1" ||
 		cfg.MaxSessions != DefaultMaxSessions || cfg.MaxSessionDays != DefaultMaxSessionDays || cfg.MaxEventDays != DefaultMaxEventDays || cfg.LogLevel != slog.LevelDebug {
 		t.Errorf("defaults: %+v", cfg)
 	}

@@ -655,7 +655,7 @@ func sampleCandidate(sessionID, email string, mode Mode) candidate {
 		Summary: Summary{
 			SessionID: sessionID,
 			Email:     email,
-			Repo:      "loop-sessions",
+			Repo:      "claude-code-recorder",
 			Branch:    "claude/session-platform",
 			StartedAt: start,
 			EndedAt:   start.Add(35 * time.Minute),

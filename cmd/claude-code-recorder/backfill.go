@@ -3,7 +3,7 @@ package main
 // Backfill: the history that was already on the laptop when the agent arrived.
 //
 // internal/backfill has parsed transcripts correctly, and been tested for it,
-// since before the first install. Nothing in cmd/loop-sessions referenced the
+// since before the first install. Nothing in cmd/claude-code-recorder referenced the
 // package, so "no backfilled sessions were uploaded" was not a bug in the
 // importer; the importer had never been called. This file is the call.
 //
@@ -16,7 +16,7 @@ package main
 // program's stdin is the remainder of the script and a prompt would consume the
 // script as its own answer.
 //
-// So both. `loop-sessions backfill` imports everything and is the thing a person
+// So both. `claude-code-recorder backfill` imports everything and is the thing a person
 // runs deliberately. `install` imports a recent window — long enough that the
 // dashboard has something in it the same evening, short enough that it finishes
 // while somebody is still watching the terminal — announces the window, prints
@@ -78,7 +78,7 @@ const (
 	// runs it last, after the machine is already capturing, reports a failure
 	// rather than returning it, and journals every file it sends. So the cost of
 	// the longer default is a progress counter somebody can walk away from —
-	// Ctrl-C leaves a working install and `loop-sessions backfill` resumes from
+	// Ctrl-C leaves a working install and `claude-code-recorder backfill` resumes from
 	// the journal. Anyone who wants less passes --backfill-since 7d or
 	// --skip-backfill, and the flag says so.
 	//
@@ -165,7 +165,7 @@ func runBackfill(args []string) error {
 func stopped(out io.Writer) {
 	fmt.Fprintln(out)
 	fmt.Fprintln(out, "Stopped. Nothing already queued is lost, and nothing sent will be sent twice.")
-	fmt.Fprintln(out, "Carry on where this left off with:  loop-sessions backfill")
+	fmt.Fprintln(out, "Carry on where this left off with:  claude-code-recorder backfill")
 }
 
 // importAtInstall runs the bounded import `install` performs as its last step.
@@ -255,7 +255,7 @@ func importHistory(ctx context.Context, p config.Paths, cfg config.Config, req r
 	// A paused agent is paused for history too. Importing into a machine
 	// somebody has switched off would be the same betrayal as capturing on it.
 	if cfg.IsPaused(time.Now()) {
-		return errors.New("backfill: capture is paused, so nothing is being imported; run `loop-sessions resume` first")
+		return errors.New("backfill: capture is paused, so nothing is being imported; run `claude-code-recorder resume` first")
 	}
 
 	sources, others, err := historySources(p, cfg)
@@ -474,7 +474,7 @@ func (im *importer) settle(ctx context.Context, target int) error {
 		if im.now().After(deadline) {
 			return fmt.Errorf("backfill: %s item(s) have been waiting %s to upload and the queue is not moving; "+
 				"stopping the import rather than filling a queue that drops its oldest items. "+
-				"Nothing already queued is lost — run `loop-sessions backfill` again once uploads work",
+				"Nothing already queued is lost — run `claude-code-recorder backfill` again once uploads work",
 				humanCount(st.Pending), settleTimeout)
 		}
 
@@ -537,7 +537,7 @@ func (im *importer) announce(sources []historySource, others []string, install b
 	if im.dryRun {
 		fmt.Fprintln(im.out, "  dry run: nothing will be queued or uploaded")
 	} else {
-		fmt.Fprintln(im.out, "  uploading as it goes; Ctrl-C stops it and `loop-sessions backfill` resumes it")
+		fmt.Fprintln(im.out, "  uploading as it goes; Ctrl-C stops it and `claude-code-recorder backfill` resumes it")
 	}
 	for _, o := range others {
 		// A declared gap. Silently importing nothing for a tool somebody uses
@@ -592,7 +592,7 @@ func (im *importer) summarize(res backfill.Result) {
 	if im.since.IsZero() || im.session != "" {
 		return
 	}
-	fmt.Fprintln(im.out, "Older sessions were not imported. Import everything with:  loop-sessions backfill --since all")
+	fmt.Fprintln(im.out, "Older sessions were not imported. Import everything with:  claude-code-recorder backfill --since all")
 }
 
 func skippedFileCount(skipped []backfill.Skip) int {
@@ -664,12 +664,12 @@ func historySources(p config.Paths, cfg config.Config) (sources []historySource,
 	}
 	if len(sources) == 0 {
 		return nil, nil, fmt.Errorf("backfill: I do not know where this machine keeps its sessions yet; "+
-			"run `loop-sessions discover` and then `loop-sessions backfill` (looked in %s)", p.DiscoveryFile())
+			"run `claude-code-recorder discover` and then `claude-code-recorder backfill` (looked in %s)", p.DiscoveryFile())
 	}
 	for _, source := range sources {
 		if fi, statErr := os.Stat(source.root); statErr != nil || !fi.IsDir() {
 			return nil, nil, fmt.Errorf("backfill: %s is where this machine's sessions were found and it is not there now; "+
-				"run `loop-sessions discover` to look again", source.root)
+				"run `claude-code-recorder discover` to look again", source.root)
 		}
 	}
 	return sources, others, nil

@@ -100,7 +100,7 @@ func TestAFleetWideCTAHasNoPersonAndMutesUnderTheSentinel(t *testing.T) {
 	if row == nil {
 		t.Fatalf("no missing_answer CTA at a 50%% rate: %+v", ev.CTAs)
 	}
-	if row.Email != "" || strings.Contains(row.Action, "Ask ") || row.Command != "loop-sessions daemon --upgrade-now" {
+	if row.Email != "" || strings.Contains(row.Action, "Ask ") || row.Command != "claude-code-recorder daemon --upgrade-now" {
 		t.Errorf("fleet-wide row = email %q action %q command %q; want no person and no ask", row.Email, row.Action, row.Command)
 	}
 

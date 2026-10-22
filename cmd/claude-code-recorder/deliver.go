@@ -110,7 +110,7 @@ func (t *httpTransport) Send(ctx context.Context, batch []spool.Leased) (drain.R
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+t.token)
-	req.Header.Set("User-Agent", "loop-sessions/"+Version)
+	req.Header.Set("User-Agent", "claude-code-recorder/"+Version)
 
 	res, err := t.client.Do(req)
 	if err != nil {
@@ -164,7 +164,7 @@ func statusError(status int, url string) error {
 	switch status {
 	case http.StatusUnauthorized, http.StatusForbidden:
 		return fmt.Errorf("delivery: %s rejected this device's credential (http %d); "+
-			"nothing will upload until you run `loop-sessions install` to sign in again", url, status)
+			"nothing will upload until you run `claude-code-recorder install` to sign in again", url, status)
 	default:
 		return fmt.Errorf("delivery: %s answered http %d", url, status)
 	}
@@ -248,7 +248,7 @@ func (f *spoolFlusher) report(sent, refused int, err error) {
 			return
 		}
 		logf("drain: upload failed, %d item(s) still queued: %v", f.pending(), err)
-		// Recorded where `loop-sessions status` can read it, because the log
+		// Recorded where `claude-code-recorder status` can read it, because the log
 		// file is not where somebody looks when they want to know why nothing
 		// is arriving. A transport failure never reaches the items themselves,
 		// by design, so the uploader is the only thing that ever holds this
@@ -324,7 +324,7 @@ func newTransport(p config.Paths, cfg config.Config) (*httpTransport, error) {
 		return nil, err
 	}
 	if strings.TrimSpace(cfg.Endpoint) == "" {
-		return nil, errors.New("delivery: no endpoint is configured; run `loop-sessions install`")
+		return nil, errors.New("delivery: no endpoint is configured; run `claude-code-recorder install`")
 	}
 	return &httpTransport{
 		url:    strings.TrimSuffix(cfg.Endpoint, "/") + eventsPath,
@@ -340,14 +340,14 @@ func loadDeviceToken(p config.Paths) (string, error) {
 	if err != nil {
 		if os.IsNotExist(err) {
 			return "", fmt.Errorf("delivery: this machine has no device credential at %s; "+
-				"run `loop-sessions install` to sign in", path)
+				"run `claude-code-recorder install` to sign in", path)
 		}
 		return "", fmt.Errorf("delivery: read device token: %w", err)
 	}
 	token := strings.TrimSpace(string(b))
 	if token == "" {
 		return "", fmt.Errorf("delivery: the device credential at %s is empty; "+
-			"run `loop-sessions install` to sign in again", path)
+			"run `claude-code-recorder install` to sign in again", path)
 	}
 	return token, nil
 }

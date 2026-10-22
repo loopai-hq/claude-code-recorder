@@ -53,21 +53,21 @@ func fleetPageFixture() *fakeData {
 			{Rank: 12, Email: "a@example.com", DeviceID: "d1", Hostname: "a-mbp", Kind: "version_lag", Level: "warning",
 				Detail: "on 23713ea, published build 788dcb3 is 36 h old", Since: published,
 				Action:  "The daemon self-upgrades at its next check; past a day, run the upgrade by hand",
-				Command: "loop-sessions daemon --upgrade-now", Anchor: "runbook-upgrade"},
+				Command: "claude-code-recorder daemon --upgrade-now", Anchor: "runbook-upgrade"},
 			{Rank: 5, Email: "b@example.com", DeviceID: "d2", Hostname: "b-mbp", Kind: "silent", Level: "error",
 				Detail: "no report for 3 d; the last one was ok", Since: fixedNow.Add(-72 * time.Hour),
-				Action: "Ping the person", Command: "loop-sessions install", Anchor: "runbook-silent"},
+				Action: "Ping the person", Command: "claude-code-recorder install", Anchor: "runbook-silent"},
 			{Rank: 0, Email: "a@example.com", DeviceID: "d1", Hostname: "a-mbp", Kind: "quarantine_nonempty", Level: "critical",
 				Detail: "4 items permanently undeliverable", Since: fixedNow.Add(-72 * time.Hour),
 				Action:  "Replay one quarantined item to see the server's verdict, then redrive the rest once the server accepts it",
-				Command: "loop-sessions doctor --replay-quarantine; loop-sessions doctor --redrive", Anchor: "runbook-quarantine"},
+				Command: "claude-code-recorder doctor --replay-quarantine; claude-code-recorder doctor --redrive", Anchor: "runbook-quarantine"},
 			{Rank: 11, Email: "a@example.com", DeviceID: "d1", Hostname: "a-mbp", Kind: "empty_start", Level: "warning",
 				Detail: "27 of 30 sessions in 24 h ended before a first prompt", Since: fixedNow.Add(-24 * time.Hour),
 				Action: "A script on this machine runs claude non-interactively; share the launcher recipe", Anchor: "runbook-empty-sessions"},
 		},
 		Muted: []fleet.CTA{
 			{Rank: 7, Email: "c@example.com", DeviceID: "d3", Kind: "capture_stale", Level: "degraded", Detail: "hooks gone",
-				Command: "loop-sessions install --hooks-only", Anchor: "runbook-hooks",
+				Command: "claude-code-recorder install --hooks-only", Anchor: "runbook-hooks",
 				Muted: &fleet.Mute{Email: "c@example.com", Kind: "capture_stale", Until: fixedNow.Add(48 * time.Hour), Note: "on leave", CreatedBy: "admin@example.com"}},
 		},
 	}
@@ -110,9 +110,9 @@ func TestFleetPageRanksTheActionListWorstFirst(t *testing.T) {
 		t.Error("the action list is not above the coverage table")
 	}
 	for _, want := range []string{
-		`<code>loop-sessions doctor --replay-quarantine; loop-sessions doctor --redrive</code>`,
-		`<code>loop-sessions daemon --upgrade-now</code>`,
-		`<code>loop-sessions install</code>`,
+		`<code>claude-code-recorder doctor --replay-quarantine; claude-code-recorder doctor --redrive</code>`,
+		`<code>claude-code-recorder daemon --upgrade-now</code>`,
+		`<code>claude-code-recorder install</code>`,
 		`ask A to run`,
 		`ask b@example.com to run`,
 		`examples/deploy-gcp/README.md#runbook-quarantine`,

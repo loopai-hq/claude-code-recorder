@@ -461,7 +461,7 @@ func NeedsPrompt(fs []Finding) []Finding {
 }
 
 // Summary is a compact, user-facing rollup written at install time and
-// refreshed by `loop-sessions discover`.
+// refreshed by `claude-code-recorder discover`.
 type Summary struct {
 	Host      string    `json:"host"`
 	OS        string    `json:"os"`

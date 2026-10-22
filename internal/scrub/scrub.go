@@ -30,26 +30,26 @@ type Kind string
 
 // The kinds, one per rule in Rules.
 const (
-	KindAnthropicKey        Kind = "anthropic_key"
-	KindOpenAIKey           Kind = "openai_key"
-	KindStripeSecretKey     Kind = "stripe_secret_key"
-	KindStripeRestrictedKey Kind = "stripe_restricted_key"
-	KindGitHubToken         Kind = "github_token"
-	KindLoopSessionsToken   Kind = "loop_sessions_token"
-	KindGitHubPAT           Kind = "github_pat"
-	KindAWSAccessKeyID      Kind = "aws_access_key_id"
-	KindAWSSecretAccessKey  Kind = "aws_secret_access_key"
-	KindGoogleAPIKey        Kind = "google_api_key"
-	KindGoogleOAuthToken    Kind = "google_oauth_token"
-	KindSlackToken          Kind = "slack_token"
-	KindSlackWebhook        Kind = "slack_webhook"
-	KindJWT                 Kind = "jwt"
-	KindPrivateKeyPEM       Kind = "private_key_pem"
-	KindSSHPrivateKey       Kind = "ssh_private_key"
-	KindAuthBearer          Kind = "auth_bearer"
-	KindAuthBasic           Kind = "auth_basic"
-	KindDBPassword          Kind = "db_password"
-	KindGenericSecret       Kind = "generic_secret"
+	KindAnthropicKey            Kind = "anthropic_key"
+	KindOpenAIKey               Kind = "openai_key"
+	KindStripeSecretKey         Kind = "stripe_secret_key"
+	KindStripeRestrictedKey     Kind = "stripe_restricted_key"
+	KindGitHubToken             Kind = "github_token"
+	KindClaudeCodeRecorderToken Kind = "claude_code_recorder_token"
+	KindGitHubPAT               Kind = "github_pat"
+	KindAWSAccessKeyID          Kind = "aws_access_key_id"
+	KindAWSSecretAccessKey      Kind = "aws_secret_access_key"
+	KindGoogleAPIKey            Kind = "google_api_key"
+	KindGoogleOAuthToken        Kind = "google_oauth_token"
+	KindSlackToken              Kind = "slack_token"
+	KindSlackWebhook            Kind = "slack_webhook"
+	KindJWT                     Kind = "jwt"
+	KindPrivateKeyPEM           Kind = "private_key_pem"
+	KindSSHPrivateKey           Kind = "ssh_private_key"
+	KindAuthBearer              Kind = "auth_bearer"
+	KindAuthBasic               Kind = "auth_basic"
+	KindDBPassword              Kind = "db_password"
+	KindGenericSecret           Kind = "generic_secret"
 )
 
 // Kinds lists every Kind the package can emit, in rule-application order. Callers
@@ -65,7 +65,7 @@ var Kinds = []Kind{
 	KindStripeRestrictedKey,
 	KindGitHubPAT,
 	KindGitHubToken,
-	KindLoopSessionsToken,
+	KindClaudeCodeRecorderToken,
 	KindAWSAccessKeyID,
 	KindGoogleAPIKey,
 	KindGoogleOAuthToken,
@@ -185,7 +185,7 @@ var rules = []rule{
 		// what the minter emits, so a same-length hex run without the
 		// prefix, a git SHA say, is not a hit. The characters need no JSON
 		// escaping, so the same rule reads a token inside an escaped line.
-		kind:  KindLoopSessionsToken,
+		kind:  KindClaudeCodeRecorderToken,
 		re:    regexp.MustCompile(`\bls[sd]_[A-Za-z0-9_-]{20,}`),
 		gates: []string{"lss_", "lsd_"},
 	},

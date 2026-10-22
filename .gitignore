@@ -1,6 +1,6 @@
 # Built binary at the repo root only. An unanchored pattern here would also
-# match cmd/loop-sessions/, silently untracking the entire CLI.
-/loop-sessions
+# match cmd/claude-code-recorder/, silently untracking the entire CLI.
+/claude-code-recorder
 *.test
 .DS_Store
 

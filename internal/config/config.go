@@ -145,7 +145,7 @@ const (
 )
 
 // MirrorDefault is the standing per-machine answer to "mirror my sessions
-// live?", set by `loop-sessions mirror use`. A group name or id the server
+// live?", set by `claude-code-recorder mirror use`. A group name or id the server
 // resolves, "on" for the owner's server-side default group, empty for off.
 // MirrorOnce marks the default as single-use: the next SessionStart consumes
 // it, which is the cure for the stale-exported-env-var disease: a one-shot
@@ -172,16 +172,77 @@ func Defaults() Config {
 // Paths resolves where the client keeps its state.
 type Paths struct{ Home string }
 
+// HomeEnv names the environment variable that relocates the client's whole
+// state directory. Tests and a second install on one machine use it.
+const HomeEnv = "LOOP_SESSIONS_HOME"
+
+// rootName is the client's directory under the home directory.
+const rootName = ".claude-code-recorder"
+
+// legacyRootParts is where the client kept its state while it was called
+// loop-sessions: ~/.loop/sessions. AdoptLegacyRoot moves it to Root once.
+var legacyRootParts = []string{".loop", "sessions"}
+
 // Root is the client's private directory.
 func (p Paths) Root() string {
-	if v := os.Getenv("LOOP_SESSIONS_HOME"); v != "" {
+	if v := os.Getenv(HomeEnv); v != "" {
 		return v
 	}
+	return filepath.Join(p.home(), rootName)
+}
+
+func (p Paths) home() string {
 	home := p.Home
 	if home == "" {
 		home, _ = os.UserHomeDir()
 	}
-	return filepath.Join(home, ".loop", "sessions")
+	return home
+}
+
+// LegacyRoot is the directory an install of the old binary left behind, or
+// "" once AdoptLegacyRoot has moved it or when there never was one. Reported
+// by uninstall so a machine that never ran the new install still hears where
+// its data is.
+func LegacyRoot(p Paths) string {
+	old := filepath.Join(append([]string{p.home()}, legacyRootParts...)...)
+	if info, err := os.Lstat(old); err != nil || !info.IsDir() {
+		return ""
+	}
+	return old
+}
+
+// AdoptLegacyRoot moves the state directory an earlier release wrote under
+// ~/.loop/sessions to Root, when Root does not exist yet and the old
+// directory does. It is one rename, so the config, the device token, the
+// spool and the logs arrive together and nothing is copied: a machine that
+// ran the old binary signs in nowhere and loses no queued event. It returns
+// the directory it moved from, or "" when there was nothing to do.
+//
+// An explicit HomeEnv is honoured as is: whoever set it chose a location,
+// and the old directory is left for them. A Root that already exists is
+// never merged into; the old directory stays where it was and uninstall
+// names it.
+func AdoptLegacyRoot(p Paths) (string, error) {
+	if os.Getenv(HomeEnv) != "" {
+		return "", nil
+	}
+	root := p.Root()
+	if _, err := os.Lstat(root); err == nil {
+		return "", nil
+	} else if !os.IsNotExist(err) {
+		return "", fmt.Errorf("config: %s: %w", root, err)
+	}
+	old := LegacyRoot(p)
+	if old == "" {
+		return "", nil
+	}
+	if err := os.Rename(old, root); err != nil {
+		return "", fmt.Errorf("config: move %s to %s: %w", old, root, err)
+	}
+	// The old parent (~/.loop) goes too when the move emptied it; anything
+	// else in it belongs to something else and keeps it alive.
+	_ = os.Remove(filepath.Dir(old))
+	return old, nil
 }
 
 // ConfigFile is the JSON file Load reads and Save writes.
@@ -226,7 +287,7 @@ func Load(p Paths) (Config, error) {
 }
 
 // ErrNotConfigured means no config exists yet.
-var ErrNotConfigured = errors.New("config: not configured; run `loop-sessions install`")
+var ErrNotConfigured = errors.New("config: not configured; run `claude-code-recorder install`")
 
 // withDefaults fills zero values from Defaults so an older config file gains
 // new settings without a migration step.
@@ -282,7 +343,7 @@ func Save(p Paths, c Config) error {
 func (c Config) Validate() error {
 	var problems []string
 	if c.Email == "" {
-		problems = append(problems, "email is missing (re-run `loop-sessions install`)")
+		problems = append(problems, "email is missing (re-run `claude-code-recorder install`)")
 	} else if !strings.Contains(c.Email, "@") {
 		problems = append(problems, fmt.Sprintf("email %q does not look like an address", c.Email))
 	}

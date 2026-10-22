@@ -43,7 +43,7 @@ func TestListSessionsPassesFiltersToTheStore(t *testing.T) {
 	q.Set("q", "migration")
 	q.Set("email", "Other@Example.com")
 	q.Set("source", "claude_code")
-	q.Set("repo", "loop-sessions")
+	q.Set("repo", "claude-code-recorder")
 	q.Set("from", "2026-08-01T00:00:00Z")
 	q.Set("to", "2026-08-05T00:00:00Z")
 	q.Set("limit", "3")
@@ -52,7 +52,7 @@ func TestListSessionsPassesFiltersToTheStore(t *testing.T) {
 	}
 
 	got := f.lastSessionFilter
-	if got.Query != "migration" || got.Source != "claude_code" || got.Repo != "loop-sessions" {
+	if got.Query != "migration" || got.Source != "claude_code" || got.Repo != "claude-code-recorder" {
 		t.Fatalf("filter = %+v", got)
 	}
 	// The address is normalised before it reaches the store, because a roster
@@ -166,7 +166,7 @@ func TestCursorIsRejectedWhenTheQueryChanges(t *testing.T) {
 			SessionID: fmt.Sprintf("s%d", i),
 			Email:     "member@example.com",
 			Source:    "claude_code",
-			Repo:      "loop-sessions",
+			Repo:      "claude-code-recorder",
 			StartedAt: testNow.Add(time.Duration(-i) * time.Hour),
 		})
 	}

@@ -573,7 +573,7 @@ func totalCount(counts map[Kind]int) int {
 // cleanChunk is representative transcript traffic: JSONL assistant turns, tool
 // results, code and prose. It contains the words "token" and "://", so it does
 // NOT short-circuit — this is the realistic steady-state cost.
-const cleanChunk = `{"type":"assistant","uuid":"3f9a1c22-77bd-4e11-9c0a-2b8e5d6f7a01","timestamp":"2026-08-04T09:12:44.912Z","message":{"role":"assistant","model":"claude-fable-5","content":[{"type":"text","text":"I read internal/spool/spool.go and the writer already fsyncs on rotate, so the missing piece is the manifest checksum."},{"type":"tool_use","id":"toolu_01A","name":"Read","input":{"file_path":"/home/dev/src/loop-sessions/internal/spool/spool.go","limit":200}}],"usage":{"input_tokens":18432,"output_tokens":512,"cache_read_input_tokens":150994,"cache_creation_input_tokens":2048}}}
+const cleanChunk = `{"type":"assistant","uuid":"3f9a1c22-77bd-4e11-9c0a-2b8e5d6f7a01","timestamp":"2026-08-04T09:12:44.912Z","message":{"role":"assistant","model":"claude-fable-5","content":[{"type":"text","text":"I read internal/spool/spool.go and the writer already fsyncs on rotate, so the missing piece is the manifest checksum."},{"type":"tool_use","id":"toolu_01A","name":"Read","input":{"file_path":"/home/dev/src/claude-code-recorder/internal/spool/spool.go","limit":200}}],"usage":{"input_tokens":18432,"output_tokens":512,"cache_read_input_tokens":150994,"cache_creation_input_tokens":2048}}}
 {"type":"user","uuid":"7c1d0e83-5a44-4f90-b3e2-9d1f6c4a8b55","timestamp":"2026-08-04T09:12:45.303Z","message":{"role":"user","content":[{"type":"tool_result","tool_use_id":"toolu_01A","content":"package spool\n\nimport (\n\t\"bufio\"\n\t\"encoding/json\"\n\t\"os\"\n\t\"sync\"\n)\n\n// Writer appends records to a rotating on-disk spool.\ntype Writer struct {\n\tmu   sync.Mutex\n\tf    *os.File\n\tbw   *bufio.Writer\n\tsize int64\n}\n\nfunc (w *Writer) Append(rec []byte) error {\n\tw.mu.Lock()\n\tdefer w.mu.Unlock()\n\tif _, err := w.bw.Write(rec); err != nil {\n\t\treturn err\n\t}\n\treturn w.bw.WriteByte('\\n')\n}"}]}}
 {"type":"assistant","uuid":"91b4f7de-2c35-4a68-8e07-1f3d5b9c2e44","timestamp":"2026-08-04T09:12:51.118Z","message":{"role":"assistant","content":[{"type":"thinking","thinking":"The rotate path writes the manifest before the data file is fsynced. If the process dies between those two operations the manifest references a file whose tail is missing. I should reorder: fsync data, then write manifest, then fsync the directory."},{"type":"text","text":"See https://www.sqlite.org/atomiccommit.html for the ordering argument. The fix is three lines in rotate()."}],"usage":{"input_tokens":21004,"output_tokens":389}}}
 `
@@ -649,13 +649,13 @@ func ExampleScrub() {
 }
 
 // ---------------------------------------------------------------------------
-// loop-sessions tokens (skill-usage telemetry, design 10.1 "Scrub")
+// claude-code-recorder tokens (skill-usage telemetry, design 10.1 "Scrub")
 // ---------------------------------------------------------------------------
 
 // The service's own bearers redact in plain text and inside a JSON-escaped
 // transcript line, the prefix is what decides (a same-length hex run is a
 // git SHA), and the kind is registered so a counter exists for it.
-func TestScrubLoopSessionsTokens(t *testing.T) {
+func TestScrubClaudeCodeRecorderTokens(t *testing.T) {
 	const device = "lsd_AbCdEf0123456789AbCdEf0123456789"
 	const source = "lss_9zYxWvUtSrQpOnMlKjIhGfEdCbA_-12"
 	cases := []struct {
@@ -675,17 +675,17 @@ func TestScrubLoopSessionsTokens(t *testing.T) {
 			if strings.Contains(got.Text, tc.leak) {
 				t.Errorf("leaked %q in %q", tc.leak, got.Text)
 			}
-			if !strings.Contains(got.Text, redaction(KindLoopSessionsToken)) {
-				t.Errorf("no %s marker in %q", KindLoopSessionsToken, got.Text)
+			if !strings.Contains(got.Text, redaction(KindClaudeCodeRecorderToken)) {
+				t.Errorf("no %s marker in %q", KindClaudeCodeRecorderToken, got.Text)
 			}
 			if tc.keep != "" && !strings.Contains(got.Text, tc.keep) {
 				t.Errorf("prefix %q did not survive in %q", tc.keep, got.Text)
 			}
-			if got.Counts[KindLoopSessionsToken] != 1 {
-				t.Errorf("counted %d, want 1", got.Counts[KindLoopSessionsToken])
+			if got.Counts[KindClaudeCodeRecorderToken] != 1 {
+				t.Errorf("counted %d, want 1", got.Counts[KindClaudeCodeRecorderToken])
 			}
 			for k, n := range got.Counts {
-				if k != KindLoopSessionsToken && n != 0 {
+				if k != KindClaudeCodeRecorderToken && n != 0 {
 					t.Errorf("a second kind %s fired %d times on the same token", k, n)
 				}
 			}
@@ -700,18 +700,18 @@ func TestScrubLoopSessionsTokens(t *testing.T) {
 		"deadbeefdeadbeefdeadbeefdeadbeefdeadbeef",
 		"xlsd_AbCdEf0123456789AbCdEf0123456789",
 	} {
-		if got := Scrub(clean); got.Text != clean || got.Counts[KindLoopSessionsToken] != 0 {
+		if got := Scrub(clean); got.Text != clean || got.Counts[KindClaudeCodeRecorderToken] != 0 {
 			t.Errorf("%q was touched: %q %v", clean, got.Text, got.Counts)
 		}
 	}
 
 	found := false
 	for _, k := range Kinds {
-		if k == KindLoopSessionsToken {
+		if k == KindClaudeCodeRecorderToken {
 			found = true
 		}
 	}
 	if !found {
-		t.Error("Kinds does not list loop_sessions_token; no counter would exist for it")
+		t.Error("Kinds does not list claude_code_recorder_token; no counter would exist for it")
 	}
 }

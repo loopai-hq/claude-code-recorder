@@ -105,7 +105,7 @@ func demoSessions(f *fakeData, now time.Time) {
 		},
 		{
 			id: "s-01", who: "alex", repo: "acme/api", branch: "claude/server-web",
-			prompt: "build the dashboard for loop-sessions and make the session list fast to scan",
+			prompt: "build the dashboard for claude-code-recorder and make the session list fast to scan",
 			answer: "Reading the transcript builder first. The grouping currently keys off a start/end stack, which breaks at a page boundary because the start event can be several pages back.",
 			ago:    3 * time.Hour, length: 74 * time.Minute, turns: 6, tools: 58, agents: 1, errs: 2,
 			tokensIn: 182_000, tokensOut: 27_000, harness: "2.1.4",

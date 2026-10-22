@@ -50,7 +50,7 @@ func retryProbesAtOnce(t *testing.T) {
 
 func TestWatchBinaryFiresOnceOnADifferentBuild(t *testing.T) {
 	passProbe(t)
-	path := filepath.Join(t.TempDir(), "loop-sessions")
+	path := filepath.Join(t.TempDir(), "claude-code-recorder")
 	start := writeBinary(t, path, "build one")
 	fired := make(chan struct{}, 2)
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
@@ -88,7 +88,7 @@ func TestWatchBinaryFiresOnceOnADifferentBuild(t *testing.T) {
 // returns quietly when the daemon's context ends.
 func TestWatchBinaryIgnoresAMissingFileAndStopsWithTheContext(t *testing.T) {
 	passProbe(t)
-	path := filepath.Join(t.TempDir(), "loop-sessions")
+	path := filepath.Join(t.TempDir(), "claude-code-recorder")
 	start := writeBinary(t, path, "build one")
 	if err := os.Remove(path); err != nil {
 		t.Fatal(err)
@@ -134,7 +134,7 @@ func TestRestartInPlaceExecsSelfWithTheSameArguments(t *testing.T) {
 // once. A watch started after the replacement landed still notices it.
 func TestWatchBinaryWaitsForABuildThatRuns(t *testing.T) {
 	retryProbesAtOnce(t)
-	path := filepath.Join(t.TempDir(), "loop-sessions")
+	path := filepath.Join(t.TempDir(), "claude-code-recorder")
 	start := writeBinary(t, path, "build one")
 	writeBinary(t, path, "build two, longer") // replaced before the watch begins
 	var probes int32
@@ -168,7 +168,7 @@ func TestWatchBinaryWaitsForABuildThatRuns(t *testing.T) {
 // size or mtime changes or the retry cadence elapses: with the cadence at a
 // minute, three ticks cost one probe.
 func TestWatchBinaryDoesNotReprobeAnUnchangedRefusedFileEveryTick(t *testing.T) {
-	path := filepath.Join(t.TempDir(), "loop-sessions")
+	path := filepath.Join(t.TempDir(), "claude-code-recorder")
 	start := writeBinary(t, path, "build one")
 	writeBinary(t, path, "build two, longer")
 	var probes int32

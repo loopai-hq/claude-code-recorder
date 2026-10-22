@@ -1,4 +1,4 @@
-# gitleaks configuration for loop-sessions.
+# gitleaks configuration for claude-code-recorder.
 #
 # Run locally with the same two commands CI runs (.github/workflows/ci.yml,
 # job `gitleaks`):
@@ -26,7 +26,7 @@
 # moment the line moved. GitHub's scanner is not told about these three:
 # they are not credentials, so it does not report them either.
 
-title = "loop-sessions"
+title = "claude-code-recorder"
 
 [extend]
 # Every built-in rule stays on; this file only adds allowlists.

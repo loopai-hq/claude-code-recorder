@@ -428,7 +428,7 @@ func (a apiRepair) RepairList(ctx context.Context, deviceID string, now time.Tim
 			e.Hint = "re-walk completes the session from the transcript"
 		}
 		if e.TranscriptPath == "" && r.Source != string(event.SourceCodex) {
-			e.Hint = fmt.Sprintf("the transcript path could not be built from cwd %q and session id %q (a clean absolute path under /Users or /home and a harness uuid are needed); run loop-sessions backfill --session %s on the laptop", r.Cwd, r.SessionID, r.SessionID)
+			e.Hint = fmt.Sprintf("the transcript path could not be built from cwd %q and session id %q (a clean absolute path under /Users or /home and a harness uuid are needed); run claude-code-recorder backfill --session %s on the laptop", r.Cwd, r.SessionID, r.SessionID)
 		}
 		out = append(out, e)
 	}

@@ -553,7 +553,7 @@ func TestAPIStoreCarriesEverySessionFieldAcross(t *testing.T) {
 	)
 	full := []any{
 		"sess-a", "author@example.com", "device-7", "claude_code", "automation", "sess-parent",
-		"/home/author/work", "loop-sessions", "feature/assembly", started, ended,
+		"/home/author/work", "claude-code-recorder", "feature/assembly", started, ended,
 		true, 7, 21, 2, 1,
 		"bind the packages together", []string{"1.4.0", "1.5.0"},
 		int64(1200), int64(340), int64(9000), int64(450),
@@ -587,7 +587,7 @@ func TestAPIStoreCarriesEverySessionFieldAcross(t *testing.T) {
 		Source:           "claude_code",
 		ParentSessionID:  "sess-parent",
 		Cwd:              "/home/author/work",
-		Repo:             "loop-sessions",
+		Repo:             "claude-code-recorder",
 		GitBranch:        "feature/assembly",
 		StartedAt:        started,
 		EndedAt:          &ended,
@@ -627,7 +627,7 @@ func TestAPIStoreDoesNotCrossSessionFilterFields(t *testing.T) {
 			Query:  "migration",
 			Email:  "author@example.com",
 			Source: "claude_code",
-			Repo:   "loop-sessions",
+			Repo:   "claude-code-recorder",
 			From:   from,
 			To:     to,
 			Limit:  25,
@@ -649,7 +649,7 @@ func TestAPIStoreDoesNotCrossSessionFilterFields(t *testing.T) {
 		{1, "viewer", "admin@example.com"},
 		{2, "filter email", "author@example.com"},
 		{3, "source", "claude_code"},
-		{4, "repo", "loop-sessions"},
+		{4, "repo", "claude-code-recorder"},
 		{7, "query", "migration"},
 		{11, "limit plus the lookahead row", 26},
 	}

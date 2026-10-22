@@ -447,7 +447,7 @@ func TestEnrollRefusalsAreIndistinguishable(t *testing.T) {
 		}
 	}
 	// 403 specifically: internal/enroll.complete turns exactly this status into
-	// "that account is not authorised for loop-sessions", which is the sentence
+	// "that account is not authorised for claude-code-recorder", which is the sentence
 	// somebody who signed in with the wrong account needs to see.
 	if seen[0].status != http.StatusForbidden {
 		t.Errorf("refusal status = %d, want 403", seen[0].status)

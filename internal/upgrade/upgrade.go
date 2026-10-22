@@ -49,7 +49,7 @@ const DevVersion = "dev"
 // binaryPrefix is the published asset naming contract, shared with the Makefile
 // release target and install/install.sh. All three have to agree; this is the
 // copy that has a test.
-const binaryPrefix = "loop-sessions"
+const binaryPrefix = "claude-code-recorder"
 
 // downloadLimit bounds what will be read from the release host. The real
 // binaries are around 7 MB; this leaves room for growth while refusing to fill
@@ -238,7 +238,7 @@ func (o *Options) ownership() string {
 		return "binary is not under the home directory"
 	}
 	dir := filepath.Dir(o.ExecPath)
-	probe, err := os.CreateTemp(dir, ".loop-sessions-writable-*")
+	probe, err := os.CreateTemp(dir, ".claude-code-recorder-writable-*")
 	if err != nil {
 		o.Logf("upgrade: %s is not writable, so the binary cannot be replaced here: %v", dir, err)
 		return "install directory is not writable"
@@ -256,7 +256,7 @@ func (o *Options) publishedSHA(ctx context.Context, base, asset string) (string,
 	if err != nil {
 		return "", err
 	}
-	req.Header.Set("User-Agent", "loop-sessions/"+o.Version)
+	req.Header.Set("User-Agent", "claude-code-recorder/"+o.Version)
 	resp, err := o.HTTPClient.Do(req)
 	if err != nil {
 		return "", fmt.Errorf("upgrade: cannot read the release manifest: %w", err)
@@ -309,7 +309,7 @@ func parseManifest(body, asset string) string {
 // start is worse than a stale one: the stale one still captures.
 func (o *Options) replace(ctx context.Context, url, want string) error {
 	dir := filepath.Dir(o.ExecPath)
-	tmp, err := os.CreateTemp(dir, ".loop-sessions-upgrade-*")
+	tmp, err := os.CreateTemp(dir, ".claude-code-recorder-upgrade-*")
 	if err != nil {
 		return fmt.Errorf("upgrade: cannot stage a download in %s: %w", dir, err)
 	}
@@ -326,7 +326,7 @@ func (o *Options) replace(ctx context.Context, url, want string) error {
 	if err != nil {
 		return err
 	}
-	req.Header.Set("User-Agent", "loop-sessions/"+o.Version)
+	req.Header.Set("User-Agent", "claude-code-recorder/"+o.Version)
 	resp, err := o.HTTPClient.Do(req)
 	if err != nil {
 		return fmt.Errorf("upgrade: cannot download the new build: %w", err)

@@ -120,7 +120,7 @@ func newHealthReporter(p config.Paths, cfg config.Config, sp *spool.Spool) (*hea
 		return nil, err
 	}
 	if strings.TrimSpace(cfg.Endpoint) == "" {
-		return nil, errors.New("health: no endpoint is configured; run `loop-sessions install`")
+		return nil, errors.New("health: no endpoint is configured; run `claude-code-recorder install`")
 	}
 	if sp == nil {
 		return nil, errors.New("health: a spool is required to report anything about one")
@@ -161,7 +161,7 @@ func (r *healthReporter) Report(ctx context.Context) error {
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+r.token)
-	req.Header.Set("User-Agent", "loop-sessions/"+Version)
+	req.Header.Set("User-Agent", "claude-code-recorder/"+Version)
 
 	res, err := r.client.Do(req)
 	if err != nil {

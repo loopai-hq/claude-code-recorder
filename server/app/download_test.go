@@ -58,7 +58,7 @@ func TestOnlyPublishedArtifactsAreReachable(t *testing.T) {
 		name, target string
 		want         int
 	}{
-		{"a published binary", "/dl/latest/loop-sessions_darwin_arm64", http.StatusOK},
+		{"a published binary", "/dl/latest/claude-code-recorder_darwin_arm64", http.StatusOK},
 		{"the checksum manifest", "/dl/latest/SHA256SUMS", http.StatusOK},
 		{"the installer", "/dl/latest/install.sh", http.StatusOK},
 		{"an unpublished channel", "/dl/secret/SHA256SUMS", http.StatusNotFound},
@@ -114,7 +114,7 @@ func TestAMissingArtifactIsNotReportedAsSuccess(t *testing.T) {
 	d.Register(mux)
 
 	rec := httptest.NewRecorder()
-	mux.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/dl/latest/loop-sessions_linux_amd64", nil))
+	mux.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/dl/latest/claude-code-recorder_linux_amd64", nil))
 	if rec.Code != http.StatusNotFound {
 		t.Errorf("status = %d, want 404", rec.Code)
 	}

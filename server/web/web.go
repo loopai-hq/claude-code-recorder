@@ -1,4 +1,4 @@
-// Package web is the loop-sessions dashboard: server-rendered HTML over the
+// Package web is the claude-code-recorder dashboard: server-rendered HTML over the
 // session store, with no build step and almost no JavaScript.
 //
 // The absence of a front-end toolchain is a security property before it is a

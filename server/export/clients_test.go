@@ -31,7 +31,7 @@ func TestGCSPutStreamsAMediaUploadAndReportsTheProducersError(t *testing.T) {
 		io.WriteString(w, `{"name":"turns/dt=2026-09-10/part-0000.jsonl.gz"}`)
 	}))
 	defer srv.Close()
-	g := &GCS{Bucket: "loop-sessions-analytics", Token: StaticToken("tok"), Endpoint: srv.URL}
+	g := &GCS{Bucket: "claude-code-recorder-analytics", Token: StaticToken("tok"), Endpoint: srv.URL}
 	n, err := g.Put(context.Background(), "turns/dt=2026-09-10/part-0000.jsonl.gz", func(w io.Writer) error {
 		gz := gzip.NewWriter(w)
 		io.WriteString(gz, `{"a":1}`+"\n")
@@ -40,7 +40,7 @@ func TestGCSPutStreamsAMediaUploadAndReportsTheProducersError(t *testing.T) {
 	if err != nil {
 		t.Fatalf("put: %v", err)
 	}
-	if gotPath != "/upload/storage/v1/b/loop-sessions-analytics/o" || gotQuery != "uploadType=media&name=turns%2Fdt%3D2026-09-10%2Fpart-0000.jsonl.gz" {
+	if gotPath != "/upload/storage/v1/b/claude-code-recorder-analytics/o" || gotQuery != "uploadType=media&name=turns%2Fdt%3D2026-09-10%2Fpart-0000.jsonl.gz" {
 		t.Errorf("request %s?%s", gotPath, gotQuery)
 	}
 	if gotAuth != "Bearer tok" || gotType != "application/gzip" {
@@ -105,22 +105,22 @@ func TestBigQueryStartsALoadIntoThePartitionAndWaitsForIt(t *testing.T) {
 		}
 	}))
 	defer srv.Close()
-	b := &BigQuery{Project: "example-project-12345", Dataset: "loop_sessions", Location: "asia-south1", SourceBucket: "loop-sessions-analytics",
+	b := &BigQuery{Project: "example-project-12345", Dataset: "claude_code_recorder", Location: "asia-south1", SourceBucket: "claude-code-recorder-analytics",
 		Token: StaticToken("tok"), Endpoint: srv.URL, Poll: time.Millisecond}
 	job := LoadJob{ID: jobID("r1", TableTurns, "2026-09-10"), Table: TableTurns, Day: "2026-09-10", Object: partitionObject(TableTurns, "2026-09-10")}
 	if err := b.Start(context.Background(), job); err != nil {
 		t.Fatalf("start: %v", err)
 	}
 	ref := inserted["jobReference"].(map[string]any)
-	if ref["jobId"] != "loop_sessions_export_r1_turns_20260910" || ref["location"] != "asia-south1" || ref["projectId"] != "example-project-12345" {
+	if ref["jobId"] != "claude_code_recorder_export_r1_turns_20260910" || ref["location"] != "asia-south1" || ref["projectId"] != "example-project-12345" {
 		t.Errorf("jobReference %v", ref)
 	}
 	load := inserted["configuration"].(map[string]any)["load"].(map[string]any)
 	dest := load["destinationTable"].(map[string]any)
-	if dest["tableId"] != "turns$20260910" || dest["datasetId"] != "loop_sessions" {
+	if dest["tableId"] != "turns$20260910" || dest["datasetId"] != "claude_code_recorder" {
 		t.Errorf("destination %v", dest)
 	}
-	if uris := load["sourceUris"].([]any); len(uris) != 1 || uris[0] != "gs://loop-sessions-analytics/turns/dt=2026-09-10/part-0000.jsonl.gz" {
+	if uris := load["sourceUris"].([]any); len(uris) != 1 || uris[0] != "gs://claude-code-recorder-analytics/turns/dt=2026-09-10/part-0000.jsonl.gz" {
 		t.Errorf("sourceUris %v", uris)
 	}
 	if load["writeDisposition"] != "WRITE_TRUNCATE" || load["sourceFormat"] != "NEWLINE_DELIMITED_JSON" || load["ignoreUnknownValues"] != false {

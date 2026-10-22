@@ -1,4 +1,4 @@
-/* loop-sessions dashboard.
+/* claude-code-recorder dashboard.
    One stylesheet, no build step, no external requests. Colour is semantic:
    indigo means interactive, amber means still running, red means failed, and
    nothing else is coloured. */

@@ -20,7 +20,7 @@ func TestSessionEndDefaultTimeoutIsThirtySeconds(t *testing.T) {
 	}
 
 	path := filepath.Join(t.TempDir(), "settings.json")
-	if _, err := Register(Options{SettingsPath: path, Binary: "/usr/local/bin/loop-sessions"}); err != nil {
+	if _, err := Register(Options{SettingsPath: path, Binary: "/usr/local/bin/claude-code-recorder"}); err != nil {
 		t.Fatal(err)
 	}
 	b, err := os.ReadFile(path)
@@ -61,11 +61,11 @@ func TestSessionEndDefaultTimeoutIsThirtySeconds(t *testing.T) {
 // budget forever and only fresh installs get the new one.
 func TestRegisterRaisesAnExistingSessionEndTimeout(t *testing.T) {
 	path := filepath.Join(t.TempDir(), "settings.json")
-	if _, err := Register(Options{SettingsPath: path, Binary: "/usr/local/bin/loop-sessions", Timeout: 10}); err != nil {
+	if _, err := Register(Options{SettingsPath: path, Binary: "/usr/local/bin/claude-code-recorder", Timeout: 10}); err != nil {
 		t.Fatal(err)
 	}
 	// The upgraded binary's `install --hooks-only`.
-	plan, err := Register(Options{SettingsPath: path, Binary: "/usr/local/bin/loop-sessions"})
+	plan, err := Register(Options{SettingsPath: path, Binary: "/usr/local/bin/claude-code-recorder"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -81,27 +81,27 @@ func TestRegisterRaisesAnExistingSessionEndTimeout(t *testing.T) {
 
 	// The daemon's version-gated refresh does the same to an entry it finds
 	// and adds nothing for a binary the hooks do not name.
-	if _, err := Register(Options{SettingsPath: path, Binary: "/usr/local/bin/loop-sessions", Timeout: 10}); err != nil {
+	if _, err := Register(Options{SettingsPath: path, Binary: "/usr/local/bin/claude-code-recorder", Timeout: 10}); err != nil {
 		t.Fatal(err)
 	}
 	if got := sessionEndTimeouts(t, path); len(got) != 1 || got[0] != 10 {
 		t.Fatalf("setup: timeout = %v, want [10]", got)
 	}
-	updated, err := Refresh(Options{SettingsPath: path, Binary: "/opt/dev/loop-sessions"})
+	updated, err := Refresh(Options{SettingsPath: path, Binary: "/opt/dev/claude-code-recorder"})
 	if err != nil || len(updated) != 0 {
 		t.Fatalf("refresh from a foreign binary updated %v (%v); it must touch nothing", updated, err)
 	}
 	if got := sessionEndTimeouts(t, path); len(got) != 1 || got[0] != 10 {
 		t.Fatalf("a foreign binary's refresh changed the file: %v", got)
 	}
-	updated, err = Refresh(Options{SettingsPath: path, Binary: "/usr/local/bin/loop-sessions"})
+	updated, err = Refresh(Options{SettingsPath: path, Binary: "/usr/local/bin/claude-code-recorder"})
 	if err != nil || len(updated) != 1 || updated[0] != "SessionEnd" {
 		t.Fatalf("refresh updated %v (%v), want SessionEnd", updated, err)
 	}
 	if got := sessionEndTimeouts(t, path); len(got) != 1 || got[0] != DefaultSessionEndTimeout {
 		t.Fatalf("SessionEnd timeout after refresh = %v, want [%d]", got, DefaultSessionEndTimeout)
 	}
-	again, err := Refresh(Options{SettingsPath: path, Binary: "/usr/local/bin/loop-sessions"})
+	again, err := Refresh(Options{SettingsPath: path, Binary: "/usr/local/bin/claude-code-recorder"})
 	if err != nil || len(again) != 0 {
 		t.Fatalf("a second refresh updated %v; the file was already current", again)
 	}

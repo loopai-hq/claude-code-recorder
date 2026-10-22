@@ -31,7 +31,7 @@ import (
 // ---------------------------------------------------------------------------
 
 // TestInstallImportsTheHistoryAlreadyOnTheMachine is the test that would have
-// caught it. Nothing in cmd/loop-sessions referenced internal/backfill, so a
+// caught it. Nothing in cmd/claude-code-recorder referenced internal/backfill, so a
 // person who installed the agent got their future sessions and none of their
 // past ones, and the agent said nothing about it.
 func TestInstallImportsTheHistoryAlreadyOnTheMachine(t *testing.T) {
@@ -57,7 +57,7 @@ func TestInstallImportsTheHistoryAlreadyOnTheMachine(t *testing.T) {
 		t.Errorf("%d item(s) are still queued after install; the import must not report success with a backlog", n)
 	}
 	// Discovery's result has to be on disk, because that is what the import
-	// walks and what `loop-sessions backfill` reads later.
+	// walks and what `claude-code-recorder backfill` reads later.
 	if _, err := os.Stat(config.Paths{}.DiscoveryFile()); err != nil {
 		t.Errorf("install did not record what it found: %v", err)
 	}
@@ -547,7 +547,7 @@ func TestAMachineWithNothingToImportIsToldWhichKindItIs(t *testing.T) {
 		{
 			name:    "never scanned, so name the command that scans",
 			scan:    func(*machine) {},
-			wantErr: "loop-sessions discover",
+			wantErr: "claude-code-recorder discover",
 		},
 		{
 			name: "scanned and empty, which is not a fault",

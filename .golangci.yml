@@ -236,11 +236,11 @@ linters:
           - gosec
         text: "G703"
       # G704 (SSRF): the client posts to the endpoint the person enrolled
-      # with (cmd/loop-sessions/mirror.go), and the server fetches release
+      # with (cmd/claude-code-recorder/mirror.go), and the server fetches release
       # assets from storage.googleapis.com with the bucket name from its own
       # config and a path-escaped asset name (server/app/download.go).
       # Reaching a configured host is the purpose of both calls.
-      - path: ^(cmd/loop-sessions/mirror|server/app/download)\.go$
+      - path: ^(cmd/claude-code-recorder/mirror|server/app/download)\.go$
         linters:
           - gosec
         text: "G704"

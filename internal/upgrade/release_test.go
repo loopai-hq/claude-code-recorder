@@ -83,8 +83,8 @@ func TestCISetupGrantsOnlyTheBindingsTheTwoJobsNeed(t *testing.T) {
 	}
 
 	const (
-		releaseSA = "loop-sessions-release@__PROJECT__.iam.gserviceaccount.com"
-		promoteSA = "loop-sessions-promote@__PROJECT__.iam.gserviceaccount.com"
+		releaseSA = "claude-code-recorder-release@__PROJECT__.iam.gserviceaccount.com"
+		promoteSA = "claude-code-recorder-promote@__PROJECT__.iam.gserviceaccount.com"
 	)
 	role := regexp.MustCompile(`--role=(\S+)`)
 	byAccount := map[string][]string{}
@@ -166,8 +166,8 @@ func TestCISetupGrantsOnlyTheBindingsTheTwoJobsNeed(t *testing.T) {
 			t.Errorf("the promote account is given a registry role it has no use for: %s", m)
 		}
 	}
-	if !has("artifacts repositories add-iam-policy-binding loop-sessions", "--location=asia-south1", "--role=roles/artifactregistry.writer") {
-		t.Errorf("no writer binding on the loop-sessions repository in asia-south1:\n  %s", strings.Join(mutations, "\n  "))
+	if !has("artifacts repositories add-iam-policy-binding claude-code-recorder", "--location=asia-south1", "--role=roles/artifactregistry.writer") {
+		t.Errorf("no writer binding on the claude-code-recorder repository in asia-south1:\n  %s", strings.Join(mutations, "\n  "))
 	}
 	if !has("service-accounts add-iam-policy-binding "+releaseSA, "--role=roles/iam.workloadIdentityUser", "attribute.repository/__GITHUB_REPO__") {
 		t.Errorf("workloadIdentityUser is not bound to the __GITHUB_REPO__ principal set:\n  %s", strings.Join(mutations, "\n  "))

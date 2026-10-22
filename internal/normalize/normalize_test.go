@@ -143,7 +143,7 @@ func TestClassifyUserNegatives(t *testing.T) {
 		"[SYSTEM NOTIFICATION is a prefix I want to discuss",
 		"why does <system-reminder> keep appearing in my prompts",
 		"<system-reminder> is the tag I want to grep for",
-		"/usr/local/bin/loop-sessions is missing from PATH",
+		"/usr/local/bin/claude-code-recorder is missing from PATH",
 		"/ divide these numbers",
 		"look at <command-name> handling in the parser",
 		"Another Claude session sent a message: is a phrase I saw in the logs",

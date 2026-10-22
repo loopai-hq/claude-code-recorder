@@ -1,16 +1,16 @@
-# loop-sessions build and release.
+# claude-code-recorder build and release.
 #
 # The release target produces exactly what install/install.sh and the agent's
 # self-upgrade expect to find on the release host: one binary per platform,
-# named loop-sessions_<os>_<arch>, a SHA256SUMS manifest covering all of them,
+# named claude-code-recorder_<os>_<arch>, a SHA256SUMS manifest covering all of them,
 # and latest.json, which names the build (version, commit, date, capture
 # schema) and the digest of every asset. Those names are a contract between
 # this file, that script, internal/upgrade and server/app/download.go;
 # changing one without the others breaks installs silently, since the
 # installer would simply report that no build exists for the platform.
 
-BIN        := loop-sessions
-PKG        := ./cmd/loop-sessions
+BIN        := claude-code-recorder
+PKG        := ./cmd/claude-code-recorder
 DIST       := dist
 
 # Version comes from git when available. A tagged build gets the tag; anything
@@ -75,7 +75,7 @@ GOFLAGS    := -trimpath
 # a secret: it is a URL people paste into a browser anyway. There is no default:
 # set ENDPOINT to the base URL of the server you run, and a binary built
 # without one asks for --endpoint or LOOP_SESSIONS_ENDPOINT at install time
-# (cmd/loop-sessions/setup.go, resolveEndpoint) rather than silently enrolling
+# (cmd/claude-code-recorder/setup.go, resolveEndpoint) rather than silently enrolling
 # against a placeholder host:
 #
 #   make release ENDPOINT=https://sessions.example.com
@@ -121,12 +121,12 @@ NOTICES_TEMPLATE := .github/scripts/third-party-notices.tmpl
 .PHONY: help build test lint fmt release verify clean notices screenshots
 
 help: ## show this help
-	@printf 'loop-sessions %s\n\n' '$(VERSION)'
+	@printf 'claude-code-recorder %s\n\n' '$(VERSION)'
 	@grep -hE '^[a-z-]+:.*?## ' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[1m%-12s\033[0m %s\n", $$1, $$2}'
 	@printf '\n'
 
-build: ## build for this machine into ./loop-sessions
+build: ## build for this machine into ./claude-code-recorder
 	$(BUILDENV) go build $(GOFLAGS) -ldflags '$(LDFLAGS)' -o $(BIN) $(PKG)
 	@printf 'built %s %s\n' '$(BIN)' '$(VERSION)'
 

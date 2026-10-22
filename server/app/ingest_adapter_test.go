@@ -690,7 +690,7 @@ func ingRecord(t *testing.T, ev event.Event) ingest.Record {
 		Event:    ev,
 		Email:    ingAlice,
 		DeviceID: ingDevice,
-		Repo:     "loop-sessions",
+		Repo:     "claude-code-recorder",
 		Body:     body,
 	}
 }
@@ -963,7 +963,7 @@ func TestIngestStoreCarriesAttributionAndBodyOntoTheStoredRow(t *testing.T) {
 			t.Errorf("%s = %q, want %q", c.field, c.got, c.want)
 		}
 	}
-	if len(db.rollups) != 1 || db.rollups[0].Repo != "loop-sessions" {
+	if len(db.rollups) != 1 || db.rollups[0].Repo != "claude-code-recorder" {
 		t.Errorf("rollup repo = %+v, want one increment carrying the resolved repo", db.rollups)
 	}
 }

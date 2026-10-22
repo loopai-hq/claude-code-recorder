@@ -21,7 +21,7 @@ func TestFleetPageRendersAFleetWideRowWithoutAPersonAndMutesItUnderTheSentinel(t
 		Rank: 10, Kind: "missing_answer", Level: "error",
 		Detail: "40 of 100 hook-captured turns on 2026-09-11 have no answer (40%)", Since: fixedNow.Add(-24 * time.Hour),
 		Action:  "Turns are being captured without their answers: the fleet is still on a client without the last_assistant_message fix; upgrade and watch version lag",
-		Command: "loop-sessions daemon --upgrade-now", Anchor: "runbook-missing-answers",
+		Command: "claude-code-recorder daemon --upgrade-now", Anchor: "runbook-missing-answers",
 	})
 	s := newServer(t, f, admin)
 	body := get(t, s, "/admin/fleet").Body.String()
@@ -49,7 +49,7 @@ func TestFleetPageRendersAFleetWideRowWithoutAPersonAndMutesItUnderTheSentinel(t
 	f.eval.CTAs = f.eval.CTAs[:len(f.eval.CTAs)-1]
 	f.eval.Muted = append(f.eval.Muted, fleet.CTA{
 		Rank: 10, Kind: "missing_answer", Level: "error", Detail: "40 of 100 hook-captured turns have no answer",
-		Command: "loop-sessions daemon --upgrade-now", Anchor: "runbook-missing-answers",
+		Command: "claude-code-recorder daemon --upgrade-now", Anchor: "runbook-missing-answers",
 		Muted: &fleet.Mute{Email: "*", Kind: "missing_answer", Until: fixedNow.Add(72 * time.Hour), Note: "fleet converging on 788dcb3", CreatedBy: "admin@example.com"},
 	})
 	body = get(t, s, "/admin/fleet").Body.String()

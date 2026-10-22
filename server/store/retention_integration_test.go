@@ -12,8 +12,8 @@ package store
 // whether two sweeps running at once serialise. Every one of those is a claim
 // this code makes about Postgres rather than about itself.
 //
-//	createdb loop_sessions_test
-//	LOOP_SESSIONS_TEST_DSN=postgres:///loop_sessions_test go test -tags integration ./server/store/...
+//	createdb claude_code_recorder_test
+//	LOOP_SESSIONS_TEST_DSN=postgres:///claude_code_recorder_test go test -tags integration ./server/store/...
 
 import (
 	"context"
@@ -51,7 +51,7 @@ func retentionSeed(t *testing.T, s *Store, email, sessionID string, when time.Ti
 
 	prompt := ingestOf(sessionID+"-prompt", sessionID, email, event.UserPrompt, 1)
 	prompt.Event.Text = "ship the ingest service"
-	prompt.Repo = "loop-sessions"
+	prompt.Repo = "claude-code-recorder"
 
 	turn := withUsage(ingestOf(sessionID+"-turn", sessionID, email, event.AssistantTurn, 2),
 		"claude-opus-5", sessionID+"-msg", sessionID+"-req", 1000, 200)

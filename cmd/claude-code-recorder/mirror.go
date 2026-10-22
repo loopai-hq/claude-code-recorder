@@ -2,12 +2,12 @@ package main
 
 // The mirror subcommand: the terminal's handle on live Slack threads.
 //
-//	loop-sessions mirror list             the groups you can post to
-//	loop-sessions mirror use <group>      mirror every new session to it
-//	loop-sessions mirror use <g> --once   ...just the next session
-//	loop-sessions mirror off              stop mirroring new sessions
-//	loop-sessions mirror attach <group>   attach the current session, now
-//	loop-sessions mirror status           what this machine will do
+//	claude-code-recorder mirror list             the groups you can post to
+//	claude-code-recorder mirror use <group>      mirror every new session to it
+//	claude-code-recorder mirror use <g> --once   ...just the next session
+//	claude-code-recorder mirror off              stop mirroring new sessions
+//	claude-code-recorder mirror attach <group>   attach the current session, now
+//	claude-code-recorder mirror status           what this machine will do
 //
 // `use` writes the machine's standing answer into the agent config, which the
 // SessionStart hook consults when LOOP_SESSIONS_SLACK says nothing; --once
@@ -53,7 +53,7 @@ func runMirror(args []string) error {
 			pos = append(pos, a)
 		}
 		if len(pos) != 1 {
-			return fmt.Errorf("usage: loop-sessions mirror use <group|on|dm|C…> [--once]")
+			return fmt.Errorf("usage: claude-code-recorder mirror use <group|on|dm|C…> [--once]")
 		}
 		return mirrorUse(pos[0], once)
 	case "off":
@@ -73,7 +73,7 @@ func runMirror(args []string) error {
 			pos = append(pos, rest[i])
 		}
 		if len(pos) != 1 {
-			return fmt.Errorf("usage: loop-sessions mirror attach <group> [--session <id>]")
+			return fmt.Errorf("usage: claude-code-recorder mirror attach <group> [--session <id>]")
 		}
 		return mirrorAttach(pos[0], session)
 	case "status":
@@ -100,7 +100,7 @@ func mirrorUse(ref string, once bool) error {
 	case once:
 		fmt.Printf("the NEXT session will mirror to %q, then this resets\n", cfg.MirrorDefault)
 	default:
-		fmt.Printf("new sessions will mirror to %q (loop-sessions mirror off to stop)\n", cfg.MirrorDefault)
+		fmt.Printf("new sessions will mirror to %q (claude-code-recorder mirror off to stop)\n", cfg.MirrorDefault)
 	}
 	return nil
 }
@@ -134,7 +134,7 @@ func mirrorAPI(method, path string, body any) ([]byte, error) {
 	}
 	token, err := os.ReadFile(filepath.Join(p.Root(), "device.token"))
 	if err != nil {
-		return nil, fmt.Errorf("no device credential; run loop-sessions install first: %w", err)
+		return nil, fmt.Errorf("no device credential; run claude-code-recorder install first: %w", err)
 	}
 	var rd io.Reader
 	if body != nil {

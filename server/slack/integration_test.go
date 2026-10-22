@@ -27,8 +27,8 @@ import (
 // because a fake that reimplemented them would be a test of the
 // reimplementation. This file is where those claims are settled.
 //
-//	docker run -d -e POSTGRES_PASSWORD=test -e POSTGRES_DB=loop_sessions_test -p 55433:5432 postgres:16
-//	LOOP_SESSIONS_TEST_DSN=postgres://postgres:test@127.0.0.1:55433/loop_sessions_test \
+//	docker run -d -e POSTGRES_PASSWORD=test -e POSTGRES_DB=claude_code_recorder_test -p 55433:5432 postgres:16
+//	LOOP_SESSIONS_TEST_DSN=postgres://postgres:test@127.0.0.1:55433/claude_code_recorder_test \
 //	  go test -tags integration ./server/slack/...
 //
 // Each run works inside its own schema and drops it afterwards, so a shared
@@ -44,7 +44,7 @@ func TestMain(m *testing.M) {
 		os.Exit(0)
 	}
 	ctx := context.Background()
-	schema := fmt.Sprintf("loop_sessions_slack_%d", time.Now().UnixNano())
+	schema := fmt.Sprintf("claude_code_recorder_slack_%d", time.Now().UnixNano())
 
 	bootstrap, err := pgxpool.New(ctx, dsn)
 	if err != nil {
@@ -142,7 +142,7 @@ func addSession(t *testing.T, s sessionRow) {
 	_, err := pool.Exec(context.Background(), `
 		INSERT INTO sessions (session_id, email, source, parent_session_id, repo, git_branch,
 		                      started_at, ended_at, ended, user_turns, tool_calls, updated_at, session_type)
-		VALUES ($1, $2, 'claude-code', $3, 'loop-sessions', 'main', $4, $5, $6, $7, $8, $9, 'user')`,
+		VALUES ($1, $2, 'claude-code', $3, 'claude-code-recorder', 'main', $4, $5, $6, $7, $8, $9, 'user')`,
 		s.id, s.email, parent, s.endedAt.Add(-30*time.Minute), s.endedAt, s.ended,
 		s.turns, s.tools, s.updatedAt)
 	if err != nil {

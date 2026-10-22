@@ -102,7 +102,7 @@ func TestIntegrationSkillSummaryScopesAndFoldsOnRealRows(t *testing.T) {
 		t.Errorf("a member's buckets = %+v, want none for one-person cells", sum.ByBucket)
 	}
 	// One row per (repo, lineage): the git lineage and the unresolved probe.
-	if len(sum.ByRepo) != 2 || sum.ByRepo[0].Repo != "loop-sessions" || sum.ByRepo[1].Repo != "loop-sessions" {
+	if len(sum.ByRepo) != 2 || sum.ByRepo[0].Repo != "claude-code-recorder" || sum.ByRepo[1].Repo != "claude-code-recorder" {
 		t.Errorf("owner's repos = %+v", sum.ByRepo)
 	}
 

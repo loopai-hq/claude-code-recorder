@@ -1,4 +1,4 @@
-// Package store is the persistence layer for loop-sessions.
+// Package store is the persistence layer for claude-code-recorder.
 //
 // Three properties shape almost every decision in here.
 //

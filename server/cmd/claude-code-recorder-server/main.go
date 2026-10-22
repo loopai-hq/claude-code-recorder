@@ -1,4 +1,4 @@
-// Command loop-sessions-server serves the loop-sessions dashboard, its read
+// Command claude-code-recorder-server serves the claude-code-recorder dashboard, its read
 // API, the admin surface and the endpoint the agents on people's laptops upload
 // to, all on one listener.
 //

@@ -46,7 +46,7 @@ func TestTurnRendersEachOutcomeInItsAnswerSlot(t *testing.T) {
 	cases := map[string][]string{
 		"answered":           {"Done, the test passes now.", `class="blk blk-assistant"`},
 		"interrupted":        {"Interrupted by you", "answer-interrupted"},
-		"no_answer_captured": {"Answer not captured", "788dcb3", "loop-sessions daemon --upgrade-now", "answer-missing"},
+		"no_answer_captured": {"Answer not captured", "788dcb3", "claude-code-recorder daemon --upgrade-now", "answer-missing"},
 		"no_work":            {"No work or answer followed this prompt", "answer-nowork"},
 		"in_progress":        {"In progress", "answer-live"},
 	}
@@ -236,7 +236,7 @@ func TestHeadBannerNamesTheWindowAndTheBackfillCommand(t *testing.T) {
 	body := get(t, s, "/sessions/s1").Body.String()
 	// The window start is the first turn's start, stamped with its zone.
 	first := f.turns["s1"][0].StartedAt
-	for _, want := range []string{"Capture begins here; earlier activity not imported (window started", "loop-sessions backfill --session s1", stamp(first), first.Local().Format("MST")} {
+	for _, want := range []string{"Capture begins here; earlier activity not imported (window started", "claude-code-recorder backfill --session s1", stamp(first), first.Local().Format("MST")} {
 		if !strings.Contains(body, want) {
 			t.Errorf("missing %q", want)
 		}
@@ -294,7 +294,7 @@ func TestSearchMatchesOpenTheWorkTheyLandIn(t *testing.T) {
 // as a client to upgrade. Every near miss keeps the client line or no note.
 func TestAnswerAwaitingTheWalkIsNamedAsHarnessBehaviour(t *testing.T) {
 	const walkNote = "Claude Code runs no Stop hook"
-	const clientFix = "loop-sessions daemon --upgrade-now"
+	const clientFix = "claude-code-recorder daemon --upgrade-now"
 
 	withSubagent := func(outcome string, origins ...string) Turn {
 		turn := turnFixture(outcome)

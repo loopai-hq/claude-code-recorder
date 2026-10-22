@@ -287,7 +287,7 @@ func (h *Handler) viewer(w http.ResponseWriter, r *http.Request) (Viewer, bool) 
 	// this is the one authorization failure in the package that is not a 404.
 	if !found {
 		writeError(w, http.StatusForbidden, "not_enrolled",
-			"this account is not enrolled in loop-sessions")
+			"this account is not enrolled in claude-code-recorder")
 		return Viewer{}, false
 	}
 	if p.Disabled {

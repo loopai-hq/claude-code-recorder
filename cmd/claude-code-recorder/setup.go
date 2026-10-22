@@ -81,6 +81,15 @@ func runInstall(args []string) error {
 	}
 
 	p := config.Paths{}
+	// A machine that ran this agent under its old name keeps its state in
+	// the old directory. Moved before anything reads the config, so the
+	// endpoint, the credential and the queued events it holds are what this
+	// install continues from rather than what it asks for again.
+	if from, err := config.AdoptLegacyRoot(p); err != nil {
+		return fmt.Errorf("install: %w", err)
+	} else if from != "" {
+		fmt.Printf("Moved this machine's settings and queued sessions from %s to %s.\n", from, p.Root())
+	}
 	if *hooksOnly {
 		// The fleet CTA for a machine whose hooks a harness upgrade rewrote
 		// away: put them back without signing in again or importing anything.
@@ -96,7 +105,7 @@ func runInstall(args []string) error {
 		return err
 	}
 	endpoint := &endpointURL
-	fmt.Println("Setting up loop-sessions.")
+	fmt.Println("Setting up claude-code-recorder.")
 	fmt.Println()
 
 	// Step 1: look at the machine before changing anything, and show the person
@@ -129,7 +138,7 @@ func runInstall(args []string) error {
 
 	switch {
 	case *skipEnroll:
-		fmt.Println("Skipping sign-in. Run `loop-sessions install` again when ready.")
+		fmt.Println("Skipping sign-in. Run `claude-code-recorder install` again when ready.")
 	case cfg.Email != "" && cfg.DeviceID != "" && hasDeviceToken(p):
 		fmt.Printf("Already signed in as %s.\n", cfg.Email)
 	default:
@@ -174,7 +183,7 @@ func runInstall(args []string) error {
 	if cfg.Email == "" {
 		fmt.Println()
 		fmt.Println("Nothing has been changed on this machine yet.")
-		fmt.Println("Capture starts once you sign in:  loop-sessions install")
+		fmt.Println("Capture starts once you sign in:  claude-code-recorder install")
 		return nil
 	}
 
@@ -183,13 +192,13 @@ func runInstall(args []string) error {
 	}
 
 	// Persist what the scan found. Backfill walks discovery's result rather than
-	// re-deriving where sessions live, and until now only `loop-sessions
+	// re-deriving where sessions live, and until now only `claude-code-recorder
 	// discover` ever wrote this file — so a machine that had only ever run
 	// install had nothing on disk for the import to read. Written after the
 	// config, so the "nothing has been changed on this machine yet" path above
 	// stays true.
 	if err := discovery.WriteSummary(p.DiscoveryFile(), sum); err != nil {
-		fmt.Printf("Could not record what was found (%v); run `loop-sessions discover` before importing history.\n", err)
+		fmt.Printf("Could not record what was found (%v); run `claude-code-recorder discover` before importing history.\n", err)
 	}
 
 	// Step 4: register the hooks. This is the step that actually starts
@@ -202,8 +211,8 @@ func runInstall(args []string) error {
 	}
 
 	fmt.Println()
-	fmt.Println("Done. Check anytime with:  loop-sessions status")
-	fmt.Println("Pause whenever you like:   loop-sessions pause")
+	fmt.Println("Done. Check anytime with:  claude-code-recorder status")
+	fmt.Println("Pause whenever you like:   claude-code-recorder pause")
 
 	if len(sum.NeedsAsk) > 0 {
 		fmt.Println()
@@ -211,7 +220,7 @@ func runInstall(args []string) error {
 		for _, t := range sum.NeedsAsk {
 			fmt.Printf("  %s\n", t)
 		}
-		fmt.Println("If you use them, run: loop-sessions discover")
+		fmt.Println("If you use them, run: claude-code-recorder discover")
 	}
 
 	// Step 5: import the history that was already here. It runs last because
@@ -223,11 +232,11 @@ func runInstall(args []string) error {
 	if *skipBackfill {
 		fmt.Println()
 		fmt.Println("Skipping the history already on this machine.")
-		fmt.Println("Import it whenever you like:  loop-sessions backfill")
+		fmt.Println("Import it whenever you like:  claude-code-recorder backfill")
 	} else if err := importAtInstall(p, cfg, *backfillSince, os.Stdout); err != nil {
 		fmt.Println()
 		fmt.Printf("The history import stopped: %v\n", err)
-		fmt.Println("Capture is running regardless. Pick the import back up with:  loop-sessions backfill")
+		fmt.Println("Capture is running regardless. Pick the import back up with:  claude-code-recorder backfill")
 		logf("install: history import stopped: %v", err)
 	} else {
 		// This machine's history has now been read by this build's extraction,
@@ -317,12 +326,17 @@ func registerHooks() error {
 		// that their own work will be clobbered.
 		fmt.Printf("Your settings file has %d hook(s) of your own. They will be left alone.\n", plan.Foreign)
 	}
-	if len(plan.Add) == 0 && len(plan.Update) == 0 {
+	if len(plan.Add) == 0 && len(plan.Update) == 0 && plan.Legacy == 0 {
 		fmt.Println("Capture hooks are already registered.")
 		return nil
 	}
 	if _, err := hooks.Register(hooks.Options{Binary: self}); err != nil {
 		return err
+	}
+	if plan.Legacy > 0 {
+		// The entries the old binary wrote are gone and this one's are in;
+		// said so the person knows the old agent stops firing from here.
+		fmt.Printf("Replaced %d capture hook(s) registered by loop-sessions in %s\n", plan.Legacy, plan.Path)
 	}
 	if len(plan.Add) > 0 {
 		fmt.Printf("Registered %d capture hooks in %s\n", len(plan.Add), plan.Path)
@@ -362,6 +376,12 @@ func runUninstall(args []string) error {
 	}
 
 	p := config.Paths{}
+	// The current directory, and the old binary's if a new install never
+	// moved it; both are this tool's and both are named.
+	roots := []string{p.Root()}
+	if old := config.LegacyRoot(p); old != "" {
+		roots = append(roots, old)
+	}
 	if *purge {
 		// Report what is being destroyed before destroying it. Anything still
 		// spooled has not reached the server, so this is the one irreversible
@@ -369,13 +389,17 @@ func runUninstall(args []string) error {
 		if n, bytes := spoolSize(p); n > 0 {
 			fmt.Printf("Deleting %d item(s) (%s) that had not finished uploading.\n", n, humanBytes(bytes))
 		}
-		if err := os.RemoveAll(p.Root()); err != nil {
-			return err
+		for _, root := range roots {
+			if err := os.RemoveAll(root); err != nil {
+				return err
+			}
+			fmt.Printf("Deleted %s\n", root)
 		}
-		fmt.Printf("Deleted %s\n", p.Root())
 	} else {
-		fmt.Printf("Your data is still at %s\n", p.Root())
-		fmt.Printf("Remove it with: rm -rf %s\n", p.Root())
+		for _, root := range roots {
+			fmt.Printf("Your data is still at %s\n", root)
+			fmt.Printf("Remove it with: rm -rf %s\n", root)
+		}
 	}
 
 	fmt.Println()
