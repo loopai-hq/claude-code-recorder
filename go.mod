@@ -2,7 +2,7 @@ module github.com/loopai-hq/claude-code-recorder
 
 go 1.26.0
 
-toolchain go1.26.8
+toolchain go1.26.10
 
 require (
 	github.com/jackc/pgx/v5 v5.11.0

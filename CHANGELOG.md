@@ -7,7 +7,7 @@ released section's heading is `## [X.Y.Z] - YYYY-MM-DD` exactly, because the
 release workflow extracts it for the release notes; the date is the day the
 tag is cut and is set in the same change as the tag.
 
-## [0.2.0] - unreleased
+## [0.2.0] - 2026-10-22
 
 The project is renamed from loop-sessions to claude-code-recorder. The
 repository is `loopai-hq/claude-code-recorder` (GitHub redirects the old
