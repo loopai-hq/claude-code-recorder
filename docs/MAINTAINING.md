@@ -69,7 +69,7 @@ lists the order; this is the what.
   be changed afterwards; the release workflow's `publish` job refuses to
   continue when a release for the tag already exists, before anything is
   pushed, signed or published (the `build` job has already run by then).
-- **GHCR package `loop-sessions-server`**: after the first push, make it
+- **GHCR package `claude-code-recorder-server`**: after the first push, make it
   public (packages inherit the repository's permissions but not its
   visibility) and verify with an anonymous `docker pull`.
 - **Repository metadata**: homepage, description, topics, social preview
@@ -152,7 +152,7 @@ bytes on every run; that is harmless.
 
 **Before the first tag (and before undrafting the first pull request):**
 
-- [ ] Rename the repository to `loopai-hq/loop-sessions` in Settings
+- [ ] Rename the repository to `loopai-hq/claude-code-recorder` in Settings
       before merging the rename pull request: the tree, the module path,
       the badges and the image's `source` label already assume the new
       name, and GitHub redirects the old name to the new, never the other
@@ -174,7 +174,7 @@ bytes on every run; that is harmless.
       `publish` end to end, signing and GHCR included, without moving what
       installers resolve. From a laptop with no account, run the three
       verification commands in RELEASE.md against every asset and
-      `gh attestation verify oci://ghcr.io/loopai-hq/loop-sessions-server@<digest>`
+      `gh attestation verify oci://ghcr.io/loopai-hq/claude-code-recorder-server@<digest>`
       against the image, and run both installer one-liners from README
       against the release. Only when all of that passes, tag `v0.1.0`.
 - [ ] Set homepage, description, topics and the social preview.
@@ -182,7 +182,7 @@ bytes on every run; that is harmless.
 **After a release:**
 
 - [ ] Make the GHCR package public and verify with an anonymous
-      `docker pull ghcr.io/loopai-hq/loop-sessions-server:vX.Y.Z`.
+      `docker pull ghcr.io/loopai-hq/claude-code-recorder-server:vX.Y.Z`.
 - [ ] Run the three verification commands from RELEASE.md against the
       published assets from a laptop with no account.
 - [ ] Re-run the two installer one-liners from README against the real

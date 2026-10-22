@@ -1,6 +1,6 @@
-# loop-sessions
+# claude-code-recorder
 
-loop-sessions collects the AI coding sessions on every engineer's laptop into
+claude-code-recorder collects the AI coding sessions on every engineer's laptop into
 one place your organisation runs. A small agent on each machine finds the
 session stores that Claude Code and Codex write, captures Claude Code sessions
 as they happen, imports the history already on disk, redacts credentials
@@ -10,14 +10,14 @@ list, full transcripts with tool calls and diffs, search, cost, per-skill
 usage, and a fleet page that says which laptops are reporting and which are
 not.
 
-The product, the binary and the repository are all `loop-sessions`. It is
+The product, the binary and the repository are all `claude-code-recorder`. It is
 not affiliated with or endorsed by Anthropic.
 
 [![ci](https://github.com/loopai-hq/claude-code-recorder/actions/workflows/ci.yml/badge.svg)](https://github.com/loopai-hq/claude-code-recorder/actions/workflows/ci.yml)
 [![identifier-gate](https://github.com/loopai-hq/claude-code-recorder/actions/workflows/identifier-gate.yml/badge.svg)](https://github.com/loopai-hq/claude-code-recorder/actions/workflows/identifier-gate.yml)
 [![scorecard](https://api.scorecard.dev/projects/github.com/loopai-hq/claude-code-recorder/badge)](https://scorecard.dev/viewer/?uri=github.com/loopai-hq/claude-code-recorder)
-[![release](https://img.shields.io/github/v/release/loopai-hq/loop-sessions)](https://github.com/loopai-hq/claude-code-recorder/releases)
-[![license](https://img.shields.io/github/license/loopai-hq/loop-sessions)](LICENSE)
+[![release](https://img.shields.io/github/v/release/loopai-hq/claude-code-recorder)](https://github.com/loopai-hq/claude-code-recorder/releases)
+[![license](https://img.shields.io/github/license/loopai-hq/claude-code-recorder)](LICENSE)
 [![Go Reference](https://pkg.go.dev/badge/github.com/loopai-hq/claude-code-recorder.svg)](https://pkg.go.dev/github.com/loopai-hq/claude-code-recorder)
 
 | The session list | One session, with tool calls and diffs |
@@ -32,7 +32,7 @@ not affiliated with or endorsed by Anthropic.
 fixture sessions, without a database, a Firebase project or a deploy:
 
 ```sh
-LOOP_WEB_DEMO=:8099 go test ./server/web -run TestServeDemo -timeout 0
+CLAUDE_CODE_RECORDER_WEB_DEMO=:8099 go test ./server/web -run TestServeDemo -timeout 0
 ```
 
 Open <http://127.0.0.1:8099/sessions>, then `/sessions/s-01`, `/admin/fleet`
@@ -49,7 +49,7 @@ docker compose up -d --build && curl -sf http://127.0.0.1:8080/readyz
 
 [examples/docker-compose/README.md](examples/docker-compose/README.md) walks
 through the three Firebase values, the first admin and the ports. The
-published image is `ghcr.io/loopai-hq/loop-sessions-server`.
+published image is `ghcr.io/loopai-hq/claude-code-recorder-server`.
 
 **3. The agent, on a laptop.** Binaries are on
 [GitHub Releases](https://github.com/loopai-hq/claude-code-recorder/releases); the
@@ -58,9 +58,9 @@ uses `sudo`:
 
 ```sh
 curl -fsSL https://github.com/loopai-hq/claude-code-recorder/releases/latest/download/install.sh |
-  LOOP_SESSIONS_BASE_URL=https://github.com/loopai-hq/claude-code-recorder/releases/latest \
-  LOOP_SESSIONS_VERSION=download sh
-loop-sessions install --endpoint https://sessions.example.com
+  CLAUDE_CODE_RECORDER_BASE_URL=https://github.com/loopai-hq/claude-code-recorder/releases/latest \
+  CLAUDE_CODE_RECORDER_VERSION=download sh
+claude-code-recorder install --endpoint https://sessions.example.com
 ```
 
 Public binaries carry no server address, so `install` needs `--endpoint`.
@@ -69,7 +69,10 @@ deciding whether to trust it, and [docs/RELEASE.md](docs/RELEASE.md#github-relea
 has the pinned-version form and how to verify a release's provenance and
 signature. macOS and Linux only: the agent relies on POSIX process control
 (signals and a detached process group: `syscall.Kill`, `Setsid`), so Windows
-is not supported and the installer refuses to run there.
+is not supported and the installer refuses to run there. A laptop that ran
+this agent under its earlier name, `loop-sessions`, moves over with the same
+two commands; [install/README.md](install/README.md#coming-from-loop-sessions)
+says what moves and what to delete.
 
 ## Supported harnesses
 
@@ -116,7 +119,7 @@ collector. Prompt text, tool details and tool content are off by default;
 with the opt-in flags (`OTEL_LOG_ASSISTANT_RESPONSES`,
 `OTEL_LOG_RAW_API_BODIES`) it can send responses and whole API bodies to
 that collector, unscrubbed, and only from the moment it was switched on.
-loop-sessions keeps the record by default: the transcript itself, scrubbed,
+claude-code-recorder keeps the record by default: the transcript itself, scrubbed,
 from every laptop in the fleet, plus the history that was on disk before the
 agent was installed. It is not a metrics product: there is no Prometheus
 endpoint today (see [ROADMAP.md](ROADMAP.md)), and cost is derived from the
@@ -124,7 +127,7 @@ captured token counts rather than reported by the harness.
 
 ## How it works
 
-On the laptop, `loop-sessions install` registers Claude Code lifecycle hooks
+On the laptop, `claude-code-recorder install` registers Claude Code lifecycle hooks
 in the harness's own settings file, tagged so they can be removed exactly.
 Each hook turns one lifecycle event into canonical events, scrubs them, writes
 them to a durable spool and returns; a daemon spawned at session start watches
@@ -192,19 +195,19 @@ the log contract, backup and restore, upgrade and rollback.
 Local development is the same server under `go run`:
 
 ```sh
-docker run -d --name loop-sessions-pg -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=loop_sessions -p 5432:5432 postgres:16
-export DATABASE_HOST=127.0.0.1 DATABASE_NAME=loop_sessions DATABASE_USER=postgres \
+docker run -d --name claude-code-recorder-pg -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=claude_code_recorder -p 5432:5432 postgres:16
+export DATABASE_HOST=127.0.0.1 DATABASE_NAME=claude_code_recorder DATABASE_USER=postgres \
   DATABASE_PASSWORD=postgres SESSION_KEY="$(openssl rand -base64 32)" \
   FIREBASE_PROJECT_ID=__PROJECT__ FIREBASE_API_KEY=your-firebase-web-api-key \
   ALLOWED_DOMAINS=example.com ADMIN_EMAILS=you@example.com PUBLIC_URL=http://127.0.0.1:8080
-go run ./server/cmd/loop-sessions-server
-make build && ./loop-sessions install --endpoint http://127.0.0.1:8080
+go run ./server/cmd/claude-code-recorder-server
+make build && ./claude-code-recorder install --endpoint http://127.0.0.1:8080
 ```
 
 Use `127.0.0.1`, not `localhost`: the client accepts plain `http://` only to
 the loopback literal. Migrations run at boot. The client keeps its state under
-`~/.loop/sessions` (or `LOOP_SESSIONS_HOME`).
+`~/.claude-code-recorder` (or `CLAUDE_CODE_RECORDER_HOME`).
 
 `examples/deploy-gcp/` is a complete Cloud Run and Cloud SQL deployment with
 placeholders, log-based metrics and alert policies, and the BigQuery export;
@@ -214,29 +217,29 @@ a Firebase project and nothing else.
 ## Using the client
 
 ```
-loop-sessions install             set up: find sessions, sign in, start capturing
-loop-sessions uninstall           stop capturing and clean up (--purge also deletes captured data waiting to upload)
-loop-sessions status              what is being captured and whether it is working (--json)
-loop-sessions discover            re-scan this machine for agent session files (--json)
-loop-sessions backfill            import the sessions already on this machine
+claude-code-recorder install             set up: find sessions, sign in, start capturing
+claude-code-recorder uninstall           stop capturing and clean up (--purge also deletes captured data waiting to upload)
+claude-code-recorder status              what is being captured and whether it is working (--json)
+claude-code-recorder discover            re-scan this machine for agent session files (--json)
+claude-code-recorder backfill            import the sessions already on this machine
                                   (--since all|30d|2026-07-01, --session <id>, --dry-run)
-loop-sessions pause [--for 2h]    stop capturing until resumed, or until the period ends
-loop-sessions resume              start capturing again (ends a timed pause early)
-loop-sessions doctor              diagnose problems and say how to fix them
+claude-code-recorder pause [--for 2h]    stop capturing until resumed, or until the period ends
+claude-code-recorder resume              start capturing again (ends a timed pause early)
+claude-code-recorder doctor              diagnose problems and say how to fix them
                                   (--redrive, --replay-quarantine)
-loop-sessions mirror              the Slack mirror from the terminal: list, use <group>, off,
+claude-code-recorder mirror              the Slack mirror from the terminal: list, use <group>, off,
                                   attach <group> [--session <id>], status
-loop-sessions version             print the agent version
+claude-code-recorder version             print the agent version
 
-loop-sessions install --hooks-only   put the capture hooks back without signing in again
-loop-sessions daemon --upgrade-now   check the release host now and replace this binary
+claude-code-recorder install --hooks-only   put the capture hooks back without signing in again
+claude-code-recorder daemon --upgrade-now   check the release host now and replace this binary
 ```
 
 `pause --for 2h` pauses capture and delivery for the period and then resumes
 on its own; `status` shows `PAUSED since <t> until <t>` meanwhile. A harness
 that `discover` found installed but with no sessions where it looked is a
 question, not a verdict: add its directory to `"roots"` in
-`~/.loop/sessions/config.json` (`"roots": {"codex": "/path/to/its/sessions"}`)
+`~/.claude-code-recorder/config.json` (`"roots": {"codex": "/path/to/its/sessions"}`)
 and run `discover` again. `hook` and `daemon` are invoked by Claude Code and
 the installer, not by you; the hook path never returns non-zero and never
 writes to stdout, because a hook that errors or chatters degrades the editor.

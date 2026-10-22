@@ -1,6 +1,6 @@
 # Security policy
 
-loop-sessions reads coding-session transcripts on people's laptops and uploads
+claude-code-recorder reads coding-session transcripts on people's laptops and uploads
 them to a server. A vulnerability here can expose a colleague's work, so
 reports are taken seriously and handled privately until a fix is released.
 The trust boundaries and what each position can do are written down in
@@ -49,7 +49,7 @@ door on further reports from its sender.
 Releases are on [GitHub Releases](https://github.com/loopai-hq/claude-code-recorder/releases)
 and can be verified by digest, build provenance and signature as
 [docs/RELEASE.md](docs/RELEASE.md#verifying-a-release) describes. The server
-image is `ghcr.io/loopai-hq/loop-sessions-server`.
+image is `ghcr.io/loopai-hq/claude-code-recorder-server`.
 
 ## Bug bounty
 
@@ -57,7 +57,7 @@ There is no bug bounty programme.
 
 ## What is in scope
 
-- The client agent (`cmd/loop-sessions`, `internal/`): anything that lets a
+- The client agent (`cmd/claude-code-recorder`, `internal/`): anything that lets a
   hook affect the harness it runs in, lets a local process obtain the device
   credential, or gets credential material past the scrubber
   (`internal/scrub`) and onto the wire.

@@ -10,13 +10,13 @@ most of the rules below were written there first.
 
 A session's transcript is the only record of what an AI coding agent did,
 and that record otherwise lives in one directory on one machine until it is
-deleted. loop-sessions moves it, scrubbed, to a server an organisation runs,
+deleted. claude-code-recorder moves it, scrubbed, to a server an organisation runs,
 and shows it back: the session list, the transcript with tool calls and
 diffs, search, cost, per-skill usage, and a fleet page that says which
 laptops are reporting and which are not.
 
 Two binaries, one Go module, no shared state except the server's database.
-The **client** (`cmd/loop-sessions`, `internal/`) runs on every laptop:
+The **client** (`cmd/claude-code-recorder`, `internal/`) runs on every laptop:
 it registers Claude Code lifecycle hooks, turns them into canonical events,
 scrubs the events, spools them to disk and delivers them; it also imports the
 transcripts that were on disk before it arrived (Claude Code and Codex). The
@@ -60,11 +60,11 @@ the crashed ones would lose exactly the sessions the system exists to keep.
 
 ## Codemap
 
-### The client: `loop-sessions`
+### The client: `claude-code-recorder`
 
 The client is stdlib-only. It has to install on a machine with no module
 cache and no network, so every avoidable dependency is one more way an
-install fails. `cmd/loop-sessions` is the CLI and the agent in one binary:
+install fails. `cmd/claude-code-recorder` is the CLI and the agent in one binary:
 `install`, `uninstall`, `status`, `discover`, `backfill`, `pause`, `resume`,
 `doctor`, `mirror`, `version`, and the two verbs the harness and the
 installer invoke, `hook` and `daemon`.
@@ -76,7 +76,7 @@ installer invoke, `hook` and `daemon`.
 | `internal/capture` | the live path: one lifecycle hook payload in, canonical events out, scrubbed, handed to the spool; no network |
 | `internal/scrub` | credential redaction; every hit becomes `[REDACTED:<kind>]` so a leaked Stripe key and a leaked JWT stay distinguishable downstream; `Kinds` is the list |
 | `internal/spool` | the durable outbox: immutable payload files published by atomic rename under `pending/`, `quarantine/` for what the server explicitly refused, `parked/` for what it neither accepted nor refused eight times running |
-| `internal/drain` | delivery, the only path session content leaves by (`POST /v1/events`, through the transport in `cmd/loop-sessions/deliver.go`): acknowledges exactly what the server said it stored, retries transport failures forever with full-jitter backoff, treats only an explicit rejection as final |
+| `internal/drain` | delivery, the only path session content leaves by (`POST /v1/events`, through the transport in `cmd/claude-code-recorder/deliver.go`): acknowledges exactly what the server said it stored, retries transport failures forever with full-jitter backoff, treats only an explicit rejection as final |
 | `internal/daemon` | a session's lifetime: spawned at session start, watches the harness pid, flushes on a cadence, finalises when the process goes away, reconciles sessions an earlier daemon left open |
 | `internal/backfill` | historical transcripts to events, timestamps intact: Claude Code (including subagent and workflow files) and Codex rollouts; forks and lineage |
 | `internal/discovery` | where each harness keeps its sessions (the probe table covers macOS, Linux and Windows layouts; a path that does not apply simply does not exist), honouring `CLAUDE_CONFIG_DIR` and `CODEX_HOME`; three states per tool: found, installed with no sessions where it looked, absent |
@@ -85,16 +85,16 @@ installer invoke, `hook` and `daemon`.
 | `internal/health` | the self-telemetry report the fleet page is drawn from: conditions rather than counters, on a fixed cadence, with no session ids, paths or prompt text |
 | `internal/upgrade` | replace the agent binary when the published digest differs from the running file's |
 | `internal/enroll` | browser sign-in exchanged for a device credential over a loopback listener; the Firebase token is spent once and never persisted |
-| `internal/config` | the client's on-disk settings under `~/.loop/sessions` and the record of what a person consented to, including `paused_until` |
+| `internal/config` | the client's on-disk settings under `~/.claude-code-recorder` and the record of what a person consented to, including `paused_until` |
 | `internal/pipeline` | the two adapters that wire capture to the spool and the spool to delivery, written once |
 | `internal/receiver` | a reference implementation of the server side of the drain's contract; the client's end-to-end test fixture |
 | `internal/skilllog` | the skill-usage log strings two server packages share |
 
-### The server: `loop-sessions-server`
+### The server: `claude-code-recorder-server`
 
 | Package | What it owns |
 |---|---|
-| `server/cmd/loop-sessions-server` | the entrypoint and the `export` subcommand; the Dockerfile at the repository root builds it |
+| `server/cmd/claude-code-recorder-server` | the entrypoint and the `export` subcommand; the Dockerfile at the repository root builds it |
 | `server/app` | configuration from the environment (`config.go`), wiring, the route table, health endpoints, sign-in and enrolment handlers, the `/dl/` release proxy, drain policy, the retention and derive loops |
 | `server/ingest` | `POST /v1/events` and `POST /v1/health`: every item answered individually, redelivery a no-op through the session rollup and the cost arithmetic, every payload scrubbed a second time |
 | `server/store` | Postgres: the migrations under `migrations/`, the events table, the derive runner (`runner.go`), retention, authorization as a predicate inside the read, the access log, device tokens, shares; `DerivedSchema` lives here |

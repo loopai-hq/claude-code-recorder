@@ -1,6 +1,6 @@
 # Releases: what is published, where it can live, and who reads it
 
-A loop-sessions release is a directory of static files. Nothing about it
+A claude-code-recorder release is a directory of static files. Nothing about it
 needs a particular host: the installer, the agent's self-upgrade and the
 server all fetch the same handful of names from `<base>/<channel>/`, and
 anything that answers HTTPS for those names is a release host. This page
@@ -25,20 +25,20 @@ is the one drift that breaks upgrades silently while installs keep working.
 
 | File | What it is |
 |---|---|
-| `loop-sessions_darwin_arm64` | the agent binary, one per platform |
-| `loop-sessions_darwin_amd64` | |
-| `loop-sessions_linux_amd64` | |
-| `loop-sessions_linux_arm64` | |
+| `claude-code-recorder_darwin_arm64` | the agent binary, one per platform |
+| `claude-code-recorder_darwin_amd64` | |
+| `claude-code-recorder_linux_amd64` | |
+| `claude-code-recorder_linux_arm64` | |
 | `SHA256SUMS` | `sha256sum` output for the four binaries, one `<hex>  <name>` per line |
 | `latest.json` | the build's identity and the digest of every asset |
 
 The platform list is `PLATFORMS` in the Makefile: `darwin/arm64 darwin/amd64
-linux/amd64 linux/arm64`. Binaries are named `loop-sessions_<GOOS>_<GOARCH>`
+linux/amd64 linux/arm64`. Binaries are named `claude-code-recorder_<GOOS>_<GOARCH>`
 with no extension and no version in the name; the version lives inside the
-binary (`loop-sessions version` prints it) and in `latest.json`.
+binary (`claude-code-recorder version` prints it) and in `latest.json`.
 
 `SHA256SUMS` is written from inside `dist/` (`cd $(DIST) && sha256sum
-loop-sessions_* > SHA256SUMS`), so the names it carries have no directory
+claude-code-recorder_* > SHA256SUMS`), so the names it carries have no directory
 part. Both readers tolerate the `*` binary-mode marker before a name and
 compare by base name, but the file as published never has either.
 
@@ -52,10 +52,10 @@ so the two cannot disagree about a digest:
   "build_date": "<RFC 3339, UTC>",
   "capture_schema": 4,
   "assets": {
-    "loop-sessions_darwin_amd64": "<sha256 hex>",
-    "loop-sessions_darwin_arm64": "<sha256 hex>",
-    "loop-sessions_linux_amd64": "<sha256 hex>",
-    "loop-sessions_linux_arm64": "<sha256 hex>"
+    "claude-code-recorder_darwin_amd64": "<sha256 hex>",
+    "claude-code-recorder_darwin_arm64": "<sha256 hex>",
+    "claude-code-recorder_linux_amd64": "<sha256 hex>",
+    "claude-code-recorder_linux_arm64": "<sha256 hex>"
   }
 }
 ```
@@ -102,7 +102,7 @@ The variables that shape a build:
 | `VERSION` | `git describe --tags --always --dirty` | stamped into the binary and `latest.json` |
 | `COMMIT` | `git rev-parse HEAD` | the full sha in `latest.json` |
 | `BUILD_DATE` | the commit time of `HEAD` in UTC (`TZ=UTC git log -1 --date=format-local:%Y-%m-%dT%H:%M:%SZ --format=%cd`); `SOURCE_DATE_EPOCH` when set; the wall clock only without a `.git`; read once and exported | stamped into the binary and `latest.json`; the `BuildDate` the health report carries when the toolchain has no `vcs.time` (a `git archive` build) |
-| `ENDPOINT` | see the Makefile | the server URL stamped into the agent as `defaultEndpoint`; `loop-sessions install --endpoint` overrides it per machine |
+| `ENDPOINT` | see the Makefile | the server URL stamped into the agent as `defaultEndpoint`; `claude-code-recorder install --endpoint` overrides it per machine |
 | `ALLOW_DIRTY` | unset | skip the clean-tree and stamp checks |
 
 `ENDPOINT` is the one that makes a release yours. The agent talks to exactly
@@ -119,7 +119,7 @@ assertion that `latest.json` carries `version`, `commit` and a non-empty
 one-liner should work, publish `install/install.sh` beside the channel's files
 as well (see below). `install/uninstall.sh` may be published at the base too,
 for people without the binary; the installer itself points at
-`loop-sessions uninstall`, which needs no download.
+`claude-code-recorder uninstall`, which needs no download.
 
 ## Hosting: the layout
 
@@ -128,10 +128,10 @@ for people without the binary; the installer itself points at
   latest/
     SHA256SUMS
     latest.json
-    loop-sessions_darwin_arm64
-    loop-sessions_darwin_amd64
-    loop-sessions_linux_amd64
-    loop-sessions_linux_arm64
+    claude-code-recorder_darwin_arm64
+    claude-code-recorder_darwin_amd64
+    claude-code-recorder_linux_amd64
+    claude-code-recorder_linux_arm64
     install.sh            # optional; what the server's /install.sh serves
   canary/
     (the same seven names)
@@ -139,7 +139,7 @@ for people without the binary; the installer itself points at
 ```
 
 `<base>` is any HTTPS URL. A directory on a static web host, an object
-bucket behind a CDN, or the loop-sessions server's own `/dl/` proxy all
+bucket behind a CDN, or the claude-code-recorder server's own `/dl/` proxy all
 satisfy it; the installer requires only that `GET <base>/<channel>/<name>`
 answers with the bytes. Plain `http://` is accepted only for `127.0.0.1`,
 `localhost` and `[::1]`, which exists so the installer can be tested against
@@ -155,7 +155,7 @@ only `latest/` serves every machine on the default channel.
 
 Two rules for publishing into a channel:
 
-- **Binaries first, manifests last.** Upload the four `loop-sessions_*`
+- **Binaries first, manifests last.** Upload the four `claude-code-recorder_*`
   files, then `SHA256SUMS` and `latest.json`. A reader fetches the manifest
   and then the binary it names; a manifest published ahead of its binaries
   sends that reader to a 404 or, worse, to yesterday's bytes under today's
@@ -176,25 +176,25 @@ forward move, because it compares bytes rather than version numbers.
 
 `install/install.sh` is POSIX `sh` with no dependency beyond `curl` or
 `wget`, `awk`, `sed` and `shasum` or `sha256sum`. It reads four environment
-variables. `LOOP_SESSIONS_BASE_URL` has no default: the script stops with a
+variables. `CLAUDE_CODE_RECORDER_BASE_URL` has no default: the script stops with a
 message when it is unset, so a copy of it cannot quietly download from a host
 nobody chose.
 
 | Variable | Default | Purpose |
 |---|---|---|
-| `LOOP_SESSIONS_BASE_URL` | none; required (the script stops with a message when it is unset) | `<base>` above |
-| `LOOP_SESSIONS_VERSION` | `latest` | the channel (`latest` or `canary`); the script uses it as a path segment and validates nothing about it, which is what lets a GitHub tag or `download` stand in for a channel (see [GitHub Releases](#github-releases)) |
-| `LOOP_SESSIONS_BIN_DIR` | `~/.local/bin` | where the binary lands |
-| `LOOP_SESSIONS_NO_ENROLL` | unset | `1` skips the sign-in hand-off |
-| `LOOP_SESSIONS_ENDPOINT` | unset | not read by the script; inherited by the `loop-sessions install` it hands off to, which needs it (or `--endpoint`) when the binary carries no stamped endpoint, as a GitHub release binary does not |
+| `CLAUDE_CODE_RECORDER_BASE_URL` | none; required (the script stops with a message when it is unset) | `<base>` above |
+| `CLAUDE_CODE_RECORDER_VERSION` | `latest` | the channel (`latest` or `canary`); the script uses it as a path segment and validates nothing about it, which is what lets a GitHub tag or `download` stand in for a channel (see [GitHub Releases](#github-releases)) |
+| `CLAUDE_CODE_RECORDER_BIN_DIR` | `~/.local/bin` | where the binary lands |
+| `CLAUDE_CODE_RECORDER_NO_ENROLL` | unset | `1` skips the sign-in hand-off |
+| `CLAUDE_CODE_RECORDER_ENDPOINT` | unset | not read by the script; inherited by the `claude-code-recorder install` it hands off to, which needs it (or `--endpoint`) when the binary carries no stamped endpoint, as a GitHub release binary does not |
 
 and then, in order (`download_and_verify`, `install_binary`):
 
 1. `GET <base>/<channel>/SHA256SUMS`. A failure here is "no such channel or
    no network" and stops everything.
-2. Finds the line for `loop-sessions_<os>_<arch>` in it. No line means the
+2. Finds the line for `claude-code-recorder_<os>_<arch>` in it. No line means the
    release has no build for this platform, and the script says which.
-3. `GET <base>/<channel>/loop-sessions_<os>_<arch>` into a temporary
+3. `GET <base>/<channel>/claude-code-recorder_<os>_<arch>` into a temporary
    directory; an empty file is treated as a truncated transfer.
 4. Computes the SHA-256 and compares it with the manifest's. On a mismatch
    the download is deleted, nothing is installed, and the exit is non-zero.
@@ -202,14 +202,14 @@ and then, in order (`download_and_verify`, `install_binary`):
    it is there, `version` and `commit` are read with `sed` and printed after
    the install, so the line a person pastes into a bug report names a commit.
 6. Stages the binary inside the target directory, `chmod 0755`, runs it once
-   (`loop-sessions version`) and only then renames it over the old one. A
+   (`claude-code-recorder version`) and only then renames it over the old one. A
    build that passes its checksum and still does not start leaves the
    previous install untouched.
 
 Every non-loopback fetch is HTTPS with `--proto '=https' --tlsv1.2` (curl) or
 `--https-only` (wget), so a redirect cannot downgrade the connection.
 
-The script ends by handing off to `loop-sessions install` for sign-in, which
+The script ends by handing off to `claude-code-recorder install` for sign-in, which
 is where the server address comes in: the binary uses its stamped
 `defaultEndpoint` unless `--endpoint` is given. The release host and the
 server are independent; only the binary's own stamp ties them.
@@ -225,12 +225,12 @@ well ([Verifying a release](#verifying-a-release)).
 ## How the in-app upgrade consumes it
 
 The agent replaces its own binary from the daemon (`internal/upgrade`,
-called from `cmd/loop-sessions/main.go`). What it reads, and from where:
+called from `cmd/claude-code-recorder/main.go`). What it reads, and from where:
 
 - The base is **the server endpoint**, not the installer's
-  `LOOP_SESSIONS_BASE_URL`: `upgrade.Run` is given `BaseURL: cfg.Endpoint`
+  `CLAUDE_CODE_RECORDER_BASE_URL`: `upgrade.Run` is given `BaseURL: cfg.Endpoint`
   and reads `<endpoint>/dl/<channel>/SHA256SUMS`, then
-  `<endpoint>/dl/<channel>/loop-sessions_<os>_<arch>`. It never reads
+  `<endpoint>/dl/<channel>/claude-code-recorder_<os>_<arch>`. It never reads
   `latest.json`. So auto-upgrade works only when the server itself answers
   `/dl/` (below); the installer works against any base.
 - Staleness is a digest, not a version. The daemon hashes its own executable
@@ -244,16 +244,23 @@ called from `cmd/loop-sessions/main.go`). What it reads, and from where:
 
 The daemon checks at most once every six hours per machine
 (`upgradeRecheck`), with a ten-minute budget per attempt (`upgradeBudget`).
-`loop-sessions daemon --upgrade-now` runs one check immediately. The check
+`claude-code-recorder daemon --upgrade-now` runs one check immediately. The check
 is skipped, and says why in the log and the health report, when:
 
 - the binary is a development build (`Version` is `dev` or empty);
-- `LOOP_SESSIONS_NO_UPGRADE` is set in the environment;
-- `disable_auto_upgrade` is `true` in `~/.loop/sessions/config.json`;
+- `CLAUDE_CODE_RECORDER_NO_UPGRADE` is set in the environment;
+- `disable_auto_upgrade` is `true` in `~/.claude-code-recorder/config.json`;
 - capture is paused (`--upgrade-now` only);
 - the binary is outside the home directory, or its directory is not
   writable, on the reasoning that whatever installed it there owns it;
 - the manifest lists no asset for this OS/architecture.
+
+The last of those is what a `loop-sessions` build (0.1.x) sees once a
+renamed release is published: it looks for `loop-sessions_<os>_<arch>` in a
+manifest that lists only `claude-code-recorder_*`, so it stays on its build
+and its health report says so. Such a machine runs the installer again; the
+install moves its state directory and replaces its hooks
+([CHANGELOG.md](../CHANGELOG.md), 0.2.0).
 
 The channel comes from `channel` in the config (`latest` when unset).
 
@@ -300,7 +307,7 @@ agent. A release carries these assets:
 
 | Asset | What it is |
 |---|---|
-| `loop-sessions_darwin_arm64`, `loop-sessions_darwin_amd64`, `loop-sessions_linux_amd64`, `loop-sessions_linux_arm64` | the agent, exactly as `make release` names them |
+| `claude-code-recorder_darwin_arm64`, `claude-code-recorder_darwin_amd64`, `claude-code-recorder_linux_amd64`, `claude-code-recorder_linux_arm64` | the agent, exactly as `make release` names them |
 | `SHA256SUMS` | the digests of the four binaries |
 | `SHA256SUMS.sigstore.json` | a keyless cosign signature over `SHA256SUMS` |
 | `latest.json` | the build's identity, as above |
@@ -309,12 +316,12 @@ agent. A release carries these assets:
 | `THIRD_PARTY_NOTICES.md` | licence notices for what the server links (the agent is standard library only) |
 
 The binaries on GitHub are built with `ENDPOINT` empty: a public download
-carries no organisation's server address, so `loop-sessions install` asks for
-`--endpoint` (or `LOOP_SESSIONS_ENDPOINT`). An organisation that stamps its
+carries no organisation's server address, so `claude-code-recorder install` asks for
+`--endpoint` (or `CLAUDE_CODE_RECORDER_ENDPOINT`). An organisation that stamps its
 own builds into its channel keeps doing that; the two builds of one tag
 differ only in that stamp.
 
-The server image for the same tag is `ghcr.io/loopai-hq/loop-sessions-server`,
+The server image for the same tag is `ghcr.io/loopai-hq/claude-code-recorder-server`,
 tagged `vX.Y.Z`, `sha-<full commit>` and, for a non-prerelease, `latest`.
 It is linux/amd64, labelled with `org.opencontainers.image.{source,version,
 revision,created}`, ships `/THIRD_PARTY_NOTICES.md` beside `/server`, and
@@ -328,20 +335,20 @@ https://github.com/loopai-hq/claude-code-recorder/releases/latest/download/<asse
 ```
 
 Both are `<something>/<segment>/<asset>`, and `install.sh` builds its URLs as
-`<LOOP_SESSIONS_BASE_URL>/<LOOP_SESSIONS_VERSION>/<asset>` without checking
+`<CLAUDE_CODE_RECORDER_BASE_URL>/<CLAUDE_CODE_RECORDER_VERSION>/<asset>` without checking
 what the version segment is. So the installer works from GitHub Releases
 today, with no code that knows about GitHub, in either of two forms:
 
 ```sh
 # a specific release
 curl -fsSL https://github.com/loopai-hq/claude-code-recorder/releases/download/vX.Y.Z/install.sh |
-  LOOP_SESSIONS_BASE_URL=https://github.com/loopai-hq/claude-code-recorder/releases/download \
-  LOOP_SESSIONS_VERSION=vX.Y.Z sh
+  CLAUDE_CODE_RECORDER_BASE_URL=https://github.com/loopai-hq/claude-code-recorder/releases/download \
+  CLAUDE_CODE_RECORDER_VERSION=vX.Y.Z sh
 
 # whatever GitHub marks as the latest release
 curl -fsSL https://github.com/loopai-hq/claude-code-recorder/releases/latest/download/install.sh |
-  LOOP_SESSIONS_BASE_URL=https://github.com/loopai-hq/claude-code-recorder/releases/latest \
-  LOOP_SESSIONS_VERSION=download sh
+  CLAUDE_CODE_RECORDER_BASE_URL=https://github.com/loopai-hq/claude-code-recorder/releases/latest \
+  CLAUDE_CODE_RECORDER_VERSION=download sh
 ```
 
 The second form leans on GitHub's `latest` alias, which excludes
@@ -356,7 +363,7 @@ against the other.
 What GitHub Releases does not give you, and why:
 
 - **The agent's self-upgrade.** The daemon never reads
-  `LOOP_SESSIONS_BASE_URL`; it reads `<endpoint>/dl/<channel>/` from the
+  `CLAUDE_CODE_RECORDER_BASE_URL`; it reads `<endpoint>/dl/<channel>/` from the
   server it enrolled with (previous section). The server's `/dl/` proxy is
   bound to a bucket (`RELEASE_BUCKET`) and cannot front GitHub today, so a
   deployment without a bucket installs fine from GitHub and then logs an
@@ -395,14 +402,14 @@ a signed statement, stored by GitHub, that this exact digest was produced by
 `release.yml` in this repository from this tag. Verify a downloaded file with
 
 ```sh
-gh attestation verify loop-sessions_linux_amd64 --repo loopai-hq/loop-sessions
+gh attestation verify claude-code-recorder_linux_amd64 --repo loopai-hq/claude-code-recorder
 ```
 
 `gh` computes the file's digest, fetches the attestations GitHub holds for
 it, and checks the Sigstore signature and that the signing workflow belongs
 to the repository named by `--repo`. To pin it to the workflow file as well,
-add `--signer-workflow loopai-hq/loop-sessions/.github/workflows/release.yml`.
-The image is verified the same way with `oci://ghcr.io/loopai-hq/loop-sessions-server:vX.Y.Z`
+add `--signer-workflow loopai-hq/claude-code-recorder/.github/workflows/release.yml`.
+The image is verified the same way with `oci://ghcr.io/loopai-hq/claude-code-recorder-server:vX.Y.Z`
 in place of the file.
 
 **3. The cosign signature on `SHA256SUMS`.** The workflow also signs the
@@ -459,7 +466,7 @@ a published release yourself, clone the repository at the tag and build:
 
 ```sh
 git clone --branch vX.Y.Z https://github.com/loopai-hq/claude-code-recorder.git
-cd loop-sessions
+cd claude-code-recorder
 make release ENDPOINT=
 diff dist/SHA256SUMS <(curl -fsSL https://github.com/loopai-hq/claude-code-recorder/releases/download/vX.Y.Z/SHA256SUMS)
 ```
@@ -531,7 +538,7 @@ is available at any time.
    *immutable releases* enabled, so that once a release is published its
    assets and its tag cannot be changed, which is exactly why the workflow
    attaches everything before publishing; and the GHCR package
-   `loop-sessions-server` set to public after the first push (a package
+   `claude-code-recorder-server` set to public after the first push (a package
    linked to the repository through the `org.opencontainers.image.source`
    label, which the Dockerfile sets, inherits the repository's access
    permissions but not its visibility; a public repository does not make
@@ -550,7 +557,7 @@ Everything above reduces to one URL shape:
 ```
 <base>/<channel>/SHA256SUMS
 <base>/<channel>/latest.json
-<base>/<channel>/loop-sessions_<os>_<arch>
+<base>/<channel>/claude-code-recorder_<os>_<arch>
 ```
 
 Any static host that serves that shape over HTTPS is a complete release host

@@ -1,6 +1,6 @@
 # Governance
 
-loop-sessions is a single-vendor open source project: it was built at Loop
+claude-code-recorder is a single-vendor open source project: it was built at Loop
 AI, the maintainers are employed there, and it is in production use there.
 This page says how decisions are made and how that could change.
 

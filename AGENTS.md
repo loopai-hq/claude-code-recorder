@@ -10,14 +10,14 @@ architecture and its invariants are in
 ## What this is
 
 Two binaries in one Go module (`go 1.26.0`, `toolchain go1.26.8`):
-`cmd/loop-sessions` (the laptop agent, standard library only) and
-`server/cmd/loop-sessions-server` (Postgres, dashboard, API). Events are
+`cmd/claude-code-recorder` (the laptop agent, standard library only) and
+`server/cmd/claude-code-recorder-server` (Postgres, dashboard, API). Events are
 the source of truth; everything else is derived from them.
 
 ## Commands
 
 ```sh
-make build                      # ./loop-sessions for this machine
+make build                      # ./claude-code-recorder for this machine
 make lint                       # gofmt, go vet, shellcheck, golangci-lint (when installed)
 go test -race ./...             # the unit suites
 bash .github/scripts/identifier-gate.sh   # must print "identifier-gate: OK"
@@ -27,16 +27,16 @@ Integration tests need a database and the build tag; they skip themselves
 otherwise:
 
 ```sh
-docker run -d --name loop-sessions-test -e POSTGRES_PASSWORD=test \
-  -e POSTGRES_DB=loop_sessions_test -p 55433:5432 postgres:16
-LOOP_SESSIONS_TEST_DSN=postgres://postgres:test@127.0.0.1:55433/loop_sessions_test \
+docker run -d --name claude-code-recorder-test -e POSTGRES_PASSWORD=test \
+  -e POSTGRES_DB=claude_code_recorder_test -p 55433:5432 postgres:16
+CLAUDE_CODE_RECORDER_TEST_DSN=postgres://postgres:test@127.0.0.1:55433/claude_code_recorder_test \
   go test -race -tags integration ./server/...
 ```
 
 The dashboard without a database or a Firebase project:
 
 ```sh
-LOOP_WEB_DEMO=:8099 go test ./server/web -run TestServeDemo -timeout 0
+CLAUDE_CODE_RECORDER_WEB_DEMO=:8099 go test ./server/web -run TestServeDemo -timeout 0
 ```
 
 golangci-lint must be v2.14.0 built with the toolchain in `go.mod`
@@ -68,7 +68,7 @@ an older build refuses a go1.26 target. Local secret scan:
 
 | Change | Look in |
 |---|---|
-| a CLI verb or flag | `cmd/loop-sessions/main.go` (`usage()` must match the README's command block) |
+| a CLI verb or flag | `cmd/claude-code-recorder/main.go` (`usage()` must match the README's command block) |
 | what an event carries | `internal/event/event.go` (`CaptureSchema`; read `docs/UPGRADES.md` first) |
 | what the server derives | `server/store/runner.go`, `server/store/derive/` (`DerivedSchema`) |
 | a new environment variable | `server/app/config.go`, then `docs/OPERATIONS.md` and `examples/docker-compose/.env.example` |

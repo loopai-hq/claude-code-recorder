@@ -1,6 +1,6 @@
 # Operating the server
 
-Platform-neutral notes for whoever runs `loop-sessions-server`: the
+Platform-neutral notes for whoever runs `claude-code-recorder-server`: the
 endpoints, every environment variable, the log contract, backup and restore,
 retention, upgrade and rollback, and what to alert on. The Cloud Run and
 Cloud SQL specifics, the log-based metrics and the twenty-odd runbooks that
@@ -56,7 +56,7 @@ Optional:
 | `DOMAIN_ALIASES` | unset | comma-separated `a.example:b.example` pairs of `ALLOWED_DOMAINS` entries that one Workspace serves as the same accounts; leave unset with one domain |
 | `RELEASE_BUCKET` | unset | Cloud Storage bucket to serve `/install.sh` and `/dl/` from; unset means those routes are not mounted and agents log an upgrade error per check |
 | `SLACK_BOT_TOKEN` | unset | enables the Slack mirror |
-| `LOOP_SESSIONS_SLACK_SIGNING_SECRET` | unset | enables Slack interactive replies |
+| `CLAUDE_CODE_RECORDER_SLACK_SIGNING_SECRET` | unset | enables Slack interactive replies |
 | `LOG_LEVEL` | `info` | `debug`, `info`, `warn` (or `warning`), `error`; anything else is refused at boot |
 | `RETENTION_BODY_DAYS`, `RETENTION_SESSION_DAYS` | `0` | days before event bodies, then whole sessions, are deleted; `0` keeps forever and is warned about at boot; see [Retention](#retention) |
 | `DERIVE_WINDOW`, `DERIVE_ROWS_PER_SEC`, `DERIVE_ROWS_PER_BATCH` | `02-06`, `1500`, `5000` | bounds on the background derive runner; the window is `HH-HH` in the server's `TZ` (or `always`) and gates only the body-reading steps |
@@ -215,7 +215,7 @@ and a second instance waits rather than races. Every migration is additive
 makes the previous build keep working against the new schema during and
 after the rollout.
 
-- **Server image.** `ghcr.io/loopai-hq/loop-sessions-server:vX.Y.Z` (or
+- **Server image.** `ghcr.io/loopai-hq/claude-code-recorder-server:vX.Y.Z` (or
   `sha-<full commit>`); `latest` follows the newest non-prerelease. Verify
   the image's provenance with `gh attestation verify` as
   [RELEASE.md](RELEASE.md#verifying-a-release) describes.

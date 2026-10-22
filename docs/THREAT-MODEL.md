@@ -1,6 +1,6 @@
 # Threat model
 
-What loop-sessions trusts, what it does not, what an attacker in each
+What claude-code-recorder trusts, what it does not, what an attacker in each
 position can do, and how it is noticed. It is written against the code, so
 each claim names the package that enforces it. Report anything that
 contradicts it as described in [SECURITY.md](../SECURITY.md).
@@ -19,7 +19,7 @@ contradicts it as described in [SECURITY.md](../SECURITY.md).
 
 | Boundary | Credential | Who is trusted |
 |---|---|---|
-| Laptop to server | the device token (`lsd_…`), minted at enrolment, stored in `~/.loop/sessions/device.token` (mode 0600, a separate file from the config) | the person whose account the agent runs under; the server trusts the token to speak for that person's device and nothing more |
+| Laptop to server | the device token (`lsd_…`), minted at enrolment, stored in `~/.claude-code-recorder/device.token` (mode 0600, a separate file from the config) | the person whose account the agent runs under; the server trusts the token to speak for that person's device and nothing more |
 | Browser to server | a Firebase ID token, spent once for an HMAC session cookie (`__Host-loop_session`, HttpOnly, SameSite=Lax, Secure unless `PUBLIC_URL` is `http://`) | the person; Google, to have authenticated them |
 | Server to database | the `DATABASE_*` credentials | the operator's platform |
 | Server to Google | none outbound beyond fetching the public certificates | Google's key publication |
@@ -29,7 +29,7 @@ contradicts it as described in [SECURITY.md](../SECURITY.md).
 ## The laptop
 
 **The agent runs as the person, with the person's rights.** It reads the
-harness's transcript directories, writes under `~/.loop/sessions`, registers
+harness's transcript directories, writes under `~/.claude-code-recorder`, registers
 hooks in `~/.claude/settings.json`, and installs to `~/.local/bin` without
 `sudo`. Anyone who can write to that home directory can replace the binary
 or edit the hook entries, which is the same position as being able to
@@ -155,20 +155,20 @@ base=https://github.com/loopai-hq/claude-code-recorder/releases/latest/download
 curl -fsSLO "$base/install.sh" && curl -fsSLO "$base/install.sh.sha256"
 sha256sum -c install.sh.sha256      # shasum -a 256 -c on macOS
 less install.sh
-LOOP_SESSIONS_BASE_URL=https://github.com/loopai-hq/claude-code-recorder/releases/latest \
-  LOOP_SESSIONS_VERSION=download \
-  LOOP_SESSIONS_ENDPOINT=https://sessions.example.com sh install.sh
+CLAUDE_CODE_RECORDER_BASE_URL=https://github.com/loopai-hq/claude-code-recorder/releases/latest \
+  CLAUDE_CODE_RECORDER_VERSION=download \
+  CLAUDE_CODE_RECORDER_ENDPOINT=https://sessions.example.com sh install.sh
 ```
 
 Run from a terminal rather than a pipe, the script goes on to sign you in
-with `loop-sessions install`, and a public binary carries no server
+with `claude-code-recorder install`, and a public binary carries no server
 address, so the endpoint is part of the command (the piped one-liner
 stops before sign-in and tells you to run `install --endpoint` yourself).
-`LOOP_SESSIONS_NO_ENROLL=1` in place of the endpoint installs the binary
+`CLAUDE_CODE_RECORDER_NO_ENROLL=1` in place of the endpoint installs the binary
 and leaves sign-in for later.
 
 Both scripts are attested by the release workflow (`gh attestation verify
-install.sh --repo loopai-hq/loop-sessions`). The script itself is POSIX
+install.sh --repo loopai-hq/claude-code-recorder`). The script itself is POSIX
 `sh` with `set -eu`, defines every function before the calls at the
 end (a download truncated before that block executes nothing), fetches with
 `--proto '=https' --tlsv1.2`, refuses to install without a SHA-256 tool,

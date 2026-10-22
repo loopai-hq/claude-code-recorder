@@ -88,8 +88,8 @@ CI job; fix the `label for=`/`id` pairs it will find first. State the
 non-goals explicitly: English only, times in the server's `TZ`.
 
 ### Windows client
-Not supported today: `cmd/loop-sessions/reap.go` uses `syscall.Kill`, the
-daemon detaches with `Setsid` (`cmd/loop-sessions/detach_unix.go`), the
+Not supported today: `cmd/claude-code-recorder/reap.go` uses `syscall.Kill`, the
+daemon detaches with `Setsid` (`cmd/claude-code-recorder/detach_unix.go`), the
 per-OS launcher files (`internal/capture/launcher_*.go`) identify the harness
 that launched the hook (`parentComm`, via `kern.procargs2` on macOS and
 `/proc/<pid>/comm` on Linux), and the installer refuses anything but macOS

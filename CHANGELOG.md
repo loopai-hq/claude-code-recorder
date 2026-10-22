@@ -7,7 +7,90 @@ released section's heading is `## [X.Y.Z] - YYYY-MM-DD` exactly, because the
 release workflow extracts it for the release notes; the date is the day the
 tag is cut and is set in the same change as the tag.
 
-## [Unreleased]
+## [0.2.0] - unreleased
+
+The project is renamed from loop-sessions to claude-code-recorder. The
+repository is `loopai-hq/claude-code-recorder` (GitHub redirects the old
+URLs), and the product, the binary, the module, the image, the installer
+and the documentation follow. It remains unaffiliated with and not
+endorsed by Anthropic.
+
+### Changed
+- **Names.** The Go module is `github.com/loopai-hq/claude-code-recorder`;
+  the client is `cmd/claude-code-recorder` and the server
+  `server/cmd/claude-code-recorder-server`. Release assets are
+  `claude-code-recorder_{darwin,linux}_{amd64,arm64}`, attested under
+  those names; `SHA256SUMS`, its cosign bundle, `latest.json`, the two
+  scripts and `THIRD_PARTY_NOTICES.md` keep their names. The server image
+  is `ghcr.io/loopai-hq/claude-code-recorder-server`.
+- **Environment variables.** Every `LOOP_SESSIONS_*` variable is
+  `CLAUDE_CODE_RECORDER_*`: the installer's `BASE_URL`, `VERSION`,
+  `BIN_DIR`, `NO_ENROLL` and `ENDPOINT`; the client's `HOME`, `NO_UPGRADE`
+  and `SLACK`; the server's `SLACK_SIGNING_SECRET`; the test suite's
+  `TEST_DSN` and `BIG_FIXTURE*`. The demo server's `LOOP_WEB_DEMO` is
+  `CLAUDE_CODE_RECORDER_WEB_DEMO`.
+- **On the laptop.** The client's state directory is
+  `~/.claude-code-recorder` (was `~/.loop/sessions`); the hook entries in
+  `~/.claude/settings.json` carry `#claude-code-recorder`; the User-Agent
+  is `claude-code-recorder/<build>`; the scrubber's kind for this
+  service's own tokens is `claude_code_recorder_token`.
+- **The export and the examples.** The export job's default database name
+  and dataset are `claude_code_recorder` and `claude_code_recorder_raw`
+  (`DATABASE_NAME` and `EXPORT_DATASET` override them), and its BigQuery
+  job ids start with `claude_code_recorder_export_`. In the GCP example
+  the Cloud Run service, the export job and its schedule, the service
+  accounts, the secrets, the Artifact Registry repository, the release
+  bucket, the log-based metrics (`claude_code_recorder/*`) and alert
+  policies, the datasets and the policy-tag taxonomy are renamed, and in
+  the compose example the project and the database. Table and column
+  names are unchanged.
+- The identifier gate's allowlist names the new repository and no longer
+  carves out `loop-plugins`, which is private.
+
+### Migration
+- **Laptops.** An installed `loop-sessions` agent does not upgrade itself
+  across the rename: it looks for `loop-sessions_<os>_<arch>` in the
+  manifest, finds no such asset, and stays on its build (its health
+  report says so). On each machine, run the installer again (the
+  one-liner in the README, or the server's `/install` page), then
+  `claude-code-recorder install`. The install moves `~/.loop/sessions` to
+  `~/.claude-code-recorder` whole, so the configuration, the device token
+  and any queued events come along and nobody signs in again, and it
+  replaces the `#loop-sessions` hook entries with its own. Daemons of the
+  old binary that are still running end with their sessions; then delete
+  `~/.local/bin/loop-sessions`. Running `loop-sessions uninstall` with
+  the old binary first also works: it keeps the old directory, which the
+  new install then moves. `CLAUDE_CODE_RECORDER_HOME` set to somewhere
+  else skips the move. `claude-code-recorder uninstall` and
+  `uninstall.sh` remove hook entries under either marker and name the old
+  directory when it is still there.
+- **Servers.** Pull the new image. Rename
+  `LOOP_SESSIONS_SLACK_SIGNING_SECRET` to
+  `CLAUDE_CODE_RECORDER_SLACK_SIGNING_SECRET` where it is set; the server
+  starts without it, with the Slack interactivity route absent and no
+  Stop buttons, which is how a missed rename shows. The Postgres schema is
+  unchanged. A server that is a release host publishes the new assets to
+  its channel; its `/dl` allowlist names only those.
+- **The export.** An existing deployment keeps writing where it did by
+  setting `DATABASE_NAME` and `EXPORT_DATASET` to the values it was
+  provisioned with, as `examples/deploy-gcp/analytics/job.yaml` sets them
+  for a new one. The example's other resource names are a template; a
+  deployment provisioned under the old names keeps them.
+- **What keeps the old name, and why:**
+  - `internal/hooks` treats `#loop-sessions` entries as its own, so one
+    `install` replaces them and one `uninstall` removes them.
+  - `internal/config.AdoptLegacyRoot`, `install/install.sh` and
+    `install/uninstall.sh` know `~/.loop/sessions`: the first moves it,
+    the scripts name it.
+  - `server/ingest.AgentBuild` and the example's two User-Agent log
+    metrics (`ingest_5xx`, `health_posts`) accept `loop-sessions/<build>`,
+    so the fleet page and the metrics keep naming the build of a laptop
+    that has not reinstalled.
+  - `install/uninstall.sh` looks for a launch agent under the old name as
+    well as the new.
+  - The 0.1.0 section below describes that release as it shipped.
+  - The device and source token prefixes, `lsd_` and `lss_`, are the
+    credentials in the field and are unchanged.
 
 ## [0.1.0] - 2026-10-06
 
@@ -15,7 +98,7 @@ The first public release: the client agent, the server, the dashboard and
 the example deployments, with releases people can download and verify. The
 repository is `loopai-hq/loop-sessions`, matching the binary and the
 product name, and the Go module path follows
-(`github.com/loopai-hq/claude-code-recorder`); GitHub redirects the old
+(`github.com/loopai-hq/loop-sessions`); GitHub redirects the old
 `agent-sessions` URLs once the rename is done (the first item of the
 pre-tag checklist in `docs/MAINTAINING.md`).
 
@@ -122,5 +205,5 @@ pre-tag checklist in `docs/MAINTAINING.md`).
   device token can do, the third-party script on the sign-in page, and the
   read-then-run form of the installer.
 
-[Unreleased]: https://github.com/loopai-hq/claude-code-recorder/compare/v0.1.0...HEAD
+[0.2.0]: https://github.com/loopai-hq/claude-code-recorder/compare/v0.1.0...HEAD
 [0.1.0]: https://github.com/loopai-hq/claude-code-recorder/releases/tag/v0.1.0

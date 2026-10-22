@@ -41,13 +41,13 @@ Integration tests (`*_integration_test.go`, build tag `integration`) need a
 Postgres 15+ database and skip themselves without one:
 
 ```sh
-LOOP_SESSIONS_TEST_DSN=postgres://postgres:test@127.0.0.1:55433/loop_sessions_test \
+CLAUDE_CODE_RECORDER_TEST_DSN=postgres://postgres:test@127.0.0.1:55433/claude_code_recorder_test \
   go test -race -tags integration ./server/...
 ```
 
 Each run works inside its own schema and drops it afterwards. The dashboard
 can be looked at without a database or a Firebase project:
-`LOOP_WEB_DEMO=:8099 go test ./server/web -run TestServeDemo -timeout 0`.
+`CLAUDE_CODE_RECORDER_WEB_DEMO=:8099 go test ./server/web -run TestServeDemo -timeout 0`.
 
 Before opening a pull request, also run the two local scans CI runs:
 
