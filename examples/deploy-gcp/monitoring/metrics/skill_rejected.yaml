@@ -3,11 +3,11 @@
 # verify read, never from the body, so a prober cannot grow the label set;
 # a revoked or expired token still in use shows here with its state, which
 # is how a leaked token is seen after a revoke (policy 17).
-name: loop_sessions/skill_rejected
+name: claude_code_recorder/skill_rejected
 description: Skill invocations refused with a 4xx (server line "skill invocation rejected")
 filter: >-
   resource.type="cloud_run_revision"
-  AND resource.labels.service_name="loop-sessions"
+  AND resource.labels.service_name="claude-code-recorder"
   AND log_id("run.googleapis.com/stdout")
   AND jsonPayload.message="skill invocation rejected"
 metricDescriptor:

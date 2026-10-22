@@ -20,5 +20,5 @@
 -- list both Workspace addresses.
 
 CREATE OR REPLACE TABLE `__PROJECT__.__RAW_DATASET__.admins`
-OPTIONS (description = 'Signed-in addresses that see every row through the loop_sessions views (examples/deploy-gcp/analytics/provision.sh --admin-emails)')
+OPTIONS (description = 'Signed-in addresses that see every row through the claude_code_recorder views (examples/deploy-gcp/analytics/provision.sh --admin-emails)')
 AS SELECT email FROM UNNEST([__ADMIN_EMAILS__]) AS email;

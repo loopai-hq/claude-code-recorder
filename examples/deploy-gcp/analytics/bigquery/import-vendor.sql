@@ -16,7 +16,7 @@
 -- mapping the ingest path computed from the principals table, plus the
 -- address itself for someone the captured corpus has never seen
 -- (a vendor-side automation account that ran hundreds of these and has
--- no loop-sessions row). A
+-- no claude-code-recorder row). A
 -- session with no owner gets an empty array, which the views read as
 -- admins-only. Guessing an alias from the local part is what this avoids:
 -- two people with the same local part on two domains are not the same

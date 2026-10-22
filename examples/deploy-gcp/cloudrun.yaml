@@ -1,4 +1,4 @@
-# Cloud Run service for loop-sessions.
+# Cloud Run service for claude-code-recorder.
 #
 # Applied with `gcloud run services replace`, so this file is the whole desired
 # state rather than a diff. Substitute the eight placeholders before applying;
@@ -19,7 +19,7 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: loop-sessions
+  name: claude-code-recorder
   labels:
     cloud.googleapis.com/location: __REGION__
   annotations:
@@ -67,10 +67,10 @@ spec:
       # is recycled rather than held open. Transcript pages are paginated and
       # never come close to this.
       timeoutSeconds: 120
-      serviceAccountName: loop-sessions-run@__PROJECT__.iam.gserviceaccount.com
+      serviceAccountName: claude-code-recorder-run@__PROJECT__.iam.gserviceaccount.com
       containers:
         - name: server
-          image: __REGION__-docker.pkg.dev/__PROJECT__/loop-sessions/server:__TAG__
+          image: __REGION__-docker.pkg.dev/__PROJECT__/claude-code-recorder/server:__TAG__
           ports:
             - name: http1
               containerPort: 8080
@@ -90,9 +90,9 @@ spec:
             - name: DATABASE_HOST
               value: /cloudsql/__PROJECT__:__REGION__:__INSTANCE__
             - name: DATABASE_NAME
-              value: loop_sessions
+              value: claude_code_recorder
             - name: DATABASE_USER
-              value: loop_sessions
+              value: claude_code_recorder
             # Timestamps are rendered server-side because the dashboard ships
             # no JavaScript and therefore cannot read the viewer's clock. One
             # company timezone is the honest choice, so set it to yours: UTC
@@ -211,7 +211,7 @@ spec:
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: loop-sessions-db-password
+                  name: claude-code-recorder-db-password
                   key: latest
             # Signs dashboard cookies and the admin form tokens. Shared across
             # instances on purpose: a per-instance key would reject a form
@@ -219,7 +219,7 @@ spec:
             - name: SESSION_KEY
               valueFrom:
                 secretKeyRef:
-                  name: loop-sessions-session-key
+                  name: claude-code-recorder-session-key
                   key: latest
             # The Slack bot token: the only secret that authorises this service
             # to act somewhere other than its own database.
@@ -242,7 +242,7 @@ spec:
             - name: SLACK_BOT_TOKEN
               valueFrom:
                 secretKeyRef:
-                  name: loop-sessions-slack-bot-token
+                  name: claude-code-recorder-slack-bot-token
                   key: latest
             # The Slack app's signing secret, which mounts the interactivity
             # endpoint and puts Stop buttons on live-thread roots. Removing it
@@ -252,7 +252,7 @@ spec:
             - name: LOOP_SESSIONS_SLACK_SIGNING_SECRET
               valueFrom:
                 secretKeyRef:
-                  name: loop-sessions-slack-signing-secret
+                  name: claude-code-recorder-slack-signing-secret
                   key: latest
           # A TCP probe rather than an HTTP one, because it asserts exactly what
           # startup means here: the listener is up. An HTTP probe would couple

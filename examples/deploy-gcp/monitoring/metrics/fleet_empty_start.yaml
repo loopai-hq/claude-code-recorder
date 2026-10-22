@@ -3,11 +3,11 @@
 # sessions). The line carries the cwd set and the launcher-probe recipe; the
 # metric only counts the people over the rule per tick, which is what the
 # alert needs.
-name: loop_sessions/fleet_empty_start
+name: claude_code_recorder/fleet_empty_start
 description: Machines over the empty-start rule per evaluator tick, by person (server line "fleet empty_start")
 filter: >-
   resource.type="cloud_run_revision"
-  AND resource.labels.service_name="loop-sessions"
+  AND resource.labels.service_name="claude-code-recorder"
   AND log_id("run.googleapis.com/stdout")
   AND jsonPayload.message="fleet empty_start"
 metricDescriptor:

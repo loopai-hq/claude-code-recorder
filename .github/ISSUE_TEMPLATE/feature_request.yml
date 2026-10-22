@@ -12,7 +12,7 @@ body:
     attributes:
       label: Component
       options:
-        - client agent (cmd/loop-sessions, internal/)
+        - client agent (cmd/claude-code-recorder, internal/)
         - installer (install/)
         - server (server/)
         - dashboard (server/web)

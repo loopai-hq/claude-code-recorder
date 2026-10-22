@@ -1,8 +1,8 @@
 {
   "taxonomies": [
     {
-      "displayName": "loop_sessions_pii",
-      "description": "loop-sessions analytics export: columns that carry transcript text (prompts, answers, tool output, derived titles). Readers need Fine-Grained Reader on pii_text.",
+      "displayName": "claude_code_recorder_pii",
+      "description": "claude-code-recorder analytics export: columns that carry transcript text (prompts, answers, tool output, derived titles). Readers need Fine-Grained Reader on pii_text.",
       "activatedPolicyTypes": ["FINE_GRAINED_ACCESS_CONTROL"],
       "policyTags": [
         {

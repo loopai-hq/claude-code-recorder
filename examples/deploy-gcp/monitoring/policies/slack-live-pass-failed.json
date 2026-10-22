@@ -1,10 +1,10 @@
 {
-  "displayName": "loop-sessions: Slack live pass failing for 15 min",
+  "displayName": "claude-code-recorder: Slack live pass failing for 15 min",
   "combiner": "OR",
   "enabled": true,
   "severity": "WARNING",
   "userLabels": {
-    "app": "loop-sessions",
+    "app": "claude-code-recorder",
     "tier": "infra",
     "asset": "slack-live-pass-failed"
   },
@@ -12,7 +12,7 @@
     {
       "displayName": "slack_live_pass_failed nonzero for 15 min",
       "conditionThreshold": {
-        "filter": "metric.type=\"logging.googleapis.com/user/loop_sessions/slack_live_pass_failed\" AND resource.type=\"cloud_run_revision\"",
+        "filter": "metric.type=\"logging.googleapis.com/user/claude_code_recorder/slack_live_pass_failed\" AND resource.type=\"cloud_run_revision\"",
         "aggregations": [
           {
             "alignmentPeriod": "300s",
@@ -34,7 +34,7 @@
   },
   "documentation": {
     "mimeType": "text/markdown",
-    "content": "The Slack mirror's live pass has failed on every run for fifteen minutes. Nothing is being mirrored and nobody's thread is moving. The pass logs its error on the `slack live pass failed` line.\n\n`gcloud logging read 'resource.labels.service_name=\"loop-sessions\" AND jsonPayload.message=\"slack live pass failed\"' --limit=5 --freshness=30m` for the error. `invalid_auth` means the bot token (secret `loop-sessions-slack-bot-token`) needs rotating; a database error means the pass could not read slack_posts, and the readiness alert will say why. The runbook \"live Slack threads\" in examples/deploy-gcp/README.md has the per-message levers.\n\nRunbook: examples/deploy-gcp/README.md#runbook-live-slack-threads",
+    "content": "The Slack mirror's live pass has failed on every run for fifteen minutes. Nothing is being mirrored and nobody's thread is moving. The pass logs its error on the `slack live pass failed` line.\n\n`gcloud logging read 'resource.labels.service_name=\"claude-code-recorder\" AND jsonPayload.message=\"slack live pass failed\"' --limit=5 --freshness=30m` for the error. `invalid_auth` means the bot token (secret `claude-code-recorder-slack-bot-token`) needs rotating; a database error means the pass could not read slack_posts, and the readiness alert will say why. The runbook \"live Slack threads\" in examples/deploy-gcp/README.md has the per-message levers.\n\nRunbook: examples/deploy-gcp/README.md#runbook-live-slack-threads",
     "links": [
       {
         "displayName": "Runbook: live Slack threads",

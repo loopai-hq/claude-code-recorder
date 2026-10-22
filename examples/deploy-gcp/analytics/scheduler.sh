@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # The Cloud Scheduler half of the analytics export: one job that runs the
-# Cloud Run job loop-sessions-export every hour, and the two bindings it
+# Cloud Run job claude-code-recorder-export every hour, and the two bindings it
 # needs to be allowed to. provision.sh calls this after the Cloud Run job
 # exists; it is also the operator's handle on the schedule (pause, resume,
 # run now) once everything is provisioned.
@@ -38,13 +38,13 @@ set -euo pipefail
 
 PROJECT="${PROJECT:-__PROJECT__}"
 REGION="${REGION:-__REGION__}"
-JOB="${JOB:-loop-sessions-export}"
-SCHEDULER_JOB="${SCHEDULER_JOB:-loop-sessions-export-hourly}"
+JOB="${JOB:-claude-code-recorder-export}"
+SCHEDULER_JOB="${SCHEDULER_JOB:-claude-code-recorder-export-hourly}"
 # Seven minutes past the hour: off the top of the hour that every other
 # cron in the project favours, and after the derive runner's dirty pass
 # has had a few cycles over the hour's ingest.
 SCHEDULE="${SCHEDULE:-7 * * * *}"
-SA_NAME="${SA_NAME:-loop-sessions-export}"
+SA_NAME="${SA_NAME:-claude-code-recorder-export}"
 GCLOUD="${GCLOUD:-gcloud}"
 DRY_RUN=0
 ACTION=apply
@@ -138,7 +138,7 @@ mutate scheduler jobs "$verb" http "$SCHEDULER_JOB" --location="$REGION" \
 	--uri="$uri" --http-method=POST \
 	--oauth-service-account-email="$SA" \
 	--attempt-deadline=180s \
-	--description="loop-sessions analytics export, hourly (examples/deploy-gcp/analytics)"
+	--description="claude-code-recorder analytics export, hourly (examples/deploy-gcp/analytics)"
 
 if [ "$DRY_RUN" = 1 ]; then
 	log "== scheduler dry run complete; nothing was changed"

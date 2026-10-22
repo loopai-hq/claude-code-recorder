@@ -1,10 +1,10 @@
 {
-  "displayName": "loop-sessions: 5 or more ingest 5xx in 5 min",
+  "displayName": "claude-code-recorder: 5 or more ingest 5xx in 5 min",
   "combiner": "OR",
   "enabled": true,
   "severity": "ERROR",
   "userLabels": {
-    "app": "loop-sessions",
+    "app": "claude-code-recorder",
     "tier": "infra",
     "asset": "01b-ingest-5xx-absolute"
   },
@@ -12,7 +12,7 @@
     {
       "displayName": "5xx on /v1/events or /v1/health, 5 or more in 5 min",
       "conditionThreshold": {
-        "filter": "metric.type=\"logging.googleapis.com/user/loop_sessions/ingest_5xx\" AND resource.type=\"cloud_run_revision\"",
+        "filter": "metric.type=\"logging.googleapis.com/user/claude_code_recorder/ingest_5xx\" AND resource.type=\"cloud_run_revision\"",
         "aggregations": [
           {
             "alignmentPeriod": "300s",

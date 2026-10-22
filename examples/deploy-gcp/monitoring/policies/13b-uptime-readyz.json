@@ -1,10 +1,10 @@
 {
-  "displayName": "loop-sessions: /readyz uptime check failing",
+  "displayName": "claude-code-recorder: /readyz uptime check failing",
   "combiner": "OR",
   "enabled": true,
   "severity": "CRITICAL",
   "userLabels": {
-    "app": "loop-sessions",
+    "app": "claude-code-recorder",
     "tier": "infra",
     "asset": "13b-uptime-readyz"
   },
@@ -37,7 +37,7 @@
   },
   "documentation": {
     "mimeType": "text/markdown",
-    "content": "The external check on __PUBLIC_URL__/readyz is failing from three regions: the service is down from the internet, which is where every laptop is.\n\n`curl -i __PUBLIC_URL__/readyz` (expect 200 `ready`; 503 `not ready` is the database, anything else is Cloud Run or DNS). `gcloud run services describe loop-sessions --region=<region> --format='value(status.conditions)'` for the platform's view. If a deploy just landed, roll back: `gcloud run services update-traffic loop-sessions --region=<region> --to-revisions=<previous>=100`.\n\nRunbook: examples/deploy-gcp/README.md#runbook-ingest-5xx",
+    "content": "The external check on __PUBLIC_URL__/readyz is failing from three regions: the service is down from the internet, which is where every laptop is.\n\n`curl -i __PUBLIC_URL__/readyz` (expect 200 `ready`; 503 `not ready` is the database, anything else is Cloud Run or DNS). `gcloud run services describe claude-code-recorder --region=<region> --format='value(status.conditions)'` for the platform's view. If a deploy just landed, roll back: `gcloud run services update-traffic claude-code-recorder --region=<region> --to-revisions=<previous>=100`.\n\nRunbook: examples/deploy-gcp/README.md#runbook-ingest-5xx",
     "links": [
       {
         "displayName": "Runbook: ingest 5xx",

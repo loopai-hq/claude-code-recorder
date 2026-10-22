@@ -6,11 +6,11 @@
 # the vendor built-ins) is left out, so it never reports as expiring in
 # the hour before its planned revoke; a soft-revoked token is left out
 # because its rotation is already under way.
-name: loop_sessions/skill_token_expiry_days
+name: claude_code_recorder/skill_token_expiry_days
 description: Days until each live source token expires (field expires_in_days of the server line "skill token summary")
 filter: >-
   resource.type="cloud_run_revision"
-  AND resource.labels.service_name="loop-sessions"
+  AND resource.labels.service_name="claude-code-recorder"
   AND log_id("run.googleapis.com/stdout")
   AND jsonPayload.message="skill token summary"
   AND jsonPayload.soft_revoked=false

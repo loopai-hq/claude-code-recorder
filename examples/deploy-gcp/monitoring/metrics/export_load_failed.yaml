@@ -3,11 +3,11 @@
 # watermark where it was, so the lag alert catches it eventually; this
 # counts the failures as they happen, labelled by table, so the operator
 # knows which projection or partition to look at before the lag has grown.
-name: loop_sessions/export_load_failed
-description: BigQuery load jobs that failed during a loop-sessions-export run (line "export load failed"), by table
+name: claude_code_recorder/export_load_failed
+description: BigQuery load jobs that failed during a claude-code-recorder-export run (line "export load failed"), by table
 filter: >-
   resource.type="cloud_run_job"
-  AND resource.labels.job_name="loop-sessions-export"
+  AND resource.labels.job_name="claude-code-recorder-export"
   AND log_id("run.googleapis.com/stdout")
   AND jsonPayload.message="export load failed"
 metricDescriptor:

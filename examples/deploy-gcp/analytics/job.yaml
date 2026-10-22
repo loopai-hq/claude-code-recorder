@@ -14,8 +14,8 @@
 #   __TAG__       image tag, the git sha the service runs
 #   __BUCKET__       the analytics bucket
 #   __RAW_DATASET__  the raw BigQuery dataset the job loads into
-#                    (loop_sessions_raw); analysts query the views in
-#                    loop_sessions, never this one (bigquery/views.sql)
+#                    (claude_code_recorder_raw); analysts query the views in
+#                    claude_code_recorder, never this one (bigquery/views.sql)
 #
 # The two numbers that matter are on the task template below. timeoutSeconds
 # 1800: a run is bounded (server/export, Options) to finish in well under
@@ -27,10 +27,10 @@
 apiVersion: run.googleapis.com/v1
 kind: Job
 metadata:
-  name: loop-sessions-export
+  name: claude-code-recorder-export
   labels:
     cloud.googleapis.com/location: __REGION__
-    app: loop-sessions
+    app: claude-code-recorder
 spec:
   template:
     metadata:
@@ -52,12 +52,12 @@ spec:
           # Its own identity, not the service's: it holds bucket and dataset
           # write access the service has no reason to carry (provision.sh
           # binds exactly what it needs).
-          serviceAccountName: loop-sessions-export@__PROJECT__.iam.gserviceaccount.com
+          serviceAccountName: claude-code-recorder-export@__PROJECT__.iam.gserviceaccount.com
           containers:
             - name: export
-              image: __REGION__-docker.pkg.dev/__PROJECT__/loop-sessions/server:__TAG__
+              image: __REGION__-docker.pkg.dev/__PROJECT__/claude-code-recorder/server:__TAG__
               # The image's entrypoint is /server; "export" is the
-              # subcommand server/cmd/loop-sessions-server dispatches to
+              # subcommand server/cmd/claude-code-recorder-server dispatches to
               # server/export.
               command: ["/server"]
               args: ["export"]
@@ -76,17 +76,17 @@ spec:
                 - name: DATABASE_HOST
                   value: /cloudsql/__PROJECT__:__REGION__:__INSTANCE__
                 - name: DATABASE_NAME
-                  value: loop_sessions
+                  value: claude_code_recorder
                 - name: DATABASE_USER
-                  value: loop_sessions
+                  value: claude_code_recorder
                 - name: DATABASE_PASSWORD
                   valueFrom:
                     secretKeyRef:
-                      name: loop-sessions-db-password
+                      name: claude-code-recorder-db-password
                       key: latest
                 # Where the export goes. The location is the dataset's, and
                 # the bucket must be in it. The dataset is the raw
-                # one: the job never writes to the governed loop_sessions
+                # one: the job never writes to the governed claude_code_recorder
                 # dataset, which holds only views.
                 - name: EXPORT_PROJECT
                   value: __PROJECT__

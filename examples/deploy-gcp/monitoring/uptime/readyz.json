@@ -1,5 +1,5 @@
 {
-  "displayName": "loop-sessions readyz",
+  "displayName": "claude-code-recorder readyz",
   "host": "__PUBLIC_HOST__",
   "protocol": "https",
   "port": 443,

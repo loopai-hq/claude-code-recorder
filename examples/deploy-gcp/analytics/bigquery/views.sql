@@ -1,6 +1,6 @@
 -- The governed surface: every table analysts query is a view in the
--- __DATASET__ dataset (loop_sessions) over the raw __RAW_DATASET__
--- dataset (loop_sessions_raw) the export job loads into. CREATE OR REPLACE,
+-- __DATASET__ dataset (claude_code_recorder) over the raw __RAW_DATASET__
+-- dataset (claude_code_recorder_raw) the export job loads into. CREATE OR REPLACE,
 -- so provision.sh can apply this file as often as it likes; run it after a
 -- column is added to a raw table, because a view's column list is fixed
 -- when it is created.

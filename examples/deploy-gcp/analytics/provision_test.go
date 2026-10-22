@@ -64,27 +64,27 @@ esac
 // found".
 const stubBQ = `#!/usr/bin/env bash
 printf 'bq %s\n' "$*" >> "$STUB_LOG"
-sa=loop-sessions-export@my-project.iam.gserviceaccount.com
+sa=claude-code-recorder-export@my-project.iam.gserviceaccount.com
 defaults='{"role":"READER","specialGroup":"projectReaders"},{"role":"WRITER","specialGroup":"projectWriters"},{"role":"OWNER","specialGroup":"projectOwners"},{"role":"OWNER","userByEmail":"owner@example.com"}'
 writer_extra="{\"role\":\"WRITER\",\"userByEmail\":\"$sa\",\"iamMember\":\"serviceAccount:$sa\"}"
 owners='{"specialGroup":"projectOwners","role":"OWNER"},{"userByEmail":"owner@example.com","role":"OWNER"}'
-admins='{"groupByEmail":"loop-sessions-admins@example.com","role":"READER"}'
+admins='{"groupByEmail":"claude-code-recorder-admins@example.com","role":"READER"}'
 views=''
 for v in turns sessions messages events health_hourly events_latest sessions_latest turns_latest messages_latest vendor_sessions vendor_messages all_sessions all_messages; do
-  views="$views,{\"view\":{\"tableId\":\"$v\",\"datasetId\":\"loop_sessions\",\"projectId\":\"my-project\"}}"
+  views="$views,{\"view\":{\"tableId\":\"$v\",\"datasetId\":\"claude_code_recorder\",\"projectId\":\"my-project\"}}"
 done
 raw_complete="$owners,$writer_extra,$admins$views"
 governed_complete="{\"specialGroup\":\"projectReaders\",\"role\":\"READER\"},$owners,{\"domain\":\"__DOMAINS__\",\"role\":\"READER\"},$admins"
 tag=''
 if [ "$STUB_MODE" = complete ]; then tag=',"policyTags":{"names":["projects/my-project/locations/asia-south1/taxonomies/111/policyTags/222"]}'; fi
 tbl=""
-for a in "$@"; do case "$a" in my-project:loop_sessions_raw.*) tbl="${a##*.}" ;; esac; done
+for a in "$@"; do case "$a" in my-project:claude_code_recorder_raw.*) tbl="${a##*.}" ;; esac; done
 case " $* " in
   *" show --schema "*)
     case "$STUB_MODE" in
-      present-show-denied) echo "BigQuery error in show operation: Access Denied: Table my-project:loop_sessions_raw.$tbl: Permission bigquery.tables.get denied" >&2; exit 1 ;;
+      present-show-denied) echo "BigQuery error in show operation: Access Denied: Table my-project:claude_code_recorder_raw.$tbl: Permission bigquery.tables.get denied" >&2; exit 1 ;;
       present|present-extra|complete|present-wrong-tag|present-no-column) ;;
-      *) echo "BigQuery error in show operation: Not found: Table my-project:loop_sessions_raw.$tbl" >&2; exit 1 ;;
+      *) echo "BigQuery error in show operation: Not found: Table my-project:claude_code_recorder_raw.$tbl" >&2; exit 1 ;;
     esac
     if [ "$STUB_MODE" = present-wrong-tag ] && [ "$tbl" = messages ]; then
       echo '[{"name":"event_id","type":"STRING","mode":"REQUIRED","policyTags":{"names":["projects/my-project/locations/asia-south1/taxonomies/999/policyTags/888"]}},{"type":"STRING","name":"text","policyTags":{"names":["projects/my-project/locations/asia-south1/taxonomies/111/policyTags/333"]}}]'
@@ -109,7 +109,7 @@ case " $* " in
       present-extra) echo "{\"access\":[$defaults,$writer_extra]}"; exit 0 ;;
       complete)
         case " $* " in
-          *":loop_sessions_raw "*) echo "{\"access\":[$raw_complete]}" ;;
+          *":claude_code_recorder_raw "*) echo "{\"access\":[$raw_complete]}" ;;
           *) echo "{\"access\":[$governed_complete]}" ;;
         esac
         exit 0 ;;
@@ -158,11 +158,11 @@ case " $* " in
     if [ -f "$STUB_DIR/$ds.schema.json" ]; then cat "$STUB_DIR/$ds.schema.json"; exit 0; fi
     if [ ! -f "$STUB_DIR/tables.created" ]; then echo "Not found" >&2; exit 1; fi
     case "$ds" in
-      loop_sessions_raw.messages) echo '[{"name":"event_id","type":"STRING","mode":"REQUIRED"},{"name":"text","type":"STRING"}]' ;;
-      loop_sessions_raw.events) echo '[{"name":"id","type":"STRING","mode":"REQUIRED"},{"name":"body","type":"JSON"}]' ;;
-      loop_sessions_raw.sessions) echo '[{"name":"session_id","type":"STRING","mode":"REQUIRED"},{"name":"first_prompt","type":"STRING"},{"name":"harness_title","type":"STRING"}]' ;;
-      loop_sessions_raw.vendor_messages) echo '[{"name":"event_id","type":"STRING","mode":"REQUIRED"},{"name":"text","type":"STRING"}]' ;;
-      loop_sessions_raw.vendor_sessions) echo '[{"name":"session_id","type":"STRING","mode":"REQUIRED"},{"name":"first_prompt","type":"STRING"},{"name":"harness_title","type":"STRING"}]' ;;
+      claude_code_recorder_raw.messages) echo '[{"name":"event_id","type":"STRING","mode":"REQUIRED"},{"name":"text","type":"STRING"}]' ;;
+      claude_code_recorder_raw.events) echo '[{"name":"id","type":"STRING","mode":"REQUIRED"},{"name":"body","type":"JSON"}]' ;;
+      claude_code_recorder_raw.sessions) echo '[{"name":"session_id","type":"STRING","mode":"REQUIRED"},{"name":"first_prompt","type":"STRING"},{"name":"harness_title","type":"STRING"}]' ;;
+      claude_code_recorder_raw.vendor_messages) echo '[{"name":"event_id","type":"STRING","mode":"REQUIRED"},{"name":"text","type":"STRING"}]' ;;
+      claude_code_recorder_raw.vendor_sessions) echo '[{"name":"session_id","type":"STRING","mode":"REQUIRED"},{"name":"first_prompt","type":"STRING"},{"name":"harness_title","type":"STRING"}]' ;;
       *) echo "Not found" >&2; exit 1 ;;
     esac
     exit 0 ;;
@@ -213,8 +213,8 @@ esac
 // this group. A group principal is not checked against the admins table,
 // so the two lists need not agree here.
 const (
-	testAdminGrantee = "group:loop-sessions-admins@example.com"
-	testAdminEmails  = "loop-sessions-admin@example.com"
+	testAdminGrantee = "group:claude-code-recorder-admins@example.com"
+	testAdminEmails  = "claude-code-recorder-admin@example.com"
 )
 
 // withAdminFlags appends the required admin arguments unless the caller
@@ -474,7 +474,7 @@ func rawDatasetKeepsOnlyProjectOwners(t *testing.T, raw []map[string]any) {
 
 // exportSA is the export job's identity: WRITER on the raw dataset, and the
 // one principal the governed dataset must never list.
-const exportSA = "loop-sessions-export@my-project.iam.gserviceaccount.com"
+const exportSA = "claude-code-recorder-export@my-project.iam.gserviceaccount.com"
 
 // governedDatasetKeepsReadersAndDropsWriters is the review-3 M3 property:
 // the governed dataset's rendered list carries no projectWriters entry and
@@ -542,47 +542,47 @@ func TestDryRunOnAnEmptyProjectPrintsEveryCreateAndMutatesNothing(t *testing.T) 
 		"dry-run: gcloud storage buckets create gs://my-analytics-bucket --location=asia-south1 --uniform-bucket-level-access --public-access-prevention",
 		"dry-run: gcloud storage buckets update gs://my-analytics-bucket --versioning",
 		"service account: create",
-		"dry-run: gcloud iam service-accounts create loop-sessions-export",
+		"dry-run: gcloud iam service-accounts create claude-code-recorder-export",
 		"dry-run: gcloud storage buckets add-iam-policy-binding gs://my-analytics-bucket --member=serviceAccount:"+sa+" --role=roles/storage.objectAdmin",
 		"--member=serviceAccount:"+sa+" --role=roles/bigquery.jobUser",
 		"--member=serviceAccount:"+sa+" --role=roles/cloudsql.client",
 		"--member=serviceAccount:"+sa+" --role=roles/logging.logWriter",
-		"dry-run: gcloud secrets add-iam-policy-binding loop-sessions-db-password --member=serviceAccount:"+sa+" --role=roles/secretmanager.secretAccessor",
-		"dataset loop_sessions_raw: create",
-		"dry-run: bq --project_id=my-project --location=asia-south1 mk --dataset --description=loop-sessions analytics export, raw tables",
-		"my-project:loop_sessions_raw",
-		"dataset loop_sessions_raw access: add 2 entries, remove 2 entries",
+		"dry-run: gcloud secrets add-iam-policy-binding claude-code-recorder-db-password --member=serviceAccount:"+sa+" --role=roles/secretmanager.secretAccessor",
+		"dataset claude_code_recorder_raw: create",
+		"dry-run: bq --project_id=my-project --location=asia-south1 mk --dataset --description=claude-code-recorder analytics export, raw tables",
+		"my-project:claude_code_recorder_raw",
+		"dataset claude_code_recorder_raw access: add 2 entries, remove 2 entries",
 		"dry-run: bq --project_id=my-project --location=asia-south1 update --source",
-		"dataset loop_sessions: create",
-		"dry-run: bq --project_id=my-project --location=asia-south1 mk --dataset --description=loop-sessions analytics export, governed views over loop_sessions_raw",
-		"dataset loop_sessions access: add 2 entries, remove 1 entry",
+		"dataset claude_code_recorder: create",
+		"dry-run: bq --project_id=my-project --location=asia-south1 mk --dataset --description=claude-code-recorder analytics export, governed views over claude_code_recorder_raw",
+		"dataset claude_code_recorder access: add 2 entries, remove 1 entry",
 		"taxonomy: import analytics/taxonomy.json",
 		"dry-run: gcloud data-catalog taxonomies import",
 		"--location=asia-south1",
 		// Short taxonomy id on the per-tag command: the full resource name
 		// 404s there (doubled path), which is where the first live run died.
-		"policy-tags add-iam-policy-binding dry-run-policy-tag --taxonomy=dry-run-taxonomy --location=asia-south1 --member=group:loop-sessions-admins@example.com --role=roles/datacatalog.categoryFineGrainedReader",
+		"policy-tags add-iam-policy-binding dry-run-policy-tag --taxonomy=dry-run-taxonomy --location=asia-south1 --member=group:claude-code-recorder-admins@example.com --role=roles/datacatalog.categoryFineGrainedReader",
 		"ddl tables.sql: apply",
 		"ddl admins.sql: apply",
 		"ddl views.sql: apply",
 		"query --use_legacy_sql=false --nouse_cache <",
-		"== column tags on loop_sessions_raw (pii_text)",
+		"== column tags on claude_code_recorder_raw (pii_text)",
 		"table messages: no schema to read yet; a real run tags text once the DDL has run",
-		"dry-run: bq --project_id=my-project --location=asia-south1 update --schema <messages's schema with pii_text on text> my-project:loop_sessions_raw.messages",
+		"dry-run: bq --project_id=my-project --location=asia-south1 update --schema <messages's schema with pii_text on text> my-project:claude_code_recorder_raw.messages",
 		"table events: no schema to read yet; a real run tags body once the DDL has run",
-		"dry-run: bq --project_id=my-project --location=asia-south1 update --schema <events's schema with pii_text on body> my-project:loop_sessions_raw.events",
+		"dry-run: bq --project_id=my-project --location=asia-south1 update --schema <events's schema with pii_text on body> my-project:claude_code_recorder_raw.events",
 		"table sessions: no schema to read yet; a real run tags first_prompt harness_title once the DDL has run",
-		"dry-run: bq --project_id=my-project --location=asia-south1 update --schema <sessions's schema with pii_text on first_prompt harness_title> my-project:loop_sessions_raw.sessions",
-		"== authorized views on loop_sessions_raw",
+		"dry-run: bq --project_id=my-project --location=asia-south1 update --schema <sessions's schema with pii_text on first_prompt harness_title> my-project:claude_code_recorder_raw.sessions",
+		"== authorized views on claude_code_recorder_raw",
 		"views: "+strings.Join(governedViews, " "),
-		"dataset loop_sessions_raw access: add 13 entries",
+		"dataset claude_code_recorder_raw access: add 13 entries",
 		"job: create with image tag dry-run-tag",
 		"dry-run: gcloud run jobs replace",
 		"--region=asia-south1",
-		"dry-run: gcloud run jobs add-iam-policy-binding loop-sessions-export --region=asia-south1 --member=serviceAccount:"+sa+" --role=roles/run.invoker",
+		"dry-run: gcloud run jobs add-iam-policy-binding claude-code-recorder-export --region=asia-south1 --member=serviceAccount:"+sa+" --role=roles/run.invoker",
 		"--member=serviceAccount:service-123456789012@gcp-sa-cloudscheduler.iam.gserviceaccount.com --role=roles/cloudscheduler.serviceAgent",
-		"scheduler job loop-sessions-export-hourly: create",
-		"dry-run: gcloud scheduler jobs create http loop-sessions-export-hourly --location=asia-south1 --schedule=7 * * * * --time-zone=Etc/UTC --uri=https://run.googleapis.com/v2/projects/my-project/locations/asia-south1/jobs/loop-sessions-export:run --http-method=POST --oauth-service-account-email="+sa,
+		"scheduler job claude-code-recorder-export-hourly: create",
+		"dry-run: gcloud scheduler jobs create http claude-code-recorder-export-hourly --location=asia-south1 --schedule=7 * * * * --time-zone=Etc/UTC --uri=https://run.googleapis.com/v2/projects/my-project/locations/asia-south1/jobs/claude-code-recorder-export:run --http-method=POST --oauth-service-account-email="+sa,
 		"dry run complete; nothing was changed",
 	)
 	// The bindings the export identity must never get: Fine-Grained Reader
@@ -616,7 +616,7 @@ func TestDryRunOnAnEmptyProjectPrintsEveryCreateAndMutatesNothing(t *testing.T) 
 	// DDL order: tables, then the admins list, then the views over both,
 	// then the tags on the tables; the views are authorized only after they
 	// exist.
-	order := []string{"ddl tables.sql", "ddl vendor.sql", "ddl admins.sql", "ddl views.sql", "== column tags on loop_sessions_raw", "== authorized views on loop_sessions_raw", "== cloud run job"}
+	order := []string{"ddl tables.sql", "ddl vendor.sql", "ddl admins.sql", "ddl views.sql", "== column tags on claude_code_recorder_raw", "== authorized views on claude_code_recorder_raw", "== cloud run job"}
 	for i := 1; i < len(order); i++ {
 		if a, b := strings.Index(out, order[i-1]), strings.Index(out, order[i]); a < 0 || b < 0 || a > b {
 			t.Errorf("%q does not come before %q", order[i-1], order[i])
@@ -633,17 +633,17 @@ func TestDryRunOnAnEmptyProjectPrintsEveryCreateAndMutatesNothing(t *testing.T) 
 	// holds views only, each of which filters rows; review-2 I1, lead
 	// decision); projectWriters is gone (review-3 M3); the service account
 	// is absent; and nothing else appears.
-	raw := accessEntries(t, renderDir, "loop_sessions_raw")
+	raw := accessEntries(t, renderDir, "claude_code_recorder_raw")
 	for _, want := range []string{
 		`{"role":"WRITER","userByEmail":"` + sa + `"}`,
-		`{"groupByEmail":"loop-sessions-admins@example.com","role":"READER"}`,
+		`{"groupByEmail":"claude-code-recorder-admins@example.com","role":"READER"}`,
 	} {
 		if !hasEntry(raw, want) {
 			t.Errorf("raw dataset access lacks %s:\n%v", want, raw)
 		}
 	}
 	for _, v := range governedViews {
-		if !hasEntry(raw, `{"view":{"datasetId":"loop_sessions","projectId":"my-project","tableId":"`+v+`"}}`) {
+		if !hasEntry(raw, `{"view":{"datasetId":"claude_code_recorder","projectId":"my-project","tableId":"`+v+`"}}`) {
 			t.Errorf("view %s is not authorized on the raw dataset:\n%v", v, raw)
 		}
 	}
@@ -656,10 +656,10 @@ func TestDryRunOnAnEmptyProjectPrintsEveryCreateAndMutatesNothing(t *testing.T) 
 			t.Errorf("the raw dataset is readable by a whole domain: %v", e)
 		}
 	}
-	governed := accessEntries(t, renderDir, "loop_sessions")
+	governed := accessEntries(t, renderDir, "claude_code_recorder")
 	for _, want := range []string{
 		`{"domain":"__DOMAINS__","role":"READER"}`,
-		`{"groupByEmail":"loop-sessions-admins@example.com","role":"READER"}`,
+		`{"groupByEmail":"claude-code-recorder-admins@example.com","role":"READER"}`,
 	} {
 		if !hasEntry(governed, want) {
 			t.Errorf("governed dataset access lacks %s:\n%v", want, governed)
@@ -689,17 +689,17 @@ func TestDryRunOnAProvisionedProjectTakesTheUpdatePathsAndIsRepeatable(t *testin
 	mustContain(t, "dry run (present)", out,
 		"bucket: exists",
 		"service account: exists",
-		"dataset loop_sessions_raw: exists",
-		"dataset loop_sessions_raw access: add 2 entries, remove 2 entries",
+		"dataset claude_code_recorder_raw: exists",
+		"dataset claude_code_recorder_raw access: add 2 entries, remove 2 entries",
 		"dry-run: bq --project_id=my-project --location=asia-south1 update --source",
-		"dataset loop_sessions: exists",
-		"dataset loop_sessions access: add 2 entries, remove 1 entry",
+		"dataset claude_code_recorder: exists",
+		"dataset claude_code_recorder access: add 2 entries, remove 1 entry",
 		"taxonomy: exists (projects/my-project/locations/asia-south1/taxonomies/111)",
 		"policy tag: projects/my-project/locations/asia-south1/taxonomies/111/policyTags/222",
-		"dataset loop_sessions_raw access: add 13 entries",
+		"dataset claude_code_recorder_raw access: add 13 entries",
 		"job: exists, replace with image tag abc1234",
-		"scheduler job loop-sessions-export-hourly: update",
-		"dry-run: gcloud scheduler jobs update http loop-sessions-export-hourly",
+		"scheduler job claude-code-recorder-export-hourly: update",
+		"dry-run: gcloud scheduler jobs update http claude-code-recorder-export-hourly",
 	)
 	for _, absent := range []string{"mk --dataset", "taxonomies import", "buckets create", "service-accounts create", "scheduler jobs create"} {
 		if strings.Contains(out, absent) {
@@ -725,52 +725,52 @@ func TestDryRunOnAProvisionedProjectTakesTheUpdatePathsAndIsRepeatable(t *testin
 	// exactly the named columns; every other column is handed back as bq
 	// rendered it.
 	mustContain(t, "dry run (present)", out,
-		"== column tags on loop_sessions_raw (pii_text)",
+		"== column tags on claude_code_recorder_raw (pii_text)",
 		"table messages: tag text",
 		"table events: tag body",
 		"table sessions: tag first_prompt harness_title",
 		"update --schema ",
-		"my-project:loop_sessions_raw.messages",
-		"my-project:loop_sessions_raw.events",
-		"my-project:loop_sessions_raw.sessions")
+		"my-project:claude_code_recorder_raw.messages",
+		"my-project:claude_code_recorder_raw.events",
+		"my-project:claude_code_recorder_raw.sessions")
 	for table, cols := range taggedColumns {
 		schemaCarriesTagOn(t, filepath.Join(renderDir, table+".schema.json"), cols)
 	}
 	// The admins list is exactly the flag, quoted, in the raw dataset.
 	admins, _ := os.ReadFile(filepath.Join(renderDir, "admins.sql"))
 	mustContain(t, "rendered admins.sql", string(admins),
-		"CREATE OR REPLACE TABLE `my-project.loop_sessions_raw.admins`",
+		"CREATE OR REPLACE TABLE `my-project.claude_code_recorder_raw.admins`",
 		"UNNEST(['alice@example.com', 'bob@example.com'])")
 	// The views live in the governed dataset, read the raw one, and carry
 	// the rule.
 	views, _ := os.ReadFile(filepath.Join(renderDir, "views.sql"))
 	mustContain(t, "rendered views.sql", string(views),
-		"CREATE OR REPLACE VIEW `my-project.loop_sessions.turns` AS",
-		"FROM `my-project.loop_sessions_raw.turns`",
-		"SESSION_USER() IN (SELECT email FROM `my-project.loop_sessions_raw.admins`)")
-	if strings.Contains(string(views), "CREATE OR REPLACE VIEW `my-project.loop_sessions_raw.") {
+		"CREATE OR REPLACE VIEW `my-project.claude_code_recorder.turns` AS",
+		"FROM `my-project.claude_code_recorder_raw.turns`",
+		"SESSION_USER() IN (SELECT email FROM `my-project.claude_code_recorder_raw.admins`)")
+	if strings.Contains(string(views), "CREATE OR REPLACE VIEW `my-project.claude_code_recorder_raw.") {
 		t.Error("a view is created in the raw dataset")
 	}
 	job, _ := os.ReadFile(filepath.Join(renderDir, "job.yaml"))
 	mustContain(t, "rendered job.yaml", string(job),
-		"image: asia-south1-docker.pkg.dev/my-project/loop-sessions/server:abc1234",
-		"run.googleapis.com/cloudsql-instances: my-project:asia-south1:loop-sessions",
-		"value: /cloudsql/my-project:asia-south1:loop-sessions",
+		"image: asia-south1-docker.pkg.dev/my-project/claude-code-recorder/server:abc1234",
+		"run.googleapis.com/cloudsql-instances: my-project:asia-south1:claude-code-recorder",
+		"value: /cloudsql/my-project:asia-south1:claude-code-recorder",
 		"value: my-analytics-bucket",
-		"value: loop_sessions_raw")
-	if m := regexp.MustCompile(`name: EXPORT_DATASET\s+value: (\S+)`).FindStringSubmatch(string(job)); m == nil || m[1] != "loop_sessions_raw" {
+		"value: claude_code_recorder_raw")
+	if m := regexp.MustCompile(`name: EXPORT_DATASET\s+value: (\S+)`).FindStringSubmatch(string(job)); m == nil || m[1] != "claude_code_recorder_raw" {
 		t.Errorf("job.yaml points EXPORT_DATASET at %v; it must load the raw dataset", m)
 	}
 	// The access lists on a provisioned project keep what was there (the
 	// owners; projectReaders on the governed dataset), add what is missing,
 	// take the two project groups off the raw dataset and projectWriters
 	// off the governed one.
-	raw := accessEntries(t, renderDir, "loop_sessions_raw")
+	raw := accessEntries(t, renderDir, "claude_code_recorder_raw")
 	rawDatasetKeepsOnlyProjectOwners(t, raw)
-	if !hasEntry(raw, `{"view":{"datasetId":"loop_sessions","projectId":"my-project","tableId":"messages_latest"}}`) {
+	if !hasEntry(raw, `{"view":{"datasetId":"claude_code_recorder","projectId":"my-project","tableId":"messages_latest"}}`) {
 		t.Errorf("messages_latest is not authorized on the raw dataset:\n%v", raw)
 	}
-	governedDatasetKeepsReadersAndDropsWriters(t, accessEntries(t, renderDir, "loop_sessions"))
+	governedDatasetKeepsReadersAndDropsWriters(t, accessEntries(t, renderDir, "claude_code_recorder"))
 
 	again, _, _ := dryRun(t, "present", "--tag=abc1234", "--admin-emails=alice@example.com,bob@example.com")
 	strip := func(s string) string {
@@ -804,8 +804,8 @@ func TestAnAccessEntryWithExtraFieldsCountsAsPresent(t *testing.T) {
 	out, _, renderDir := dryRun(t, "present-extra")
 	sa := exportSA
 	mustContain(t, "dry run (present-extra)", out,
-		"dataset loop_sessions_raw access: add 1 entry, remove 2 entries")
-	raw := accessEntries(t, renderDir, "loop_sessions_raw")
+		"dataset claude_code_recorder_raw access: add 1 entry, remove 2 entries")
+	raw := accessEntries(t, renderDir, "claude_code_recorder_raw")
 	writers := 0
 	for _, e := range raw {
 		if e["userByEmail"] == sa {
@@ -831,10 +831,10 @@ func TestAnAccessEntryWithExtraFieldsCountsAsPresent(t *testing.T) {
 // show it, since they always leave the script something to add or remove.
 func TestASecondRunOverCompleteAccessListsWritesNothing(t *testing.T) {
 	out, stubs, renderDir := dryRun(t, "complete", "--tag=abc1234")
-	if n := strings.Count(out, "dataset loop_sessions_raw access: complete"); n != 2 {
+	if n := strings.Count(out, "dataset claude_code_recorder_raw access: complete"); n != 2 {
 		t.Errorf("the raw dataset's access was reported complete %d times, want 2 (phase 3 and the view authorization):\n%s", n, out)
 	}
-	if n := strings.Count(out, "dataset loop_sessions access: complete"); n != 1 {
+	if n := strings.Count(out, "dataset claude_code_recorder access: complete"); n != 1 {
 		t.Errorf("the governed dataset's access was reported complete %d times, want 1:\n%s", n, out)
 	}
 	rewrite := regexp.MustCompile(`update --source|update --schema|access: (add|remove)|table [a-z_]+: tag `)
@@ -859,8 +859,8 @@ func TestASecondRunOverCompleteAccessListsWritesNothing(t *testing.T) {
 	// The rest of the run is what it is on any run: the DDL re-applied, the
 	// job replaced with the tag.
 	mustContain(t, "dry run (complete)", out,
-		"dataset loop_sessions_raw: exists",
-		"dataset loop_sessions: exists",
+		"dataset claude_code_recorder_raw: exists",
+		"dataset claude_code_recorder: exists",
 		"ddl views.sql: apply",
 		"job: exists, replace with image tag abc1234",
 		"dry run complete; nothing was changed")
@@ -977,7 +977,7 @@ func TestProvisionRefusesWhatItCannotRenderSafely(t *testing.T) {
 		t.Error("the shape checks stopped running after a group grantee")
 	}
 	// The views cannot live in the dataset they hide.
-	out, err = run(inert, "--dry-run", "--raw-dataset=loop_sessions")
+	out, err = run(inert, "--dry-run", "--raw-dataset=claude_code_recorder")
 	if err == nil || !strings.Contains(out, "must differ") {
 		t.Errorf("the raw dataset was allowed to be the governed one: %v\n%s", err, out)
 	}
@@ -997,7 +997,7 @@ func TestEveryAdminGranteeReachesBothDatasetsAndTheTag(t *testing.T) {
 	out, stubs, renderDir := dryRun(t, "absent", "--tag=abc1234",
 		"--admin-grantee="+grantee,
 		"--admin-emails=alice@example.com,bob@example.com,carol@example.com")
-	for _, dataset := range []string{"loop_sessions_raw", "loop_sessions"} {
+	for _, dataset := range []string{"claude_code_recorder_raw", "claude_code_recorder"} {
 		entries := accessEntries(t, renderDir, dataset)
 		for _, want := range []string{
 			`{"role":"READER","userByEmail":"alice@example.com"}`,
@@ -1079,16 +1079,16 @@ func TestJobYAMLPinsTheTaskTimeoutAndRetries(t *testing.T) {
 	doc := string(raw)
 	mustContain(t, "job.yaml", doc,
 		"kind: Job",
-		"name: loop-sessions-export",
+		"name: claude-code-recorder-export",
 		"timeoutSeconds: 1800",
 		"maxRetries: 0",
 		"taskCount: 1",
 		`command: ["/server"]`,
 		`args: ["export"]`,
-		"serviceAccountName: loop-sessions-export@__PROJECT__.iam.gserviceaccount.com",
+		"serviceAccountName: claude-code-recorder-export@__PROJECT__.iam.gserviceaccount.com",
 		"run.googleapis.com/cloudsql-instances: __PROJECT__:__REGION__:__INSTANCE__",
 		"name: EXPORT_BUCKET", "name: EXPORT_DATASET", "name: EXPORT_PROJECT", "name: EXPORT_LOCATION",
-		"name: DATABASE_PASSWORD", "name: loop-sessions-db-password",
+		"name: DATABASE_PASSWORD", "name: claude-code-recorder-db-password",
 	)
 	if strings.Contains(doc, "EXPORT_ACCESS_TOKEN\n") || strings.Contains(doc, "name: EXPORT_ACCESS_TOKEN") {
 		t.Error("job.yaml sets EXPORT_ACCESS_TOKEN; the job's identity is the metadata server's")
@@ -1353,25 +1353,25 @@ func TestDDLColumnsMatchTheStoreProjections(t *testing.T) {
 func TestLiveApplyHandsBQCleanAccessListsAndReachesTheSchedule(t *testing.T) {
 	out, stubs, stubDir := liveRun(t)
 	mustContain(t, "live run", out,
-		"dataset loop_sessions_raw: create",
-		"dataset loop_sessions_raw access: add 2 entries, remove 2 entries",
-		"dataset loop_sessions: create",
-		"dataset loop_sessions access: add 2 entries, remove 1 entry",
-		"== column tags on loop_sessions_raw (pii_text)",
+		"dataset claude_code_recorder_raw: create",
+		"dataset claude_code_recorder_raw access: add 2 entries, remove 2 entries",
+		"dataset claude_code_recorder: create",
+		"dataset claude_code_recorder access: add 2 entries, remove 1 entry",
+		"== column tags on claude_code_recorder_raw (pii_text)",
 		"table messages: tag text",
 		"table events: tag body",
 		"table sessions: tag first_prompt harness_title",
-		"== authorized views on loop_sessions_raw",
-		"dataset loop_sessions_raw access: add 13 entries",
+		"== authorized views on claude_code_recorder_raw",
+		"dataset claude_code_recorder_raw access: add 13 entries",
 		"job: create with image tag stub-tag",
-		"scheduler job loop-sessions-export-hourly: create",
+		"scheduler job claude-code-recorder-export-hourly: create",
 		"== provisioned.",
 	)
 	// The tags went on through `bq update --schema`, after the tables were
 	// created and before the views were authorized, and what bq holds for
 	// each table is its schema with the tag on the named columns only.
 	for table, cols := range taggedColumns {
-		schemaCarriesTagOn(t, filepath.Join(stubDir, "loop_sessions_raw."+table+".schema.json"), cols)
+		schemaCarriesTagOn(t, filepath.Join(stubDir, "claude_code_recorder_raw."+table+".schema.json"), cols)
 	}
 	schemaAt := strings.Index(stubs, "update --schema")
 	ddlAt := strings.Index(stubs, "query --use_legacy_sql=false")
@@ -1399,11 +1399,11 @@ func TestLiveApplyHandsBQCleanAccessListsAndReachesTheSchedule(t *testing.T) {
 		}
 	}
 	// The lists the stub holds after the run are what BigQuery would hold.
-	rawFinal := readStubDataset(t, stubDir, "loop_sessions_raw")
+	rawFinal := readStubDataset(t, stubDir, "claude_code_recorder_raw")
 	rawDatasetKeepsOnlyProjectOwners(t, rawFinal)
 	for _, want := range []string{
 		`{"role":"WRITER","userByEmail":"` + exportSA + `"}`,
-		`{"groupByEmail":"loop-sessions-admins@example.com","role":"READER"}`,
+		`{"groupByEmail":"claude-code-recorder-admins@example.com","role":"READER"}`,
 	} {
 		if !hasEntry(rawFinal, want) {
 			t.Errorf("the raw dataset lacks %s after the live run:\n%v", want, rawFinal)
@@ -1418,12 +1418,12 @@ func TestLiveApplyHandsBQCleanAccessListsAndReachesTheSchedule(t *testing.T) {
 	if views != len(governedViews) {
 		t.Errorf("the raw dataset authorizes %d views, want %d", views, len(governedViews))
 	}
-	governedDatasetKeepsReadersAndDropsWriters(t, readStubDataset(t, stubDir, "loop_sessions"))
+	governedDatasetKeepsReadersAndDropsWriters(t, readStubDataset(t, stubDir, "claude_code_recorder"))
 	// The policy-tag binding names the taxonomy by its short id.
 	mustContain(t, "stub log", stubs,
-		"policy-tags add-iam-policy-binding 222 --taxonomy=111 --location=asia-south1 --member=group:loop-sessions-admins@example.com --role=roles/datacatalog.categoryFineGrainedReader",
+		"policy-tags add-iam-policy-binding 222 --taxonomy=111 --location=asia-south1 --member=group:claude-code-recorder-admins@example.com --role=roles/datacatalog.categoryFineGrainedReader",
 		"run jobs replace",
-		"scheduler jobs create http loop-sessions-export-hourly",
+		"scheduler jobs create http claude-code-recorder-export-hourly",
 	)
 	// `policy-tags list` may take the full name (it does, and works); the
 	// per-tag binding may not.

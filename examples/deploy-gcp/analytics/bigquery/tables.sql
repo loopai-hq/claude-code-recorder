@@ -1,5 +1,5 @@
 -- The analytics tables the export job loads (server/export), in the raw
--- dataset (__RAW_DATASET__, loop_sessions_raw), whose access list names
+-- dataset (__RAW_DATASET__, claude_code_recorder_raw), whose access list names
 -- the export service account and the admins group (provision.sh removes
 -- the project groups BigQuery adds at creation; project-level BigQuery
 -- roles still reach it: README, The access model). Nobody queries these
@@ -74,7 +74,7 @@ CREATE TABLE IF NOT EXISTS `__PROJECT__.__RAW_DATASET__.turns` (
 )
 PARTITION BY DATE(session_started_at)
 CLUSTER BY email, session_id
-OPTIONS (description = 'One row per logical exchange (loop-sessions turns), rewritten whole per session start day by the hourly export');
+OPTIONS (description = 'One row per logical exchange (claude-code-recorder turns), rewritten whole per session start day by the hourly export');
 
 CREATE TABLE IF NOT EXISTS `__PROJECT__.__RAW_DATASET__.sessions` (
   session_id         STRING NOT NULL,
@@ -189,4 +189,4 @@ CREATE TABLE IF NOT EXISTS `__PROJECT__.__RAW_DATASET__.health_hourly` (
 )
 PARTITION BY DATE(hour)
 CLUSTER BY email
-OPTIONS (description = 'Per-device hourly fleet health rollup (loop-sessions health_hourly)');
+OPTIONS (description = 'Per-device hourly fleet health rollup (claude-code-recorder health_hourly)');

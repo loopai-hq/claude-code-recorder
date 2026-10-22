@@ -16,7 +16,7 @@
 #     policies phase waits (up to DESCRIPTOR_WAIT seconds) for every metric a
 #     policy references before creating any policy.
 #
-# Policies are found by `userLabels.app="loop-sessions"` and their displayName,
+# Policies are found by `userLabels.app="claude-code-recorder"` and their displayName,
 # never by a stored id, so the files here are the whole desired state and the
 # console is not a second place to edit them.
 #
@@ -174,7 +174,7 @@ else
 		--regions="$(jq -r '.regions | join(",")' "$UPTIME")"
 		--matcher-type="$(jq -r .matcherType "$UPTIME")"
 		--matcher-content="$(jq -r .matcherContent "$UPTIME")"
-		"--user-labels=app=loop-sessions,tier=infra"
+		"--user-labels=app=claude-code-recorder,tier=infra"
 	)
 	if [ "$DRY_RUN" = 1 ]; then
 		log "uptime \"$display\": create"
@@ -285,7 +285,7 @@ for f in "$DIR"/policies/*.json; do
 	if [ "$asset" != "$(basename "$f" .json)" ]; then
 		die "$(basename "$f") carries userLabels.asset=\"$asset\"; it must equal the file name"
 	fi
-	existing="$(gc monitoring policies list --filter="userLabels.app=\"loop-sessions\" AND userLabels.asset=\"$asset\"" --format='value(name)' 2>/dev/null || true)"
+	existing="$(gc monitoring policies list --filter="userLabels.app=\"claude-code-recorder\" AND userLabels.asset=\"$asset\"" --format='value(name)' 2>/dev/null || true)"
 	if [ -z "$existing" ]; then
 		# Adoption, for one apply only: every policy live before this label
 		# existed carries no asset, so the lookup above finds nothing and the
@@ -293,14 +293,14 @@ for f in "$DIR"/policies/*.json; do
 		# display name once; the update writes the label, and the next apply
 		# finds it by key. Delete this branch when no live policy is missing
 		# an asset label, which the log line below makes visible.
-		existing="$(gc monitoring policies list --filter="userLabels.app=\"loop-sessions\" AND displayName=\"$display\"" --format='value(name)' 2>/dev/null || true)"
+		existing="$(gc monitoring policies list --filter="userLabels.app=\"claude-code-recorder\" AND displayName=\"$display\"" --format='value(name)' 2>/dev/null || true)"
 		if [ -n "$existing" ]; then
 			log "policy \"$display\": adopting a policy that predates the asset label"
 		fi
 	fi
 	if [ -n "$existing" ]; then
 		if [ "$(printf '%s\n' "$existing" | wc -l | tr -d ' ')" != 1 ]; then
-			die "more than one policy carries asset=\"$asset\" under app=loop-sessions; delete the extra before applying"
+			die "more than one policy carries asset=\"$asset\" under app=claude-code-recorder; delete the extra before applying"
 		fi
 		log "policy \"$display\": update ($(basename "$f"))"
 		mutate monitoring policies update "$existing" --policy-from-file="$rendered"

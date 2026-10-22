@@ -36,7 +36,7 @@
 # Usage from the repository root (the build context; the Dockerfile says why):
 #   gcloud builds submit --project=__PROJECT__ --region=__REGION__ \
 #     --config=examples/deploy-gcp/cloudbuild.yaml \
-#     --substitutions=_TAG=<sha>,_IMAGE=__REGION__-docker.pkg.dev/__PROJECT__/loop-sessions/server:<sha> .
+#     --substitutions=_TAG=<sha>,_IMAGE=__REGION__-docker.pkg.dev/__PROJECT__/claude-code-recorder/server:<sha> .
 steps:
   - name: gcr.io/cloud-builders/docker
     entrypoint: bash
@@ -60,7 +60,7 @@ images:
   - ${_IMAGE}
 substitutions:
   _TAG: dev
-  _IMAGE: __REGION__-docker.pkg.dev/__PROJECT__/loop-sessions/server:dev
+  _IMAGE: __REGION__-docker.pkg.dev/__PROJECT__/claude-code-recorder/server:dev
 options:
   logging: CLOUD_LOGGING_ONLY
 timeout: 1200s

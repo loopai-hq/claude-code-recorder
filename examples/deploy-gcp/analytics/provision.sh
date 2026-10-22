@@ -33,7 +33,7 @@
 #
 # The access model (bigquery/views.sql says why it is views and not row
 # access policies on the loaded tables):
-#   raw dataset (loop_sessions_raw)   WRITER: the export service account;
+#   raw dataset (claude_code_recorder_raw)   WRITER: the export service account;
 #                                     READER: --admin-grantee; OWNER:
 #                                     projectOwners and the creator, as
 #                                     BigQuery leaves them. The projectReaders
@@ -47,7 +47,7 @@
 #                                     the project reads the raw rows by
 #                                     inheritance (README, The access model;
 #                                     the owner decision is recorded there)
-#   governed dataset (loop_sessions)  READER: the members grantee (the two
+#   governed dataset (claude_code_recorder)  READER: the members grantee (the two
 #                                     Workspace domains by default) and the
 #                                     admin grantees; holds views only. The
 #                                     projectWriters entry (every project
@@ -83,7 +83,7 @@
 #                                       project-scoped)
 #   roles/cloudsql.client               on the project
 #   roles/logging.logWriter             on the project
-#   secretAccessor                      on loop-sessions-db-password
+#   secretAccessor                      on claude-code-recorder-db-password
 #   roles/run.invoker                   on the job (scheduler.sh; it is the
 #                                       schedule's identity)
 # and NOT roles/datacatalog.categoryFineGrainedReader, and nothing on the
@@ -96,7 +96,7 @@
 #   examples/deploy-gcp/analytics/provision.sh --tag=<image sha>
 #       --admin-grantee='user:a@x,user:b@y' --admin-emails='a@x,b@y,b@z'
 #       [--project=P] [--region=R]
-#       [--members-grantee='"domain:a", "domain:b"'] [--raw-dataset=loop_sessions_raw]
+#       [--members-grantee='"domain:a", "domain:b"'] [--raw-dataset=claude_code_recorder_raw]
 #
 #   --tag is the image tag the service runs (README section 7); the job is
 #   built from the same image. Re-run with the new tag after every deploy.
@@ -136,15 +136,15 @@ set -euo pipefail
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT="${PROJECT:-__PROJECT__}"
 REGION="${REGION:-__REGION__}"
-INSTANCE="${INSTANCE:-loop-sessions}"
+INSTANCE="${INSTANCE:-claude-code-recorder}"
 BUCKET="${BUCKET:-__ANALYTICS_BUCKET__}"
-DATASET="${DATASET:-loop_sessions}"
-RAW_DATASET="${RAW_DATASET:-loop_sessions_raw}"
-TAXONOMY="${TAXONOMY:-loop_sessions_pii}"
+DATASET="${DATASET:-claude_code_recorder}"
+RAW_DATASET="${RAW_DATASET:-claude_code_recorder_raw}"
+TAXONOMY="${TAXONOMY:-claude_code_recorder_pii}"
 POLICY_TAG_NAME="${POLICY_TAG_NAME:-pii_text}"
-SA_NAME="${SA_NAME:-loop-sessions-export}"
-JOB="${JOB:-loop-sessions-export}"
-DB_SECRET="${DB_SECRET:-loop-sessions-db-password}"
+SA_NAME="${SA_NAME:-claude-code-recorder-export}"
+JOB="${JOB:-claude-code-recorder-export}"
+DB_SECRET="${DB_SECRET:-claude-code-recorder-db-password}"
 TAG="${TAG:-}"
 # No defaults: both name people, and a default that names the wrong people
 # is worse here than no value at all. BigQuery silently drops an
@@ -504,7 +504,7 @@ if gc iam service-accounts describe "$SA" >/dev/null 2>&1; then
 	log "service account: exists"
 else
 	log "service account: create"
-	mutate iam service-accounts create "$SA_NAME" --display-name="loop-sessions analytics export job"
+	mutate iam service-accounts create "$SA_NAME" --display-name="claude-code-recorder analytics export job"
 fi
 mutate storage buckets add-iam-policy-binding "gs://$BUCKET" \
 	--member="serviceAccount:$SA" --role=roles/storage.objectAdmin
@@ -539,12 +539,12 @@ mutate secrets add-iam-policy-binding "$DB_SECRET" \
 # ---------------------------------------------------------------------------
 
 log "== dataset $PROJECT:$RAW_DATASET ($REGION, loaded by the job; readers come through the views)"
-raw_json="$(dataset_ensure "$RAW_DATASET" "loop-sessions analytics export, raw tables (examples/deploy-gcp/analytics). Not for querying: use the views in $DATASET; see examples/deploy-gcp/README.md, Analytics export.")"
+raw_json="$(dataset_ensure "$RAW_DATASET" "claude-code-recorder analytics export, raw tables (examples/deploy-gcp/analytics). Not for querying: use the views in $DATASET; see examples/deploy-gcp/README.md, Analytics export.")"
 raw_wanted="$(jq -n --argjson w "$(access_entry WRITER "serviceAccount:$SA")" --argjson a "$(admin_entries READER)" '[$w] + $a')"
 raw_json="$(dataset_apply "$RAW_DATASET" "$raw_json" "$raw_wanted" "$RAW_UNWANTED_GROUPS")"
 
 log "== dataset $PROJECT:$DATASET ($REGION, governed views)"
-governed_json="$(dataset_ensure "$DATASET" "loop-sessions analytics export, governed views over $RAW_DATASET (examples/deploy-gcp/analytics). Each view shows a reader their own rows, or every row to the admins; see examples/deploy-gcp/README.md, Analytics export.")"
+governed_json="$(dataset_ensure "$DATASET" "claude-code-recorder analytics export, governed views over $RAW_DATASET (examples/deploy-gcp/analytics). Each view shows a reader their own rows, or every row to the admins; see examples/deploy-gcp/README.md, Analytics export.")"
 governed_wanted="$(jq --argjson a "$(admin_entries READER)" '. + $a' <<<"$members_entries")"
 governed_json="$(dataset_apply "$DATASET" "$governed_json" "$governed_wanted" "$GOVERNED_UNWANTED_GROUPS")"
 : "$governed_json"

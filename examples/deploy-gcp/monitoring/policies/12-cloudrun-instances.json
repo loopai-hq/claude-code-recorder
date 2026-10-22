@@ -1,10 +1,10 @@
 {
-  "displayName": "loop-sessions: 8 or more Cloud Run instances for 15 min",
+  "displayName": "claude-code-recorder: 8 or more Cloud Run instances for 15 min",
   "combiner": "OR",
   "enabled": true,
   "severity": "WARNING",
   "userLabels": {
-    "app": "loop-sessions",
+    "app": "claude-code-recorder",
     "tier": "infra",
     "asset": "12-cloudrun-instances"
   },
@@ -12,7 +12,7 @@
     {
       "displayName": "active instances at 8 or more of maxScale 10",
       "conditionThreshold": {
-        "filter": "metric.type=\"run.googleapis.com/container/instance_count\" AND resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"loop-sessions\" AND metric.labels.state=\"active\"",
+        "filter": "metric.type=\"run.googleapis.com/container/instance_count\" AND resource.type=\"cloud_run_revision\" AND resource.labels.service_name=\"claude-code-recorder\" AND metric.labels.state=\"active\"",
         "aggregations": [
           {
             "alignmentPeriod": "300s",
@@ -34,7 +34,7 @@
   },
   "documentation": {
     "mimeType": "text/markdown",
-    "content": "The service is within two instances of its ceiling (maxScale 10) and has been for fifteen minutes. The baseline is one. Either the fleet is retrying in a storm (check the 5xx alerts and the heartbeat), or the database is slow and requests are queueing (check the Cloud SQL connection and CPU alerts), or somebody is walking the corpus through the read API.\n\n`gcloud run services describe loop-sessions --region=<region> --format='value(status.traffic)'` for the revision serving; `gcloud logging read 'resource.labels.service_name=\"loop-sessions\" AND jsonPayload.message=\"ingest batch\"' --freshness=15m --format='value(jsonPayload.device_id)' | sort | uniq -c | sort -rn | head` for who is sending.\n\nRunbook: examples/deploy-gcp/README.md#runbook-ingest-5xx",
+    "content": "The service is within two instances of its ceiling (maxScale 10) and has been for fifteen minutes. The baseline is one. Either the fleet is retrying in a storm (check the 5xx alerts and the heartbeat), or the database is slow and requests are queueing (check the Cloud SQL connection and CPU alerts), or somebody is walking the corpus through the read API.\n\n`gcloud run services describe claude-code-recorder --region=<region> --format='value(status.traffic)'` for the revision serving; `gcloud logging read 'resource.labels.service_name=\"claude-code-recorder\" AND jsonPayload.message=\"ingest batch\"' --freshness=15m --format='value(jsonPayload.device_id)' | sort | uniq -c | sort -rn | head` for who is sending.\n\nRunbook: examples/deploy-gcp/README.md#runbook-ingest-5xx",
     "links": [
       {
         "displayName": "Runbook: ingest 5xx",

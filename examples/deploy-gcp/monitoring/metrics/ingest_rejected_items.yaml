@@ -2,11 +2,11 @@
 # item rejected". A rejection is final on the laptop (the agent quarantines
 # the item), so this is the count of captured events that will never be
 # stored. Cardinality is bounded by the reason enum and the event type set.
-name: loop_sessions/ingest_rejected_items
+name: claude_code_recorder/ingest_rejected_items
 description: One per permanently rejected item, labelled by reason and event type (server line "ingest item rejected")
 filter: >-
   resource.type="cloud_run_revision"
-  AND resource.labels.service_name="loop-sessions"
+  AND resource.labels.service_name="claude-code-recorder"
   AND log_id("run.googleapis.com/stdout")
   AND jsonPayload.message="ingest item rejected"
 metricDescriptor:

@@ -1,10 +1,10 @@
 {
-  "displayName": "loop-sessions: 3 or more machines silent for a day",
+  "displayName": "claude-code-recorder: 3 or more machines silent for a day",
   "combiner": "OR",
   "enabled": true,
   "severity": "WARNING",
   "userLabels": {
-    "app": "loop-sessions",
+    "app": "claude-code-recorder",
     "tier": "fleet",
     "asset": "06a-fleet-silent"
   },
@@ -12,7 +12,7 @@
     {
       "displayName": "machines silent for over a day at or above 3 for 30 min",
       "conditionThreshold": {
-        "filter": "metric.type=\"logging.googleapis.com/user/loop_sessions/fleet_silent\" AND resource.type=\"cloud_run_revision\"",
+        "filter": "metric.type=\"logging.googleapis.com/user/claude_code_recorder/fleet_silent\" AND resource.type=\"cloud_run_revision\"",
         "aggregations": [
           {
             "alignmentPeriod": "300s",
@@ -34,7 +34,7 @@
   },
   "documentation": {
     "mimeType": "text/markdown",
-    "content": "Three or more enrolled laptops reported once and have not for a day. One or two is a weekend; three is a pattern, and the pattern that matters is a release whose daemon dies on start. The fleet-wide heartbeat (06b) covers the case where nobody reports at all.\n\nWho and since when: `gcloud logging read 'resource.labels.service_name=\"loop-sessions\" AND jsonPayload.message=\"fleet silent\"' --freshness=15m --format='value(jsonPayload.email,jsonPayload.hours,jsonPayload.last_worst)'`. If they share an `agent_version` on their last `fleet condition` lines, that build is the suspect: check the release (README 7b) and the upgrade lag alert. Otherwise ping the people; a laptop that is asleep, off or without its daemon looks the same from here. Past 72 hours, `loop-sessions install` on the machine puts the daemon back.\n\nRunbook: examples/deploy-gcp/README.md#runbook-silent",
+    "content": "Three or more enrolled laptops reported once and have not for a day. One or two is a weekend; three is a pattern, and the pattern that matters is a release whose daemon dies on start. The fleet-wide heartbeat (06b) covers the case where nobody reports at all.\n\nWho and since when: `gcloud logging read 'resource.labels.service_name=\"claude-code-recorder\" AND jsonPayload.message=\"fleet silent\"' --freshness=15m --format='value(jsonPayload.email,jsonPayload.hours,jsonPayload.last_worst)'`. If they share an `agent_version` on their last `fleet condition` lines, that build is the suspect: check the release (README 7b) and the upgrade lag alert. Otherwise ping the people; a laptop that is asleep, off or without its daemon looks the same from here. Past 72 hours, `claude-code-recorder install` on the machine puts the daemon back.\n\nRunbook: examples/deploy-gcp/README.md#runbook-silent",
     "links": [
       {
         "displayName": "Runbook: silent",

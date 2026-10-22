@@ -3,11 +3,11 @@
 # and the events still committed) or behind a 5xx on the skill route. The
 # sessions are queued for the dirty tick either way; the count is what
 # alerts, the line carries the error.
-name: loop_sessions/skill_store_error
+name: claude_code_recorder/skill_store_error
 description: Skill invocation writes the store failed (server line "skill invocation store failed")
 filter: >-
   resource.type="cloud_run_revision"
-  AND resource.labels.service_name="loop-sessions"
+  AND resource.labels.service_name="claude-code-recorder"
   AND log_id("run.googleapis.com/stdout")
   AND jsonPayload.message="skill invocation store failed"
 metricDescriptor:
