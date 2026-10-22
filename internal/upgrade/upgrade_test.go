@@ -321,7 +321,7 @@ func TestADevelopmentBuildIsNeverReplaced(t *testing.T) {
 // with no working opt-out is one people delete rather than configure.
 func TestTheEnvironmentCanTurnItOff(t *testing.T) {
 	m := newMachine(t)
-	t.Setenv("LOOP_SESSIONS_NO_UPGRADE", "1")
+	t.Setenv("CLAUDE_CODE_RECORDER_NO_UPGRADE", "1")
 	before := m.onDisk()
 
 	res, err := Run(context.Background(), m.opts())

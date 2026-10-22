@@ -118,7 +118,7 @@ jobs:
           cache: true
       - name: integration suite on postgres ${{ matrix.postgres }}
         env:
-          LOOP_SESSIONS_TEST_DSN: postgres://postgres:test@127.0.0.1:5432/claude_code_recorder_test
+          CLAUDE_CODE_RECORDER_TEST_DSN: postgres://postgres:test@127.0.0.1:5432/claude_code_recorder_test
         run: go test -race -tags integration ./server/...
 
   build:

@@ -16,7 +16,7 @@ import (
 // can be looked at in a browser without a database, a Google account or a
 // deploy, and so screenshots.cjs has something to photograph.
 //
-//	LOOP_WEB_DEMO=:8099 go test ./server/web -run TestServeDemo -timeout 0
+//	CLAUDE_CODE_RECORDER_WEB_DEMO=:8099 go test ./server/web -run TestServeDemo -timeout 0
 //
 // It is a test rather than a command because the fixtures it needs already
 // exist here, and because a second binary in the repo would have to be kept
@@ -30,9 +30,9 @@ import (
 // placeholder: people on example.com, repositories under acme/, home
 // directories under /home.
 func TestServeDemo(t *testing.T) {
-	addr := os.Getenv("LOOP_WEB_DEMO")
+	addr := os.Getenv("CLAUDE_CODE_RECORDER_WEB_DEMO")
 	if addr == "" {
-		t.Skip("set LOOP_WEB_DEMO=:8099 to serve the dashboard against fixtures")
+		t.Skip("set CLAUDE_CODE_RECORDER_WEB_DEMO=:8099 to serve the dashboard against fixtures")
 	}
 
 	f := newFake()
@@ -155,7 +155,7 @@ func demoSessions(f *fakeData, now time.Time) {
 		{
 			id: "s-10", who: "jordan", repo: "acme/tools", branch: "main",
 			prompt: "how do I run the dashboard locally against the fake",
-			answer: "Set LOOP_WEB_DEMO to a port and run TestServeDemo; it serves the fixtures with no database behind it.",
+			answer: "Set CLAUDE_CODE_RECORDER_WEB_DEMO to a port and run TestServeDemo; it serves the fixtures with no database behind it.",
 			ago:    90 * time.Hour, length: 9 * time.Minute, turns: 2, tools: 4,
 			tokensIn: 12_000, tokensOut: 2_400, harness: "2.1.3",
 		},

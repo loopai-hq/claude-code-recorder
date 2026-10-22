@@ -7,7 +7,7 @@ package app
 // session with the transcript path built from its cwd, and a second ask
 // inside the hour is refused.
 //
-//	LOOP_SESSIONS_TEST_DSN=postgres:///claude_code_recorder_test go test -tags integration ./server/app/...
+//	CLAUDE_CODE_RECORDER_TEST_DSN=postgres:///claude_code_recorder_test go test -tags integration ./server/app/...
 
 import (
 	"context"
@@ -31,9 +31,9 @@ import (
 )
 
 func TestIntegrationRepairRouteNamesTheDevicesAnswerlessSessions(t *testing.T) {
-	dsn := os.Getenv("LOOP_SESSIONS_TEST_DSN")
+	dsn := os.Getenv("CLAUDE_CODE_RECORDER_TEST_DSN")
 	if dsn == "" {
-		t.Skip("LOOP_SESSIONS_TEST_DSN is unset")
+		t.Skip("CLAUDE_CODE_RECORDER_TEST_DSN is unset")
 	}
 	ctx := context.Background()
 	schema := fmt.Sprintf("claude_code_recorder_repair_%d", time.Now().UnixNano())

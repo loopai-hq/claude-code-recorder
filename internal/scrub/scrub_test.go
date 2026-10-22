@@ -664,7 +664,7 @@ func TestScrubClaudeCodeRecorderTokens(t *testing.T) {
 		leak string
 		keep string
 	}{
-		{name: "device token in an env line", in: "LOOP_SESSIONS_TOKEN=" + device, leak: device[:12], keep: "LOOP_SESSIONS_TOKEN="},
+		{name: "device token in an env line", in: "CLAUDE_CODE_RECORDER_TOKEN=" + device, leak: device[:12], keep: "CLAUDE_CODE_RECORDER_TOKEN="},
 		{name: "source token in a curl config", in: `header = "Authorization: Bearer ` + source + `"`, leak: source[:12], keep: "Authorization: Bearer "},
 		{name: "source token inside escaped JSON", in: `{"text":"config:\n-H \"Authorization: Bearer ` + source + `\"\n"}`, leak: source[:12], keep: `{"text":"config:\n-H \"Authorization: Bearer `},
 		{name: "device token in prose", in: "the laptop enrolled with " + device + " yesterday", leak: device[:12], keep: " yesterday"},

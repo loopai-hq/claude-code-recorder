@@ -13,7 +13,7 @@ package store
 // this code makes about Postgres rather than about itself.
 //
 //	createdb claude_code_recorder_test
-//	LOOP_SESSIONS_TEST_DSN=postgres:///claude_code_recorder_test go test -tags integration ./server/store/...
+//	CLAUDE_CODE_RECORDER_TEST_DSN=postgres:///claude_code_recorder_test go test -tags integration ./server/store/...
 
 import (
 	"context"

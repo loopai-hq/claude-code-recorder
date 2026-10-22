@@ -20,7 +20,7 @@ func anchorFixture(t *testing.T, answerPresent bool) (stateDir, transcript strin
 	dir := t.TempDir()
 	// The anchorer logs through logf, which writes under the client home;
 	// point it at this test's directory so the real agent.log stays clean.
-	t.Setenv("LOOP_SESSIONS_HOME", dir)
+	t.Setenv("CLAUDE_CODE_RECORDER_HOME", dir)
 	stateDir = filepath.Join(dir, "state")
 	if err := os.MkdirAll(stateDir, 0o755); err != nil {
 		t.Fatal(err)

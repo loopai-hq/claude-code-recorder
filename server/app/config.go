@@ -231,7 +231,7 @@ const (
 	// The Slack bot token, xoxb-. Optional: unset means no mirror at all, which
 	// is the shipped default and is not an error.
 	envSlackBotToken      = "SLACK_BOT_TOKEN"
-	envSlackSigningSecret = "LOOP_SESSIONS_SLACK_SIGNING_SECRET"
+	envSlackSigningSecret = "CLAUDE_CODE_RECORDER_SLACK_SIGNING_SECRET"
 )
 
 const (

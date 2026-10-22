@@ -19,11 +19,11 @@ import (
 //
 // Same gate as the store's integration tests:
 //
-//	LOOP_SESSIONS_TEST_DSN=postgres:///claude_code_recorder_test go test -tags integration ./server/app/...
+//	CLAUDE_CODE_RECORDER_TEST_DSN=postgres:///claude_code_recorder_test go test -tags integration ./server/app/...
 func TestIntegrationEveryPooledConnectionCarriesTheStatementTimeout(t *testing.T) {
-	dsn := os.Getenv("LOOP_SESSIONS_TEST_DSN")
+	dsn := os.Getenv("CLAUDE_CODE_RECORDER_TEST_DSN")
 	if dsn == "" {
-		t.Skip("LOOP_SESSIONS_TEST_DSN is unset")
+		t.Skip("CLAUDE_CODE_RECORDER_TEST_DSN is unset")
 	}
 	ctx := context.Background()
 

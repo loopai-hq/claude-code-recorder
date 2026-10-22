@@ -229,10 +229,10 @@ func (c *Capturer) translate(h HookEvent) []event.Event {
 			e.Launcher = c.launcher()
 		}
 		// The per-session Slack mirror request rides the launching shell's
-		// environment: LOOP_SESSIONS_SLACK=on claude ... is the whole UX.
+		// environment: CLAUDE_CODE_RECORDER_SLACK=on claude ... is the whole UX.
 		// Carried as a request for the server to intersect with the owner's
 		// preferences, never acted on client-side.
-		e.MirrorRequest = mirrorRequest(os.Getenv("LOOP_SESSIONS_SLACK"))
+		e.MirrorRequest = mirrorRequest(os.Getenv("CLAUDE_CODE_RECORDER_SLACK"))
 		if e.MirrorRequest == "" && c.defaultMirror != nil {
 			// The machine's standing (or one-shot) answer, set by
 			// `claude-code-recorder mirror use`. Env wins because it is the more

@@ -30,9 +30,9 @@ import (
 // other's machines.
 func newFleetSchema(t *testing.T) (*pgxpool.Pool, *store.Store) {
 	t.Helper()
-	dsn := os.Getenv("LOOP_SESSIONS_TEST_DSN")
+	dsn := os.Getenv("CLAUDE_CODE_RECORDER_TEST_DSN")
 	if dsn == "" {
-		t.Skip("LOOP_SESSIONS_TEST_DSN is unset")
+		t.Skip("CLAUDE_CODE_RECORDER_TEST_DSN is unset")
 	}
 	ctx := context.Background()
 	schema := fmt.Sprintf("claude_code_recorder_fleet_%d", time.Now().UnixNano())

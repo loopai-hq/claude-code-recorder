@@ -15,7 +15,7 @@ import (
 // daemon of another build is stopped, one of this build is left alone.
 func TestReapStaleStopsDaemonsOfOtherBuilds(t *testing.T) {
 	home := t.TempDir()
-	t.Setenv("LOOP_SESSIONS_HOME", home)
+	t.Setenv("CLAUDE_CODE_RECORDER_HOME", home)
 	prevVersion := Version
 	Version = "test-build"
 	defer func() { Version = prevVersion }()

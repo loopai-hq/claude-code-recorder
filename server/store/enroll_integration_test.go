@@ -14,7 +14,7 @@ package store
 // is a property of the SQL, and the SQL is what a unit test cannot execute.
 //
 //	createdb claude_code_recorder_test
-//	LOOP_SESSIONS_TEST_DSN=postgres:///claude_code_recorder_test go test -tags integration ./server/store/...
+//	CLAUDE_CODE_RECORDER_TEST_DSN=postgres:///claude_code_recorder_test go test -tags integration ./server/store/...
 
 import (
 	"context"

@@ -28,7 +28,7 @@ import (
 // reimplementation. This file is where those claims are settled.
 //
 //	docker run -d -e POSTGRES_PASSWORD=test -e POSTGRES_DB=claude_code_recorder_test -p 55433:5432 postgres:16
-//	LOOP_SESSIONS_TEST_DSN=postgres://postgres:test@127.0.0.1:55433/claude_code_recorder_test \
+//	CLAUDE_CODE_RECORDER_TEST_DSN=postgres://postgres:test@127.0.0.1:55433/claude_code_recorder_test \
 //	  go test -tags integration ./server/slack/...
 //
 // Each run works inside its own schema and drops it afterwards, so a shared
@@ -38,9 +38,9 @@ import (
 var pool *pgxpool.Pool
 
 func TestMain(m *testing.M) {
-	dsn := os.Getenv("LOOP_SESSIONS_TEST_DSN")
+	dsn := os.Getenv("CLAUDE_CODE_RECORDER_TEST_DSN")
 	if dsn == "" {
-		fmt.Fprintln(os.Stderr, "LOOP_SESSIONS_TEST_DSN is unset; skipping integration tests")
+		fmt.Fprintln(os.Stderr, "CLAUDE_CODE_RECORDER_TEST_DSN is unset; skipping integration tests")
 		os.Exit(0)
 	}
 	ctx := context.Background()

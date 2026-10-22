@@ -1,11 +1,11 @@
 #!/bin/sh
 #
-# loop-sessions uninstaller.
+# claude-code-recorder uninstaller.
 #
 #   curl -fsSL https://sessions.example.com/dl/uninstall.sh | sh
 #
 # (replace https://sessions.example.com/dl with the base URL your release
-# files are served from, the same LOOP_SESSIONS_BASE_URL the installer used.)
+# files are served from, the same CLAUDE_CODE_RECORDER_BASE_URL the installer used.)
 #
 # This removes the agent and prints every path it deletes. Your captured data is
 # left in place by default, and the command to remove that too is printed at the
@@ -25,11 +25,16 @@
 
 set -eu
 
-BIN_DIR="${LOOP_SESSIONS_BIN_DIR:-$HOME/.local/bin}"
-BIN_NAME="loop-sessions"
-DATA_DIR="$HOME/.loop/sessions"
+BIN_DIR="${CLAUDE_CODE_RECORDER_BIN_DIR:-$HOME/.local/bin}"
+BIN_NAME="claude-code-recorder"
+DATA_DIR="$HOME/.claude-code-recorder"
 AGENT_DIR="$HOME/Library/LaunchAgents"
-HOOK_MARKER="#loop-sessions"
+HOOK_MARKER="#claude-code-recorder"
+# What the agent wrote while it was called loop-sessions. The binary removes
+# entries under either marker; these are so this script notices them too and
+# names the old data directory when a new install never moved it.
+LEGACY_HOOK_MARKER="#loop-sessions"
+LEGACY_DATA_DIR="$HOME/.loop/sessions"
 
 PURGE=0
 DRY_RUN=0
@@ -100,7 +105,7 @@ settings_file() {
 
 hooks_present() {
 	sf="$(settings_file)"
-	[ -f "$sf" ] && grep -q "$HOOK_MARKER" "$sf" 2>/dev/null
+	[ -f "$sf" ] && grep -q -e "$HOOK_MARKER" -e "$LEGACY_HOOK_MARKER" "$sf" 2>/dev/null
 }
 
 # ---------------------------------------------------------------- hooks
@@ -149,7 +154,7 @@ check_orphan_hooks() {
 	if [ "$FORCE" = "1" ] || [ "$DRY_RUN" = "1" ]; then
 		say ""
 		say "${B}warning:${R} hook entries remain in ${sf}."
-		say "  Remove every line containing ${HOOK_MARKER}, or the harness will try to"
+		say "  Remove every line containing ${HOOK_MARKER} or ${LEGACY_HOOK_MARKER}, or the harness will try to"
 		say "  run a command that no longer exists on each event."
 		return 0
 	fi
@@ -160,7 +165,7 @@ check_orphan_hooks() {
 		"" \
 		"Fix it one of these ways:" \
 		"  ${BIN_DIR}/${BIN_NAME} uninstall     remove the hook entries, then re-run this" \
-		"  edit ${sf} and delete entries containing ${HOOK_MARKER}" \
+		"  edit ${sf} and delete entries containing ${HOOK_MARKER} or ${LEGACY_HOOK_MARKER}" \
 		"" \
 		"Or re-run with --force to remove the binary anyway and clean up by hand."
 }
@@ -172,16 +177,17 @@ remove_launch_agent() {
 		return 0
 	fi
 
-	# Matched on two patterns rather than one fixed label, so a plist named
-	# differently by a future release is still found. find is used instead of two
-	# globs because a name matching BOTH patterns would otherwise be processed
-	# twice — harmless when deleting, but it made --dry-run over-report, and
-	# --dry-run is the output someone reads to decide whether to trust this.
+	# Matched on two patterns rather than one fixed label: the current name
+	# and the one a release before the rename would have used. find is used
+	# instead of two globs because a name matching BOTH patterns would
+	# otherwise be processed twice — harmless when deleting, but it made
+	# --dry-run over-report, and --dry-run is the output someone reads to
+	# decide whether to trust this.
 	#
 	# The pattern stays specific. A broader one such as *loop*.plist would also
 	# match unrelated agents, and this function deletes what it finds.
 	plists="$(find "$AGENT_DIR" -maxdepth 1 -type f \
-		\( -name '*loop-sessions*.plist' -o -name '*agent-sessions*.plist' \) 2>/dev/null || true)"
+		\( -name '*claude-code-recorder*.plist' -o -name '*loop-sessions*.plist' \) 2>/dev/null || true)"
 	[ -n "$plists" ] || return 0
 
 	found=0
@@ -237,30 +243,37 @@ remove_binary() {
 }
 
 data_summary() {
-	if [ ! -d "$DATA_DIR" ]; then
+	if [ ! -d "$1" ]; then
 		printf '%s\n' "none"
 		return 0
 	fi
-	dsize="$(du -sh "$DATA_DIR" 2>/dev/null | awk '{print $1}')"
-	dcount="$(find "$DATA_DIR" -type f 2>/dev/null | wc -l | tr -d ' ')"
+	dsize="$(du -sh "$1" 2>/dev/null | awk '{print $1}')"
+	dcount="$(find "$1" -type f 2>/dev/null | wc -l | tr -d ' ')"
 	printf '%s\n' "${dsize:-unknown} across ${dcount} files"
 }
 
-handle_data() {
-	if [ ! -d "$DATA_DIR" ]; then
+# handle_data_dir reports or removes one data directory. Two are checked:
+# the current one, and the old binary's when no new install ever moved it.
+handle_data_dir() {
+	if [ ! -d "$1" ]; then
 		return 0
 	fi
 
 	if [ "$PURGE" = "1" ]; then
 		step "Captured data and configuration (--purge)"
-		say "    ${DATA_DIR} holds $(data_summary)"
-		remove "$DATA_DIR"
+		say "    $1 holds $(data_summary "$1")"
+		remove "$1"
 		return 0
 	fi
 
 	step "Captured data and configuration"
-	say "    kept: ${DATA_DIR}"
-	say "    ($(data_summary), including anything not yet uploaded)"
+	say "    kept: $1"
+	say "    ($(data_summary "$1"), including anything not yet uploaded)"
+}
+
+handle_data() {
+	handle_data_dir "$DATA_DIR"
+	handle_data_dir "$LEGACY_DATA_DIR"
 }
 
 farewell() {
@@ -272,18 +285,20 @@ farewell() {
 	fi
 
 	if [ "$REMOVED" = "0" ]; then
-		say "${B}Nothing to remove.${R} loop-sessions does not appear to be installed."
+		say "${B}Nothing to remove.${R} claude-code-recorder does not appear to be installed."
 		say ""
 		return 0
 	fi
 
 	say "${B}Removed.${R} ${REMOVED} path(s) deleted, each listed above."
 	say ""
-	if [ "$PURGE" != "1" ] && [ -d "$DATA_DIR" ]; then
+	if [ "$PURGE" != "1" ] && { [ -d "$DATA_DIR" ] || [ -d "$LEGACY_DATA_DIR" ]; }; then
 		say "Your captured sessions and configuration are still on this machine."
 		say "To delete those too:"
 		say ""
-		say "  rm -rf ${DATA_DIR}"
+		for dir in "$DATA_DIR" "$LEGACY_DATA_DIR"; do
+			[ -d "$dir" ] && say "  rm -rf ${dir}"
+		done
 		say ""
 	fi
 }
@@ -291,7 +306,7 @@ farewell() {
 # ---------------------------------------------------------------- main
 
 say ""
-say "${B}loop-sessions uninstaller${R}"
+say "${B}claude-code-recorder uninstaller${R}"
 if [ "$DRY_RUN" = "1" ]; then
 	say "(dry run: nothing will be changed)"
 fi

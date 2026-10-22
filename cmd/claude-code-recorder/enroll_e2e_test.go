@@ -233,12 +233,12 @@ func main() {
 `
 
 // installEnv runs the agent against a private home and a private browser. HOME
-// is redirected as well as LOOP_SESSIONS_HOME because install scans the home
+// is redirected as well as CLAUDE_CODE_RECORDER_HOME because install scans the home
 // directory for sessions before it does anything else.
 func installEnv(home, browser string) []string {
 	env := []string{
 		"HOME=" + home,
-		"LOOP_SESSIONS_HOME=" + config.Paths{Home: home}.Root(),
+		"CLAUDE_CODE_RECORDER_HOME=" + config.Paths{Home: home}.Root(),
 		"PATH=" + browser + string(os.PathListSeparator) + os.Getenv("PATH"),
 	}
 	for _, keep := range []string{"GOPATH", "GOCACHE", "GOMODCACHE", "TMPDIR"} {

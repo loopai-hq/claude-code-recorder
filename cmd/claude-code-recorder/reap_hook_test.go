@@ -82,7 +82,7 @@ func TestSessionEndMarksEvenWhenTheSessionIsNotCaptured(t *testing.T) {
 // nothing at all.
 func TestAnUnconfiguredMachineIsLeftAlone(t *testing.T) {
 	home := t.TempDir()
-	t.Setenv("LOOP_SESSIONS_HOME", home)
+	t.Setenv("CLAUDE_CODE_RECORDER_HOME", home)
 	restore := stubSpawn(func(config.Paths, capture.HookEvent) error {
 		t.Error("an unconfigured machine started a daemon")
 		return nil

@@ -32,7 +32,7 @@ type laptop struct {
 func newLaptop(t *testing.T, installedAgo time.Duration) *laptop {
 	t.Helper()
 	home := t.TempDir()
-	t.Setenv("LOOP_SESSIONS_HOME", home)
+	t.Setenv("CLAUDE_CODE_RECORDER_HOME", home)
 
 	p := config.Paths{}
 	cfg := config.Defaults()

@@ -174,7 +174,7 @@ type Paths struct{ Home string }
 
 // HomeEnv names the environment variable that relocates the client's whole
 // state directory. Tests and a second install on one machine use it.
-const HomeEnv = "LOOP_SESSIONS_HOME"
+const HomeEnv = "CLAUDE_CODE_RECORDER_HOME"
 
 // rootName is the client's directory under the home directory.
 const rootName = ".claude-code-recorder"

@@ -481,7 +481,7 @@ func TestDeliveryRefusesToStartWithoutWhatItNeeds(t *testing.T) {
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
 			home := t.TempDir()
-			t.Setenv("LOOP_SESSIONS_HOME", home)
+			t.Setenv("CLAUDE_CODE_RECORDER_HOME", home)
 			if tc.token != "" {
 				writeFile(t, filepath.Join(home, "device.token"), tc.token)
 			}
@@ -511,7 +511,7 @@ func stubSpawn(f func(config.Paths, capture.HookEvent) error) func() {
 func enrolledHome(t *testing.T, endpoint string) string {
 	t.Helper()
 	home := t.TempDir()
-	t.Setenv("LOOP_SESSIONS_HOME", home)
+	t.Setenv("CLAUDE_CODE_RECORDER_HOME", home)
 
 	cfg := config.Defaults()
 	cfg.Email = "dev@example.com"

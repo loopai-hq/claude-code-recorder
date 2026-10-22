@@ -34,7 +34,7 @@ func writeCodexRollout(t *testing.T, root, day, name, id string) string {
 // were never repaired.
 func TestACodexRepairEntryIsResolvedBySessionID(t *testing.T) {
 	home := t.TempDir()
-	t.Setenv("LOOP_SESSIONS_HOME", filepath.Join(home, "state"))
+	t.Setenv("CLAUDE_CODE_RECORDER_HOME", filepath.Join(home, "state"))
 	codexRoot := filepath.Join(home, ".codex", "sessions")
 	const want = "019fd644-3a15-7c60-a3d4-01d8df6849a0"
 	const other = "11111111-1111-4111-8111-111111111111"
@@ -87,7 +87,7 @@ func TestACodexRepairEntryIsResolvedBySessionID(t *testing.T) {
 // searched for a Codex rollout.
 func TestCodexRootsComeFromDiscoveryAndTheConfig(t *testing.T) {
 	home := t.TempDir()
-	t.Setenv("LOOP_SESSIONS_HOME", filepath.Join(home, "state"))
+	t.Setenv("CLAUDE_CODE_RECORDER_HOME", filepath.Join(home, "state"))
 	p := config.Paths{Home: home}
 	claude := filepath.Join(home, ".claude", "projects")
 	codex := filepath.Join(home, ".codex", "sessions")
