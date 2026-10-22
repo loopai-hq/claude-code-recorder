@@ -10,7 +10,7 @@ package store
 // stays hermetic and can be run on a laptop with no database.
 //
 //	createdb claude_code_recorder_test
-//	LOOP_SESSIONS_TEST_DSN=postgres:///claude_code_recorder_test go test -tags integration ./server/store/...
+//	CLAUDE_CODE_RECORDER_TEST_DSN=postgres:///claude_code_recorder_test go test -tags integration ./server/store/...
 //
 // Each run works inside its own schema and drops it afterwards, so a shared
 // development database is safe to point at.
@@ -32,9 +32,9 @@ import (
 var pool *pgxpool.Pool
 
 func TestMain(m *testing.M) {
-	dsn := os.Getenv("LOOP_SESSIONS_TEST_DSN")
+	dsn := os.Getenv("CLAUDE_CODE_RECORDER_TEST_DSN")
 	if dsn == "" {
-		fmt.Fprintln(os.Stderr, "LOOP_SESSIONS_TEST_DSN is unset; skipping integration tests")
+		fmt.Fprintln(os.Stderr, "CLAUDE_CODE_RECORDER_TEST_DSN is unset; skipping integration tests")
 		os.Exit(0)
 	}
 	ctx := context.Background()

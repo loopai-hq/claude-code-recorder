@@ -74,7 +74,7 @@ GOFLAGS    := -trimpath
 # Stamped into the binary so an installed agent works with no flags. It is not
 # a secret: it is a URL people paste into a browser anyway. There is no default:
 # set ENDPOINT to the base URL of the server you run, and a binary built
-# without one asks for --endpoint or LOOP_SESSIONS_ENDPOINT at install time
+# without one asks for --endpoint or CLAUDE_CODE_RECORDER_ENDPOINT at install time
 # (cmd/claude-code-recorder/setup.go, resolveEndpoint) rather than silently enrolling
 # against a placeholder host:
 #

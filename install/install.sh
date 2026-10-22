@@ -1,11 +1,11 @@
 #!/bin/sh
 #
-# loop-sessions installer.
+# claude-code-recorder installer.
 #
 #   curl -fsSL https://sessions.example.com/install.sh | sh
 #
 # (replace https://sessions.example.com with the base URL of the server your
-# organisation runs; the script needs LOOP_SESSIONS_BASE_URL to name where
+# organisation runs; the script needs CLAUDE_CODE_RECORDER_BASE_URL to name where
 # releases live, see below.)
 #
 # This installs a binary that reads your local AI coding session transcripts, so
@@ -15,12 +15,12 @@
 # executable, and if verification fails the file is deleted rather than kept.
 #
 # Environment:
-#   LOOP_SESSIONS_BASE_URL   where releases live      (REQUIRED, no default;
+#   CLAUDE_CODE_RECORDER_BASE_URL   where releases live      (REQUIRED, no default;
 #                            e.g. https://sessions.example.com/dl)
-#   LOOP_SESSIONS_VERSION    version or "latest"      (default latest)
-#   LOOP_SESSIONS_BIN_DIR    install location         (default ~/.local/bin)
-#   LOOP_SESSIONS_NO_ENROLL  set to 1 to skip sign-in
-#   LOOP_SESSIONS_ENDPOINT   not read here; inherited by `loop-sessions install`
+#   CLAUDE_CODE_RECORDER_VERSION    version or "latest"      (default latest)
+#   CLAUDE_CODE_RECORDER_BIN_DIR    install location         (default ~/.local/bin)
+#   CLAUDE_CODE_RECORDER_NO_ENROLL  set to 1 to skip sign-in
+#   CLAUDE_CODE_RECORDER_ENDPOINT   not read here; inherited by `claude-code-recorder install`
 #                            when this script runs it, which a binary with no
 #                            stamped endpoint (a GitHub release) needs
 #
@@ -33,14 +33,19 @@ set -eu
 # deployment's address baked into everybody else's installer, failing at the
 # first fetch for anyone who did not edit it. The base must serve
 # <base>/<channel>/SHA256SUMS, <base>/<channel>/latest.json and
-# <base>/<channel>/loop-sessions_<os>_<arch> (the layout `make release`
+# <base>/<channel>/claude-code-recorder_<os>_<arch> (the layout `make release`
 # produces); the server's own /dl proxy is one such host. It is checked in
 # preflight so a missing value is reported before anything is downloaded.
-BASE_URL="${LOOP_SESSIONS_BASE_URL:-}"
-CHANNEL="${LOOP_SESSIONS_VERSION:-latest}"
-BIN_DIR="${LOOP_SESSIONS_BIN_DIR:-$HOME/.local/bin}"
-BIN_NAME="loop-sessions"
-DATA_DIR="$HOME/.loop/sessions"
+BASE_URL="${CLAUDE_CODE_RECORDER_BASE_URL:-}"
+CHANNEL="${CLAUDE_CODE_RECORDER_VERSION:-latest}"
+BIN_DIR="${CLAUDE_CODE_RECORDER_BIN_DIR:-$HOME/.local/bin}"
+BIN_NAME="claude-code-recorder"
+DATA_DIR="$HOME/.claude-code-recorder"
+# Where the agent kept its state while it was called loop-sessions. Nothing
+# here touches it: `claude-code-recorder install` (step 4) moves it to
+# DATA_DIR whole and replaces the old hooks, so the person signs in nowhere
+# and loses nothing queued. Named below so they know to expect that.
+LEGACY_DATA_DIR="$HOME/.loop/sessions"
 
 TMP_DIR=""
 DL_TOOL=""
@@ -90,9 +95,9 @@ trap cleanup EXIT INT TERM
 # unsupported machine is told so immediately rather than after a 20 MB transfer.
 preflight() {
 	if [ -z "$BASE_URL" ]; then
-		die "LOOP_SESSIONS_BASE_URL is not set, so there is nowhere to download from." \
+		die "CLAUDE_CODE_RECORDER_BASE_URL is not set, so there is nowhere to download from." \
 			"Set it to the base URL your release files are served from, for example:" \
-			"  LOOP_SESSIONS_BASE_URL=https://sessions.example.com/dl sh install.sh" \
+			"  CLAUDE_CODE_RECORDER_BASE_URL=https://sessions.example.com/dl sh install.sh" \
 			"That base must serve <base>/latest/SHA256SUMS (see \`make release\`)."
 	fi
 	BASE_URL="${BASE_URL%/}"
@@ -102,7 +107,7 @@ preflight() {
 	Darwin) OS="darwin" ;;
 	Linux) OS="linux" ;;
 	*)
-		die "loop-sessions runs on macOS and Linux; this machine reports \"$uname_s\"." \
+		die "claude-code-recorder runs on macOS and Linux; this machine reports \"$uname_s\"." \
 			"If that looks wrong, report what you are running to whoever operates your server."
 		;;
 	esac
@@ -112,7 +117,7 @@ preflight() {
 	arm64 | aarch64) ARCH="arm64" ;;
 	x86_64 | amd64) ARCH="amd64" ;;
 	*)
-		die "No loop-sessions build exists for this processor (\"$uname_m\")." \
+		die "No claude-code-recorder build exists for this processor (\"$uname_m\")." \
 			"Supported: Apple Silicon and Intel Macs, and 64-bit Linux on Intel or ARM."
 		;;
 	esac
@@ -188,7 +193,7 @@ sha256_of() {
 
 announce() {
 	say ""
-	say "${B}loop-sessions installer${R}"
+	say "${B}claude-code-recorder installer${R}"
 	say ""
 	say "This will:"
 	say "  1. download ${ASSET} from ${BASE_URL}/${CHANNEL}"
@@ -199,11 +204,17 @@ announce() {
 	say "It will not use sudo, and will not touch anything outside your home"
 	say "directory. Your existing settings and captured data in ${DATA_DIR}"
 	say "are left alone."
+	if [ -d "$LEGACY_DATA_DIR" ]; then
+		say ""
+		say "A loop-sessions install was found at ${LEGACY_DATA_DIR}. Step 4 moves"
+		say "its settings and queued sessions to ${DATA_DIR} and replaces its hooks;"
+		say "the old binary can be deleted afterwards."
+	fi
 	say ""
 }
 
 download_and_verify() {
-	TMP_DIR="$(mktemp -d 2>/dev/null || mktemp -d -t loop-sessions)" ||
+	TMP_DIR="$(mktemp -d 2>/dev/null || mktemp -d -t claude-code-recorder)" ||
 		die "Could not create a temporary directory."
 
 	step "Fetching checksums"
@@ -274,7 +285,7 @@ install_binary() {
 	if [ ! -w "$BIN_DIR" ]; then
 		die "${BIN_DIR} is not writable by you." \
 			"This installer never uses sudo. Either fix the permissions, or set" \
-			"LOOP_SESSIONS_BIN_DIR to somewhere you own and re-run."
+			"CLAUDE_CODE_RECORDER_BIN_DIR to somewhere you own and re-run."
 	fi
 
 	# Staged inside BIN_DIR rather than in the temp directory so the final move
@@ -357,9 +368,9 @@ check_path() {
 enroll() {
 	target="${BIN_DIR}/${BIN_NAME}"
 
-	if [ "${LOOP_SESSIONS_NO_ENROLL:-0}" = "1" ]; then
+	if [ "${CLAUDE_CODE_RECORDER_NO_ENROLL:-0}" = "1" ]; then
 		say ""
-		step "Skipping sign-in (LOOP_SESSIONS_NO_ENROLL=1)"
+		step "Skipping sign-in (CLAUDE_CODE_RECORDER_NO_ENROLL=1)"
 		say "    Run \`${BIN_NAME} install\` when you are ready."
 		return 0
 	fi

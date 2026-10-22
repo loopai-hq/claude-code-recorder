@@ -176,8 +176,8 @@ func Run(ctx context.Context, o Options) (Result, error) {
 		o.Logf("upgrade: this is a %s build, so it is left alone", DevVersion)
 		return Result{Skipped: "development build"}, nil
 	}
-	if os.Getenv("LOOP_SESSIONS_NO_UPGRADE") != "" {
-		o.Logf("upgrade: LOOP_SESSIONS_NO_UPGRADE is set, so nothing is replaced")
+	if os.Getenv("CLAUDE_CODE_RECORDER_NO_UPGRADE") != "" {
+		o.Logf("upgrade: CLAUDE_CODE_RECORDER_NO_UPGRADE is set, so nothing is replaced")
 		return Result{Skipped: "disabled by environment"}, nil
 	}
 	if skip := o.ownership(); skip != "" {

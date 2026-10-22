@@ -10,7 +10,7 @@ package store
 // Postgres.
 //
 //	createdb claude_code_recorder_test
-//	LOOP_SESSIONS_TEST_DSN=postgres:///claude_code_recorder_test go test -race ./server/store/...
+//	CLAUDE_CODE_RECORDER_TEST_DSN=postgres:///claude_code_recorder_test go test -race ./server/store/...
 
 import (
 	"context"
@@ -595,9 +595,9 @@ func TestRecordPrincipalChangeRefusesAnUntargetedRow(t *testing.T) {
 // except the row-locking properties below is already covered without one.
 func adminPool(t *testing.T) *pgxpool.Pool {
 	t.Helper()
-	dsn := os.Getenv("LOOP_SESSIONS_TEST_DSN")
+	dsn := os.Getenv("CLAUDE_CODE_RECORDER_TEST_DSN")
 	if dsn == "" {
-		t.Skip("LOOP_SESSIONS_TEST_DSN is unset; skipping the tests that need a database")
+		t.Skip("CLAUDE_CODE_RECORDER_TEST_DSN is unset; skipping the tests that need a database")
 	}
 	ctx := context.Background()
 	schema := fmt.Sprintf("claude_code_recorder_admin_%d", time.Now().UnixNano())

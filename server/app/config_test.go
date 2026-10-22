@@ -321,6 +321,12 @@ func TestConfigReadsExactlyTheVariablesTheDeploymentDeclares(t *testing.T) {
 		// to a row that exists.
 		"ADMIN_EMAILS",
 		"ALLOWED_DOMAINS",
+		// Optional, and the Slack-side control surface: with it, the
+		// interactivity endpoint mounts and live-thread roots carry a Stop
+		// button; without it, the route is absent and the roots are plain.
+		// This entry exists because the field once sat declared and wired
+		// while nothing loaded it, and every deploy shipped buttonless.
+		"CLAUDE_CODE_RECORDER_SLACK_SIGNING_SECRET",
 		"DATABASE_HOST",
 		"DATABASE_NAME",
 		"DATABASE_PASSWORD",
@@ -343,12 +349,6 @@ func TestConfigReadsExactlyTheVariablesTheDeploymentDeclares(t *testing.T) {
 		"FIREBASE_AUTH_DOMAIN",
 		"FIREBASE_PROJECT_ID",
 		"LOG_LEVEL",
-		// Optional, and the Slack-side control surface: with it, the
-		// interactivity endpoint mounts and live-thread roots carry a Stop
-		// button; without it, the route is absent and the roots are plain.
-		// This entry exists because the field once sat declared and wired
-		// while nothing loaded it, and every deploy shipped buttonless.
-		"LOOP_SESSIONS_SLACK_SIGNING_SECRET",
 		"PORT",
 		"PUBLIC_URL",
 		// Optional. Empty leaves the download routes unmounted, which is what a
@@ -566,7 +566,7 @@ func TestConfigRedactsItsSecretsWhenLogged(t *testing.T) {
 	env := bootEnv()
 	env["DATABASE_PASSWORD"] = "pw-must-not-appear"
 	env["SESSION_KEY"] = base64.StdEncoding.EncodeToString([]byte("key-must-not-appear-0123456789ab"))
-	env["LOOP_SESSIONS_SLACK_SIGNING_SECRET"] = "signing-must-not-appear"
+	env["CLAUDE_CODE_RECORDER_SLACK_SIGNING_SECRET"] = "signing-must-not-appear"
 	cfg, err := Load(bootGetenv(env))
 	if err != nil {
 		t.Fatalf("Load: %v", err)

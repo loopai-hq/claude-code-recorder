@@ -10,7 +10,7 @@ package main
 //	claude-code-recorder mirror status           what this machine will do
 //
 // `use` writes the machine's standing answer into the agent config, which the
-// SessionStart hook consults when LOOP_SESSIONS_SLACK says nothing; --once
+// SessionStart hook consults when CLAUDE_CODE_RECORDER_SLACK says nothing; --once
 // self-consumes at the next session start, which is the cure for the stale
 // env var this replaces. `attach` acts server-side immediately, against the
 // most recently active session on this machine, using the device credential
@@ -111,8 +111,8 @@ func mirrorStatus() error {
 	if err != nil {
 		return err
 	}
-	if env := os.Getenv("LOOP_SESSIONS_SLACK"); env != "" {
-		fmt.Printf("env override active this shell: LOOP_SESSIONS_SLACK=%s\n", env)
+	if env := os.Getenv("CLAUDE_CODE_RECORDER_SLACK"); env != "" {
+		fmt.Printf("env override active this shell: CLAUDE_CODE_RECORDER_SLACK=%s\n", env)
 	}
 	switch {
 	case cfg.MirrorDefault == "":

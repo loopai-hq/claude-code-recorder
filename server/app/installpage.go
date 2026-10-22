@@ -160,7 +160,7 @@ claude-code-recorder doctor</pre>
   machine without you doing anything. The download is checksum-verified and run
   once before it is installed; if either check fails the existing agent is kept.
   A paused agent is never replaced. To turn it off, set
-  <code>LOOP_SESSIONS_NO_UPGRADE=1</code> or add
+  <code>CLAUDE_CODE_RECORDER_NO_UPGRADE=1</code> or add
   <code>"disable_auto_upgrade": true</code> to
   <code>~/.claude-code-recorder/config.json</code>.</p>
 </main>

@@ -33,9 +33,9 @@ func migratePool(t *testing.T) *pgxpool.Pool {
 // deployed pool sets one.
 func migratePoolWith(t *testing.T, tweak func(*pgxpool.Config)) *pgxpool.Pool {
 	t.Helper()
-	dsn := os.Getenv("LOOP_SESSIONS_TEST_DSN")
+	dsn := os.Getenv("CLAUDE_CODE_RECORDER_TEST_DSN")
 	if dsn == "" {
-		t.Skip("LOOP_SESSIONS_TEST_DSN is unset; skipping the tests that need a database")
+		t.Skip("CLAUDE_CODE_RECORDER_TEST_DSN is unset; skipping the tests that need a database")
 	}
 	ctx := context.Background()
 	schema := fmt.Sprintf("claude_code_recorder_migrate_%d", time.Now().UnixNano())

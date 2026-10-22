@@ -187,7 +187,7 @@ type Event struct {
 	// reads it off the transcript head instead.
 	Entrypoint string `json:"entrypoint,omitempty"`
 	// MirrorRequest is the per-session ask to mirror this session into Slack
-	// live, read off the LOOP_SESSIONS_SLACK environment variable by the
+	// live, read off the CLAUDE_CODE_RECORDER_SLACK environment variable by the
 	// SessionStart hook (the hook process inherits the launching shell's env).
 	// "on" means the person's preferred destination; a C… id names a channel.
 	// It is a REQUEST, not a grant: the server intersects it with the owner's

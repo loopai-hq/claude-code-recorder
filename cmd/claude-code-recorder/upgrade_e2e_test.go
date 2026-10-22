@@ -249,7 +249,7 @@ func buildAgentVersion(t *testing.T, path, version string) {
 // own, because the ownership guard asks the operating system where home is and
 // would otherwise find the real one.
 func upgradeEnv(home string) []string {
-	env := append(os.Environ(), "LOOP_SESSIONS_HOME="+config.Paths{Home: home}.Root())
+	env := append(os.Environ(), "CLAUDE_CODE_RECORDER_HOME="+config.Paths{Home: home}.Root())
 	return append(env, "HOME="+home)
 }
 

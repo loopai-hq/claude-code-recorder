@@ -11,7 +11,7 @@ import (
 func paths(t *testing.T) Paths {
 	t.Helper()
 	dir := t.TempDir()
-	t.Setenv("LOOP_SESSIONS_HOME", dir)
+	t.Setenv("CLAUDE_CODE_RECORDER_HOME", dir)
 	return Paths{Home: dir}
 }
 

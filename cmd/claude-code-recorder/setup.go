@@ -25,7 +25,7 @@ import (
 // server an organisation runs, and a URL baked in here would be one
 // deployment's address shipped to everybody else's; a build that stamps
 // nothing must therefore be told where its server is at install time, either
-// with --endpoint or through LOOP_SESSIONS_ENDPOINT (see resolveEndpoint).
+// with --endpoint or through CLAUDE_CODE_RECORDER_ENDPOINT (see resolveEndpoint).
 //
 // There is no client id here. Enrollment signs in through the server's own
 // page against the server's Firebase project, so the only thing this binary
@@ -34,10 +34,10 @@ var defaultEndpoint = ""
 
 // endpointEnv is the environment variable an installer or a fleet tool can set
 // instead of passing --endpoint. The flag wins when both are given.
-const endpointEnv = "LOOP_SESSIONS_ENDPOINT"
+const endpointEnv = "CLAUDE_CODE_RECORDER_ENDPOINT"
 
 // resolveEndpoint decides which server this install talks to, in the order a
-// person would expect: the --endpoint flag, then LOOP_SESSIONS_ENDPOINT, then
+// person would expect: the --endpoint flag, then CLAUDE_CODE_RECORDER_ENDPOINT, then
 // whatever the build stamped, and finally the endpoint an earlier install on
 // this machine already recorded (so re-running install to sign in again does
 // not require repeating the address). With nothing to go on it returns an

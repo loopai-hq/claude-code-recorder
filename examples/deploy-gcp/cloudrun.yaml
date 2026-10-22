@@ -249,7 +249,7 @@ spec:
             # is the off switch: the route disappears and roots go buttonless.
             # The Slack-side half lives at api.slack.com: Interactivity URL =
             # {PUBLIC_URL}/v1/slack/interactive.
-            - name: LOOP_SESSIONS_SLACK_SIGNING_SECRET
+            - name: CLAUDE_CODE_RECORDER_SLACK_SIGNING_SECRET
               valueFrom:
                 secretKeyRef:
                   name: claude-code-recorder-slack-signing-secret

@@ -21,7 +21,7 @@ import (
 // cannot verify who pressed it would let anybody who can forge a request
 // detach anybody's mirror — the signature IS the authorization story.
 // Activation is two steps on the app's settings page (api.slack.com): paste
-// the signing secret into the LOOP_SESSIONS_SLACK_SIGNING_SECRET env, and
+// the signing secret into the CLAUDE_CODE_RECORDER_SLACK_SIGNING_SECRET env, and
 // point Interactivity at POST {PublicURL}/v1/slack/interactive.
 //
 // v1 understands one action: stop_mirror, carried on the root message of a

@@ -329,7 +329,7 @@ func installedHome(t *testing.T, endpoint string) string {
 // must be derived from one place or the test and the binary read different
 // directories and every assertion becomes a timeout.
 func agentEnv(home string) []string {
-	return append(os.Environ(), "LOOP_SESSIONS_HOME="+config.Paths{Home: home}.Root())
+	return append(os.Environ(), "CLAUDE_CODE_RECORDER_HOME="+config.Paths{Home: home}.Root())
 }
 
 func readAgentLogAt(t *testing.T, home string) string {

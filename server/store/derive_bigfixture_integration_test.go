@@ -8,9 +8,9 @@ package store
 // the wall-clock per step, the rows per second, the dead tuples the keys
 // step leaves for autovacuum, and the batch size, recorded for the report.
 //
-// Guarded by LOOP_SESSIONS_BIG_FIXTURE=1 so the default integration suite
-// stays seconds long; LOOP_SESSIONS_BIG_FIXTURE_ROWS overrides the size and
-// LOOP_SESSIONS_BIG_FIXTURE_OUT names a file the measurements are appended
+// Guarded by CLAUDE_CODE_RECORDER_BIG_FIXTURE=1 so the default integration suite
+// stays seconds long; CLAUDE_CODE_RECORDER_BIG_FIXTURE_ROWS overrides the size and
+// CLAUDE_CODE_RECORDER_BIG_FIXTURE_OUT names a file the measurements are appended
 // to.
 
 import (
@@ -25,11 +25,11 @@ import (
 )
 
 func TestIntegrationEventKeysOverALargeCorpus(t *testing.T) {
-	if os.Getenv("LOOP_SESSIONS_BIG_FIXTURE") == "" {
-		t.Skip("LOOP_SESSIONS_BIG_FIXTURE is unset; the 200k-event fixture takes minutes")
+	if os.Getenv("CLAUDE_CODE_RECORDER_BIG_FIXTURE") == "" {
+		t.Skip("CLAUDE_CODE_RECORDER_BIG_FIXTURE is unset; the 200k-event fixture takes minutes")
 	}
 	rows := 200_000
-	if v, err := strconv.Atoi(os.Getenv("LOOP_SESSIONS_BIG_FIXTURE_ROWS")); err == nil && v > 0 {
+	if v, err := strconv.Atoi(os.Getenv("CLAUDE_CODE_RECORDER_BIG_FIXTURE_ROWS")); err == nil && v > 0 {
 		rows = v
 	}
 	const perSession = 200
@@ -41,7 +41,7 @@ func TestIntegrationEventKeysOverALargeCorpus(t *testing.T) {
 	report := func(format string, args ...any) {
 		line := fmt.Sprintf(format, args...)
 		t.Log(line)
-		if out := os.Getenv("LOOP_SESSIONS_BIG_FIXTURE_OUT"); out != "" {
+		if out := os.Getenv("CLAUDE_CODE_RECORDER_BIG_FIXTURE_OUT"); out != "" {
 			f, err := os.OpenFile(out, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0o644)
 			if err == nil {
 				fmt.Fprintln(f, line)

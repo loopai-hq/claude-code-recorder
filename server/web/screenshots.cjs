@@ -15,7 +15,7 @@
 //   node server/web/screenshots.cjs
 //
 // It starts the demo server on a free loopback port (`go test ./server/web
-// -run TestServeDemo -timeout 0`, LOOP_WEB_DEMO set to that port), waits for
+// -run TestServeDemo -timeout 0`, CLAUDE_CODE_RECORDER_WEB_DEMO set to that port), waits for
 // it to answer, captures the four pages below with Playwright's Chromium at a
 // 1280x800 viewport in the light colour scheme, writes them to docs/images/,
 // checks each file is under 500 KB and that the text on every page names only
@@ -132,7 +132,7 @@ async function waitForReady(base, child) {
 function startDemo(port) {
   const child = spawn("go", ["test", "./server/web", "-run", "TestServeDemo", "-timeout", "0", "-count=1"], {
     cwd: repoRoot,
-    env: { ...process.env, LOOP_WEB_DEMO: `127.0.0.1:${port}` },
+    env: { ...process.env, CLAUDE_CODE_RECORDER_WEB_DEMO: `127.0.0.1:${port}` },
     stdio: ["ignore", "inherit", "inherit"],
     detached: true,
   });
