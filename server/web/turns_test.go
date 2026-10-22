@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
 )
 
 // turnFixture builds one main-thread turn with a human prompt, one tool

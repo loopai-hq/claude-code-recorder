@@ -13,8 +13,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/loopai-hq/loop-sessions/server/app"
-	"github.com/loopai-hq/loop-sessions/server/store"
+	"github.com/loopai-hq/claude-code-recorder/server/app"
+	"github.com/loopai-hq/claude-code-recorder/server/store"
 )
 
 // Config is what the job reads from its environment. The database names are

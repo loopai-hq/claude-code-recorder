@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/server/ingest"
-	"github.com/loopai-hq/loop-sessions/server/store"
+	"github.com/loopai-hq/claude-code-recorder/server/ingest"
+	"github.com/loopai-hq/claude-code-recorder/server/store"
 )
 
 // request is the wire body (design 4b). Every field is a pointer so an

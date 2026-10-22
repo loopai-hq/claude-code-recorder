@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/loopai-hq/loop-sessions/server/store"
+	"github.com/loopai-hq/claude-code-recorder/server/store"
 )
 
 // secretFragment is the canary no line may carry (the ingest package's

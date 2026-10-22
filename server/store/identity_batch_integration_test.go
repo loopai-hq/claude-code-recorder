@@ -17,8 +17,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/event"
-	"github.com/loopai-hq/loop-sessions/server/store/derive"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/server/store/derive"
 )
 
 func sessionTokens(t *testing.T, sid string) (int64, float64) {

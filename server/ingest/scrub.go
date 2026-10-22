@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/loopai-hq/loop-sessions/internal/event"
-	"github.com/loopai-hq/loop-sessions/internal/health"
-	"github.com/loopai-hq/loop-sessions/internal/scrub"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/internal/health"
+	"github.com/loopai-hq/claude-code-recorder/internal/scrub"
 )
 
 // ServerCaughtPrefix marks a redaction this server made rather than the agent.

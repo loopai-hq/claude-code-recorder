@@ -21,9 +21,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/config"
-	"github.com/loopai-hq/loop-sessions/internal/discovery"
-	"github.com/loopai-hq/loop-sessions/internal/spool"
+	"github.com/loopai-hq/claude-code-recorder/internal/config"
+	"github.com/loopai-hq/claude-code-recorder/internal/discovery"
+	"github.com/loopai-hq/claude-code-recorder/internal/spool"
 )
 
 // ---------------------------------------------------------------------------

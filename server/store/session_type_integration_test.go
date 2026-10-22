@@ -20,8 +20,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/event"
-	"github.com/loopai-hq/loop-sessions/internal/normalize"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/internal/normalize"
 )
 
 func seedTypedSession(t *testing.T, s *Store, email, sid, entrypoint string, at time.Time) {

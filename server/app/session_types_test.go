@@ -5,8 +5,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/loopai-hq/loop-sessions/server/store"
-	"github.com/loopai-hq/loop-sessions/server/web"
+	"github.com/loopai-hq/claude-code-recorder/server/store"
+	"github.com/loopai-hq/claude-code-recorder/server/web"
 )
 
 // The store is the single authority on which values session_type may hold.

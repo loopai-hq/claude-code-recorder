@@ -11,11 +11,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/config"
-	"github.com/loopai-hq/loop-sessions/internal/discovery"
-	"github.com/loopai-hq/loop-sessions/internal/enroll"
-	"github.com/loopai-hq/loop-sessions/internal/event"
-	"github.com/loopai-hq/loop-sessions/internal/hooks"
+	"github.com/loopai-hq/claude-code-recorder/internal/config"
+	"github.com/loopai-hq/claude-code-recorder/internal/discovery"
+	"github.com/loopai-hq/claude-code-recorder/internal/enroll"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/internal/hooks"
 )
 
 // defaultEndpoint may be stamped at build time (make build ENDPOINT=...). It

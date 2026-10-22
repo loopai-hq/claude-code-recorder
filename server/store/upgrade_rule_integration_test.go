@@ -12,8 +12,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/event"
-	"github.com/loopai-hq/loop-sessions/server/store/derive"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/server/store/derive"
 )
 
 // The point of capture_version. A re-walk produces the same ids, so without a
@@ -159,7 +159,7 @@ func TestIntegrationTheDerivationRebuildRunsOnceAndThenStopsRunning(t *testing.T
 
 	ctx := context.Background()
 	batch := session(t, email, sid)
-	batch[0].Event.Text = "see https://github.com/loopai-hq/loop-sessions/pull/4"
+	batch[0].Event.Text = "see https://github.com/loopai-hq/claude-code-recorder/pull/4"
 	if _, err := s.UpsertEvents(ctx, batch); err != nil {
 		t.Fatalf("ingest: %v", err)
 	}

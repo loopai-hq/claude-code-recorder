@@ -34,7 +34,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/spool"
+	"github.com/loopai-hq/claude-code-recorder/internal/spool"
 )
 
 // Transport delivers a batch and reports what the server did with it.

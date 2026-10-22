@@ -34,8 +34,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/discovery"
-	"github.com/loopai-hq/loop-sessions/internal/spool"
+	"github.com/loopai-hq/claude-code-recorder/internal/discovery"
+	"github.com/loopai-hq/claude-code-recorder/internal/spool"
 )
 
 // SchemaVersion is bumped when the wire shape of Report changes. It is present

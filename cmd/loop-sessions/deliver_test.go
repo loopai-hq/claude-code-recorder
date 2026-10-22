@@ -12,11 +12,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/capture"
-	"github.com/loopai-hq/loop-sessions/internal/config"
-	"github.com/loopai-hq/loop-sessions/internal/daemon"
-	"github.com/loopai-hq/loop-sessions/internal/drain"
-	"github.com/loopai-hq/loop-sessions/internal/spool"
+	"github.com/loopai-hq/claude-code-recorder/internal/capture"
+	"github.com/loopai-hq/claude-code-recorder/internal/config"
+	"github.com/loopai-hq/claude-code-recorder/internal/daemon"
+	"github.com/loopai-hq/claude-code-recorder/internal/drain"
+	"github.com/loopai-hq/claude-code-recorder/internal/spool"
 )
 
 // TestWhichHooksStartTheDeliveryDaemon defends the composition that was once

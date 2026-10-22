@@ -21,11 +21,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/event"
-	"github.com/loopai-hq/loop-sessions/server/api"
-	"github.com/loopai-hq/loop-sessions/server/ingest"
-	"github.com/loopai-hq/loop-sessions/server/skillusage"
-	"github.com/loopai-hq/loop-sessions/server/store"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/server/api"
+	"github.com/loopai-hq/claude-code-recorder/server/ingest"
+	"github.com/loopai-hq/claude-code-recorder/server/skillusage"
+	"github.com/loopai-hq/claude-code-recorder/server/store"
 )
 
 // ---------------------------------------------------------------------------

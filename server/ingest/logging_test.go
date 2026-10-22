@@ -10,8 +10,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/loopai-hq/loop-sessions/internal/event"
-	"github.com/loopai-hq/loop-sessions/internal/spool"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/internal/spool"
 )
 
 // The lines this package promises the metrics layer. Their names are the

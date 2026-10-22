@@ -5,8 +5,8 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/event"
-	"github.com/loopai-hq/loop-sessions/internal/normalize"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/internal/normalize"
 )
 
 // Row is the column projection of one stored event: everything the fold

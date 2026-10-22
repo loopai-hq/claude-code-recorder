@@ -5,8 +5,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/event"
-	"github.com/loopai-hq/loop-sessions/internal/health"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/internal/health"
 )
 
 // memStore is a store that behaves the way the real one does, in memory.

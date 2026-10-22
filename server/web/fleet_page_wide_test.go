@@ -7,7 +7,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/server/fleet"
+	"github.com/loopai-hq/claude-code-recorder/server/fleet"
 )
 
 // TestFleetPageRendersAFleetWideRowWithoutAPersonAndMutesItUnderTheSentinel

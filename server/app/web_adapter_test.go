@@ -25,10 +25,10 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/loopai-hq/loop-sessions/internal/event"
-	"github.com/loopai-hq/loop-sessions/internal/health"
-	"github.com/loopai-hq/loop-sessions/server/store"
-	"github.com/loopai-hq/loop-sessions/server/web"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/internal/health"
+	"github.com/loopai-hq/claude-code-recorder/server/store"
+	"github.com/loopai-hq/claude-code-recorder/server/web"
 )
 
 // ---------------------------------------------------------------------------

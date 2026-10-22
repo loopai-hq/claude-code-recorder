@@ -25,7 +25,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/server/auth"
+	"github.com/loopai-hq/claude-code-recorder/server/auth"
 )
 
 // SourceTokenPrefix marks a source token, four characters like the device

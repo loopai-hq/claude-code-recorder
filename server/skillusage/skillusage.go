@@ -39,8 +39,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/server/ingest"
-	"github.com/loopai-hq/loop-sessions/server/store"
+	"github.com/loopai-hq/claude-code-recorder/server/ingest"
+	"github.com/loopai-hq/claude-code-recorder/server/store"
 )
 
 // InvocationsPath is the route the emitters have compiled in (the hook

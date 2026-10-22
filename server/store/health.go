@@ -31,7 +31,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/health"
+	"github.com/loopai-hq/claude-code-recorder/internal/health"
 )
 
 const (

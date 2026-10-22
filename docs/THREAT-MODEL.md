@@ -151,11 +151,11 @@ Read it first: fetch `install.sh` and `install.sh.sha256` from the same
 release, check one against the other, read the script, then run it:
 
 ```sh
-base=https://github.com/loopai-hq/loop-sessions/releases/latest/download
+base=https://github.com/loopai-hq/claude-code-recorder/releases/latest/download
 curl -fsSLO "$base/install.sh" && curl -fsSLO "$base/install.sh.sha256"
 sha256sum -c install.sh.sha256      # shasum -a 256 -c on macOS
 less install.sh
-LOOP_SESSIONS_BASE_URL=https://github.com/loopai-hq/loop-sessions/releases/latest \
+LOOP_SESSIONS_BASE_URL=https://github.com/loopai-hq/claude-code-recorder/releases/latest \
   LOOP_SESSIONS_VERSION=download \
   LOOP_SESSIONS_ENDPOINT=https://sessions.example.com sh install.sh
 ```

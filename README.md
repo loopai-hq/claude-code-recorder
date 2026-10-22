@@ -13,12 +13,12 @@ not.
 The product, the binary and the repository are all `loop-sessions`. It is
 not affiliated with or endorsed by Anthropic.
 
-[![ci](https://github.com/loopai-hq/loop-sessions/actions/workflows/ci.yml/badge.svg)](https://github.com/loopai-hq/loop-sessions/actions/workflows/ci.yml)
-[![identifier-gate](https://github.com/loopai-hq/loop-sessions/actions/workflows/identifier-gate.yml/badge.svg)](https://github.com/loopai-hq/loop-sessions/actions/workflows/identifier-gate.yml)
-[![scorecard](https://api.scorecard.dev/projects/github.com/loopai-hq/loop-sessions/badge)](https://scorecard.dev/viewer/?uri=github.com/loopai-hq/loop-sessions)
-[![release](https://img.shields.io/github/v/release/loopai-hq/loop-sessions)](https://github.com/loopai-hq/loop-sessions/releases)
+[![ci](https://github.com/loopai-hq/claude-code-recorder/actions/workflows/ci.yml/badge.svg)](https://github.com/loopai-hq/claude-code-recorder/actions/workflows/ci.yml)
+[![identifier-gate](https://github.com/loopai-hq/claude-code-recorder/actions/workflows/identifier-gate.yml/badge.svg)](https://github.com/loopai-hq/claude-code-recorder/actions/workflows/identifier-gate.yml)
+[![scorecard](https://api.scorecard.dev/projects/github.com/loopai-hq/claude-code-recorder/badge)](https://scorecard.dev/viewer/?uri=github.com/loopai-hq/claude-code-recorder)
+[![release](https://img.shields.io/github/v/release/loopai-hq/loop-sessions)](https://github.com/loopai-hq/claude-code-recorder/releases)
 [![license](https://img.shields.io/github/license/loopai-hq/loop-sessions)](LICENSE)
-[![Go Reference](https://pkg.go.dev/badge/github.com/loopai-hq/loop-sessions.svg)](https://pkg.go.dev/github.com/loopai-hq/loop-sessions)
+[![Go Reference](https://pkg.go.dev/badge/github.com/loopai-hq/claude-code-recorder.svg)](https://pkg.go.dev/github.com/loopai-hq/claude-code-recorder)
 
 | The session list | One session, with tool calls and diffs |
 |---|---|
@@ -52,13 +52,13 @@ through the three Firebase values, the first admin and the ports. The
 published image is `ghcr.io/loopai-hq/loop-sessions-server`.
 
 **3. The agent, on a laptop.** Binaries are on
-[GitHub Releases](https://github.com/loopai-hq/loop-sessions/releases); the
+[GitHub Releases](https://github.com/loopai-hq/claude-code-recorder/releases); the
 installer verifies the SHA-256 before anything is made executable and never
 uses `sudo`:
 
 ```sh
-curl -fsSL https://github.com/loopai-hq/loop-sessions/releases/latest/download/install.sh |
-  LOOP_SESSIONS_BASE_URL=https://github.com/loopai-hq/loop-sessions/releases/latest \
+curl -fsSL https://github.com/loopai-hq/claude-code-recorder/releases/latest/download/install.sh |
+  LOOP_SESSIONS_BASE_URL=https://github.com/loopai-hq/claude-code-recorder/releases/latest \
   LOOP_SESSIONS_VERSION=download sh
 loop-sessions install --endpoint https://sessions.example.com
 ```

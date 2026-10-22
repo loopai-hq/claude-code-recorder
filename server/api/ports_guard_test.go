@@ -13,7 +13,7 @@ import (
 
 // modulePath is this module, so an import can be told from a standard or
 // third-party one.
-const modulePath = "github.com/loopai-hq/loop-sessions"
+const modulePath = "github.com/loopai-hq/claude-code-recorder"
 
 // portBoundary is every package of this module that server/api may import.
 // ports.go exists so this package reaches the store through interfaces it
