@@ -31,7 +31,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/backfill"
+	"github.com/loopai-hq/claude-code-recorder/internal/backfill"
 )
 
 // Tool identifies a supported agent harness.

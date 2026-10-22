@@ -17,11 +17,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/server/admin"
-	"github.com/loopai-hq/loop-sessions/server/auth"
-	"github.com/loopai-hq/loop-sessions/server/ingest"
-	"github.com/loopai-hq/loop-sessions/server/skillusage"
-	"github.com/loopai-hq/loop-sessions/server/store"
+	"github.com/loopai-hq/claude-code-recorder/server/admin"
+	"github.com/loopai-hq/claude-code-recorder/server/auth"
+	"github.com/loopai-hq/claude-code-recorder/server/ingest"
+	"github.com/loopai-hq/claude-code-recorder/server/skillusage"
+	"github.com/loopai-hq/claude-code-recorder/server/store"
 )
 
 // RegisterSkillUsage restates the handler's route list on the server's

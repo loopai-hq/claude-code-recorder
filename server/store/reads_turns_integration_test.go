@@ -15,7 +15,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
 )
 
 // TestIntegrationGetTurnsPagesADualOriginSessionOncePerMoment: the reader's

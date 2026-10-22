@@ -16,8 +16,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/server/app"
-	"github.com/loopai-hq/loop-sessions/server/export"
+	"github.com/loopai-hq/claude-code-recorder/server/app"
+	"github.com/loopai-hq/claude-code-recorder/server/export"
 )
 
 // version is stamped at build time by the Dockerfile at the repository root

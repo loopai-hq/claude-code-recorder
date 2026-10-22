@@ -26,8 +26,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/event"
-	"github.com/loopai-hq/loop-sessions/internal/normalize"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/internal/normalize"
 )
 
 // ---------------------------------------------------------------- closed enums

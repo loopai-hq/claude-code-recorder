@@ -17,10 +17,10 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgtype"
 
-	"github.com/loopai-hq/loop-sessions/server/auth"
-	"github.com/loopai-hq/loop-sessions/server/ingest"
-	"github.com/loopai-hq/loop-sessions/server/slack"
-	"github.com/loopai-hq/loop-sessions/server/store"
+	"github.com/loopai-hq/claude-code-recorder/server/auth"
+	"github.com/loopai-hq/claude-code-recorder/server/ingest"
+	"github.com/loopai-hq/claude-code-recorder/server/slack"
+	"github.com/loopai-hq/claude-code-recorder/server/store"
 )
 
 // This file answers one question and it is the question this codebase has got

@@ -16,7 +16,7 @@ import (
 	"testing"
 	"unicode"
 
-	"github.com/loopai-hq/loop-sessions/server/fleet"
+	"github.com/loopai-hq/claude-code-recorder/server/fleet"
 )
 
 // policy is the part of the Monitoring v3 AlertPolicy shape these assertions

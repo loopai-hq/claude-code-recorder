@@ -8,9 +8,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/event"
-	"github.com/loopai-hq/loop-sessions/internal/health"
-	"github.com/loopai-hq/loop-sessions/server/fleet"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/internal/health"
+	"github.com/loopai-hq/claude-code-recorder/server/fleet"
 )
 
 // Data is everything the dashboard needs from storage.

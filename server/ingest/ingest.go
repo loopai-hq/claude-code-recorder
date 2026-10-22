@@ -66,9 +66,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/event"
-	"github.com/loopai-hq/loop-sessions/internal/health"
-	"github.com/loopai-hq/loop-sessions/internal/spool"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/internal/health"
+	"github.com/loopai-hq/claude-code-recorder/internal/spool"
 )
 
 // The client-facing routes. They are constants because the agent has them

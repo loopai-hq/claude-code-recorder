@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
 )
 
 // SyntheticModel is the model name a harness stamps on a transcript record that

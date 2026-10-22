@@ -9,8 +9,8 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/loopai-hq/loop-sessions/server/ingest"
-	"github.com/loopai-hq/loop-sessions/server/store"
+	"github.com/loopai-hq/claude-code-recorder/server/ingest"
+	"github.com/loopai-hq/claude-code-recorder/server/store"
 )
 
 // traceServe runs one request through the middleware and a handler that logs

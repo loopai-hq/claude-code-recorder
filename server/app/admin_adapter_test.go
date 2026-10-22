@@ -23,9 +23,9 @@ import (
 
 	"github.com/jackc/pgx/v5"
 
-	"github.com/loopai-hq/loop-sessions/internal/health"
-	"github.com/loopai-hq/loop-sessions/server/admin"
-	"github.com/loopai-hq/loop-sessions/server/store"
+	"github.com/loopai-hq/claude-code-recorder/internal/health"
+	"github.com/loopai-hq/claude-code-recorder/server/admin"
+	"github.com/loopai-hq/claude-code-recorder/server/store"
 )
 
 // ---------------------------------------------------------------------------

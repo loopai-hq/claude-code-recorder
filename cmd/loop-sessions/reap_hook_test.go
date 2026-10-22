@@ -6,10 +6,10 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/loopai-hq/loop-sessions/internal/capture"
-	"github.com/loopai-hq/loop-sessions/internal/config"
-	"github.com/loopai-hq/loop-sessions/internal/health"
-	"github.com/loopai-hq/loop-sessions/internal/spool"
+	"github.com/loopai-hq/claude-code-recorder/internal/capture"
+	"github.com/loopai-hq/claude-code-recorder/internal/config"
+	"github.com/loopai-hq/claude-code-recorder/internal/health"
+	"github.com/loopai-hq/claude-code-recorder/internal/spool"
 )
 
 // A SessionEnd hook leaves the marker that ends the session's daemon; a

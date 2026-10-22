@@ -75,7 +75,7 @@ linters:
             - "!**/server/**"
           allow:
             - $gostd
-            - github.com/loopai-hq/loop-sessions
+            - github.com/loopai-hq/claude-code-recorder
 
     errorlint:
       errorf: true
@@ -266,7 +266,7 @@ formatters:
   settings:
     goimports:
       local-prefixes:
-        - github.com/loopai-hq/loop-sessions
+        - github.com/loopai-hq/claude-code-recorder
 
 issues:
   # Report everything; a capped list hides the size of a regression.

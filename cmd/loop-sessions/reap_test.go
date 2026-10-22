@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/config"
-	"github.com/loopai-hq/loop-sessions/internal/daemon"
+	"github.com/loopai-hq/claude-code-recorder/internal/config"
+	"github.com/loopai-hq/claude-code-recorder/internal/daemon"
 )
 
 // reapStale keys on this binary's build and signals through the seam: a

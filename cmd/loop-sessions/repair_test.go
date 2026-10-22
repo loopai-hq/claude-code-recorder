@@ -7,8 +7,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/loopai-hq/loop-sessions/internal/config"
-	"github.com/loopai-hq/loop-sessions/internal/discovery"
+	"github.com/loopai-hq/claude-code-recorder/internal/config"
+	"github.com/loopai-hq/claude-code-recorder/internal/discovery"
 )
 
 // writeCodexRollout lays down a rollout whose session_meta names id, in the

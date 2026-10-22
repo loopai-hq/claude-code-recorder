@@ -21,7 +21,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/server/store/derive"
+	"github.com/loopai-hq/claude-code-recorder/server/store/derive"
 )
 
 func TestIntegrationEventKeysOverALargeCorpus(t *testing.T) {

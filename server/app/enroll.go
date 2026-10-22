@@ -15,8 +15,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/server/auth"
-	"github.com/loopai-hq/loop-sessions/server/store"
+	"github.com/loopai-hq/claude-code-recorder/server/auth"
+	"github.com/loopai-hq/claude-code-recorder/server/store"
 )
 
 // EnrollCompletePath is where internal/enroll sends the Firebase ID token its

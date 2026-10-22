@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/event"
-	"github.com/loopai-hq/loop-sessions/internal/links"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/internal/links"
 )
 
 // Artifacts and links are derived from events already stored, in the same

@@ -21,7 +21,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/server/auth"
+	"github.com/loopai-hq/claude-code-recorder/server/auth"
 )
 
 // The audit row actions, the routes' names as the runbook reads them.

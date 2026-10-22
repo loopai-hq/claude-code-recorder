@@ -9,8 +9,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/backfill"
-	"github.com/loopai-hq/loop-sessions/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/internal/backfill"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
 )
 
 // The anchors: what lets a hook copy of a turn and the transcript copy of the

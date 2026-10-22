@@ -6,9 +6,9 @@ import (
 	"log/slog"
 	"net/http"
 
-	"github.com/loopai-hq/loop-sessions/server/auth"
-	"github.com/loopai-hq/loop-sessions/server/slack"
-	"github.com/loopai-hq/loop-sessions/server/store"
+	"github.com/loopai-hq/claude-code-recorder/server/auth"
+	"github.com/loopai-hq/claude-code-recorder/server/slack"
+	"github.com/loopai-hq/claude-code-recorder/server/store"
 )
 
 // The Slack mirror's half of the composition root: the identity its preference

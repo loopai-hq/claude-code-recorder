@@ -13,13 +13,13 @@ import (
 	"testing"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/backfill"
-	"github.com/loopai-hq/loop-sessions/internal/capture"
-	"github.com/loopai-hq/loop-sessions/internal/config"
-	"github.com/loopai-hq/loop-sessions/internal/daemon"
-	"github.com/loopai-hq/loop-sessions/internal/discovery"
-	"github.com/loopai-hq/loop-sessions/internal/event"
-	"github.com/loopai-hq/loop-sessions/internal/spool"
+	"github.com/loopai-hq/claude-code-recorder/internal/backfill"
+	"github.com/loopai-hq/claude-code-recorder/internal/capture"
+	"github.com/loopai-hq/claude-code-recorder/internal/config"
+	"github.com/loopai-hq/claude-code-recorder/internal/daemon"
+	"github.com/loopai-hq/claude-code-recorder/internal/discovery"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/internal/spool"
 )
 
 // A three-turn transcript, the shape the recovery diff runs against.

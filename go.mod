@@ -1,4 +1,4 @@
-module github.com/loopai-hq/loop-sessions
+module github.com/loopai-hq/claude-code-recorder
 
 go 1.26.0
 

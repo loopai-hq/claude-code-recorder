@@ -23,7 +23,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/health"
+	"github.com/loopai-hq/claude-code-recorder/internal/health"
 )
 
 // HealthSnapshot is the newest health report from one machine.

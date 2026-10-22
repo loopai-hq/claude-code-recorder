@@ -34,11 +34,11 @@ import (
 	"sort"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/event"
-	"github.com/loopai-hq/loop-sessions/internal/health"
-	"github.com/loopai-hq/loop-sessions/server/fleet"
-	"github.com/loopai-hq/loop-sessions/server/store"
-	"github.com/loopai-hq/loop-sessions/server/web"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/internal/health"
+	"github.com/loopai-hq/claude-code-recorder/server/fleet"
+	"github.com/loopai-hq/claude-code-recorder/server/store"
+	"github.com/loopai-hq/claude-code-recorder/server/web"
 )
 
 // webData adapts the store to the dashboard's persistence port.

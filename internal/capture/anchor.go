@@ -4,8 +4,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/backfill"
-	"github.com/loopai-hq/loop-sessions/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/internal/backfill"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
 )
 
 // StopTailWaits is how long the daemon waits for a turn's answer to reach the

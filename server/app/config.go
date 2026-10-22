@@ -17,8 +17,8 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/loopai-hq/loop-sessions/server/store"
-	"github.com/loopai-hq/loop-sessions/server/store/derive"
+	"github.com/loopai-hq/claude-code-recorder/server/store"
+	"github.com/loopai-hq/claude-code-recorder/server/store/derive"
 )
 
 // Config is this service's entire deployment surface.

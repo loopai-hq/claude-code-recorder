@@ -12,7 +12,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/loopai-hq/loop-sessions/server/store"
+	"github.com/loopai-hq/claude-code-recorder/server/store"
 )
 
 // The reconciler-runs route's properties, observed without a database:

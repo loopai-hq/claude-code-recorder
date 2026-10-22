@@ -20,12 +20,12 @@ import (
 	"testing"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/backfill"
-	"github.com/loopai-hq/loop-sessions/internal/capture"
-	"github.com/loopai-hq/loop-sessions/internal/drain"
-	"github.com/loopai-hq/loop-sessions/internal/event"
-	"github.com/loopai-hq/loop-sessions/internal/scrub"
-	"github.com/loopai-hq/loop-sessions/internal/spool"
+	"github.com/loopai-hq/claude-code-recorder/internal/backfill"
+	"github.com/loopai-hq/claude-code-recorder/internal/capture"
+	"github.com/loopai-hq/claude-code-recorder/internal/drain"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/internal/scrub"
+	"github.com/loopai-hq/claude-code-recorder/internal/spool"
 )
 
 // ---------------------------------------------------------------------------

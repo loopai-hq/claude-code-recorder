@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/server/auth"
+	"github.com/loopai-hq/claude-code-recorder/server/auth"
 )
 
 // The catalog route's properties, observed without a database: which

@@ -15,8 +15,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/health"
-	"github.com/loopai-hq/loop-sessions/server/fleet"
+	"github.com/loopai-hq/claude-code-recorder/internal/health"
+	"github.com/loopai-hq/claude-code-recorder/server/fleet"
 )
 
 // fleetPageFixture is the 788dcb3 promotion in miniature: a machine on the

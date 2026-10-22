@@ -12,7 +12,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
 )
 
 // seedUsage ingests a session for email with a known token spend at a given

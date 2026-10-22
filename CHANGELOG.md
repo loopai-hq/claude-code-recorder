@@ -15,7 +15,7 @@ The first public release: the client agent, the server, the dashboard and
 the example deployments, with releases people can download and verify. The
 repository is `loopai-hq/loop-sessions`, matching the binary and the
 product name, and the Go module path follows
-(`github.com/loopai-hq/loop-sessions`); GitHub redirects the old
+(`github.com/loopai-hq/claude-code-recorder`); GitHub redirects the old
 `agent-sessions` URLs once the rename is done (the first item of the
 pre-tag checklist in `docs/MAINTAINING.md`).
 
@@ -122,5 +122,5 @@ pre-tag checklist in `docs/MAINTAINING.md`).
   device token can do, the third-party script on the sign-in page, and the
   read-then-run form of the installer.
 
-[Unreleased]: https://github.com/loopai-hq/loop-sessions/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/loopai-hq/loop-sessions/releases/tag/v0.1.0
+[Unreleased]: https://github.com/loopai-hq/claude-code-recorder/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/loopai-hq/claude-code-recorder/releases/tag/v0.1.0

@@ -24,10 +24,10 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/loopai-hq/loop-sessions/internal/event"
-	"github.com/loopai-hq/loop-sessions/server/api"
-	"github.com/loopai-hq/loop-sessions/server/auth"
-	"github.com/loopai-hq/loop-sessions/server/store"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/server/api"
+	"github.com/loopai-hq/claude-code-recorder/server/auth"
+	"github.com/loopai-hq/claude-code-recorder/server/store"
 )
 
 func TestIntegrationRepairRouteNamesTheDevicesAnswerlessSessions(t *testing.T) {

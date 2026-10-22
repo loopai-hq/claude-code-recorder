@@ -12,8 +12,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/loopai-hq/loop-sessions/internal/event"
-	"github.com/loopai-hq/loop-sessions/internal/spool"
+	"github.com/loopai-hq/claude-code-recorder/internal/event"
+	"github.com/loopai-hq/claude-code-recorder/internal/spool"
 )
 
 // syntheticKey is a fixture shaped like an Anthropic key and is not one. It

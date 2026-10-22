@@ -7,7 +7,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/health"
+	"github.com/loopai-hq/claude-code-recorder/internal/health"
 )
 
 // Device is an enrolled machine. Revoked devices are carried rather than

@@ -12,9 +12,9 @@ import (
 
 	"github.com/jackc/pgx/v5/pgxpool"
 
-	"github.com/loopai-hq/loop-sessions/internal/health"
-	"github.com/loopai-hq/loop-sessions/server/fleet"
-	"github.com/loopai-hq/loop-sessions/server/store"
+	"github.com/loopai-hq/claude-code-recorder/internal/health"
+	"github.com/loopai-hq/claude-code-recorder/server/fleet"
+	"github.com/loopai-hq/claude-code-recorder/server/store"
 )
 
 // TestIntegrationTwoInstancesWhoseTicksDoNotOverlapEmitOneSetOfLines is the

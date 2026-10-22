@@ -22,7 +22,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/loopai-hq/loop-sessions/internal/skilllog"
+	"github.com/loopai-hq/claude-code-recorder/internal/skilllog"
 )
 
 // ---------------------------------------------------------------- closed enums

@@ -323,8 +323,8 @@ its digest is attested like the binaries.
 GitHub serves release assets at two permanent URL shapes:
 
 ```
-https://github.com/loopai-hq/loop-sessions/releases/download/vX.Y.Z/<asset>
-https://github.com/loopai-hq/loop-sessions/releases/latest/download/<asset>
+https://github.com/loopai-hq/claude-code-recorder/releases/download/vX.Y.Z/<asset>
+https://github.com/loopai-hq/claude-code-recorder/releases/latest/download/<asset>
 ```
 
 Both are `<something>/<segment>/<asset>`, and `install.sh` builds its URLs as
@@ -334,13 +334,13 @@ today, with no code that knows about GitHub, in either of two forms:
 
 ```sh
 # a specific release
-curl -fsSL https://github.com/loopai-hq/loop-sessions/releases/download/vX.Y.Z/install.sh |
-  LOOP_SESSIONS_BASE_URL=https://github.com/loopai-hq/loop-sessions/releases/download \
+curl -fsSL https://github.com/loopai-hq/claude-code-recorder/releases/download/vX.Y.Z/install.sh |
+  LOOP_SESSIONS_BASE_URL=https://github.com/loopai-hq/claude-code-recorder/releases/download \
   LOOP_SESSIONS_VERSION=vX.Y.Z sh
 
 # whatever GitHub marks as the latest release
-curl -fsSL https://github.com/loopai-hq/loop-sessions/releases/latest/download/install.sh |
-  LOOP_SESSIONS_BASE_URL=https://github.com/loopai-hq/loop-sessions/releases/latest \
+curl -fsSL https://github.com/loopai-hq/claude-code-recorder/releases/latest/download/install.sh |
+  LOOP_SESSIONS_BASE_URL=https://github.com/loopai-hq/claude-code-recorder/releases/latest \
   LOOP_SESSIONS_VERSION=download sh
 ```
 
@@ -412,7 +412,7 @@ OIDC identity. The bundle is the `SHA256SUMS.sigstore.json` asset:
 ```sh
 cosign verify-blob \
   --bundle SHA256SUMS.sigstore.json \
-  --certificate-identity https://github.com/loopai-hq/loop-sessions/.github/workflows/release.yml@refs/tags/vX.Y.Z \
+  --certificate-identity https://github.com/loopai-hq/claude-code-recorder/.github/workflows/release.yml@refs/tags/vX.Y.Z \
   --certificate-oidc-issuer https://token.actions.githubusercontent.com \
   SHA256SUMS
 ```
@@ -458,10 +458,10 @@ is published that was not first shown to rebuild identically. To reproduce
 a published release yourself, clone the repository at the tag and build:
 
 ```sh
-git clone --branch vX.Y.Z https://github.com/loopai-hq/loop-sessions.git
+git clone --branch vX.Y.Z https://github.com/loopai-hq/claude-code-recorder.git
 cd loop-sessions
 make release ENDPOINT=
-diff dist/SHA256SUMS <(curl -fsSL https://github.com/loopai-hq/loop-sessions/releases/download/vX.Y.Z/SHA256SUMS)
+diff dist/SHA256SUMS <(curl -fsSL https://github.com/loopai-hq/claude-code-recorder/releases/download/vX.Y.Z/SHA256SUMS)
 ```
 
 An empty diff means your machine produced the same four binaries GitHub is
